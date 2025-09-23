@@ -1,5 +1,5 @@
-import { DatabankPage } from '@/components/databank/DatabankPage';
+import PhotographyBanner from '@/components/PhotographyBanner';
 
 export default function HomePage() {
-  return <DatabankPage />;
+  return <PhotographyBanner />;
 }
