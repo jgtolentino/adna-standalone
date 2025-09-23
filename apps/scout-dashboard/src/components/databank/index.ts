@@ -9,6 +9,7 @@ export { ProductMixChart } from './ProductMixChart';
 export { ConsumerBehaviorChart } from './ConsumerBehaviorChart';
 export { ConsumerProfilingChart } from './ConsumerProfilingChart';
 export { ComparativeAnalytics } from './ComparativeAnalytics';
+export { default as NLQChart } from './NLQChart';
 
 // Types
 export type { FilterState } from './FilterControls';

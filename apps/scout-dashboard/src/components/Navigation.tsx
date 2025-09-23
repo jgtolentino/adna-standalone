@@ -9,7 +9,8 @@ import {
   Activity,
   Settings,
   Menu,
-  X
+  X,
+  MessageSquare
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -18,6 +19,11 @@ const navigation = [
     name: 'Dashboard',
     href: '/',
     icon: BarChart3,
+  },
+  {
+    name: 'AI Query',
+    href: '/nlq',
+    icon: MessageSquare,
   },
   {
     name: 'Data Health',
