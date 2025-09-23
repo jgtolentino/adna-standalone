@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ResponsiveContainer, Cell } from 'recharts';
-import { Filter, Heart, Sparkles } from 'lucide-react';
+import { Filter, Heart, Sparkles, Loader2 } from 'lucide-react';
+import { CSVDataService } from '@/services/csvDataService';
 
 interface FunnelData {
   name: string;
@@ -10,6 +11,7 @@ interface FunnelData {
 
 interface ConsumerBehaviorChartProps {
   data?: FunnelData[];
+  useRealData?: boolean;
 }
 
 const sampleData: FunnelData[] = [
@@ -70,9 +72,37 @@ const CustomFunnel: React.FC<{ data: FunnelData[] }> = ({ data }) => {
 };
 
 export const ConsumerBehaviorChart: React.FC<ConsumerBehaviorChartProps> = ({
-  data = sampleData
+  data: propData,
+  useRealData = true
 }) => {
+  const [data, setData] = useState<FunnelData[]>(propData || sampleData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'funnel' | 'methods' | 'acceptance' | 'traits'>('funnel');
+
+  useEffect(() => {
+    if (useRealData && !propData) {
+      loadRealData();
+    } else if (propData) {
+      setData(propData);
+    }
+  }, [useRealData, propData]);
+
+  const loadRealData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const csvService = CSVDataService.getInstance();
+      const behaviorData = await csvService.getConsumerBehavior();
+      setData(behaviorData);
+    } catch (err) {
+      setError('Failed to load consumer behavior data');
+      console.error('Error loading real data:', err);
+      setData(sampleData); // Fallback to sample data
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const tabs = [
     { key: 'funnel', label: 'Purchase Funnel' },
@@ -81,14 +111,37 @@ export const ConsumerBehaviorChart: React.FC<ConsumerBehaviorChartProps> = ({
     { key: 'traits', label: 'Behavior Traits' }
   ] as const;
 
-  const conversionRate = ((data[data.length - 1].value / data[0].value) * 100).toFixed(0);
-  const suggestionAcceptRate = ((data[3].value / data[2].value) * 100).toFixed(1);
+  const conversionRate = data.length > 0 ? ((data[data.length - 1].value / data[0].value) * 100).toFixed(0) : '0';
+  const suggestionAcceptRate = data.length > 3 ? ((data[3].value / data[2].value) * 100).toFixed(1) : '0.0';
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Loading consumer behavior data...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-center h-64 text-red-600">
+          <span>Error: {error}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Consumer Behavior & Preferences</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Consumer Behavior & Preferences {useRealData && <span className="text-sm text-green-600">(Real Data)</span>}
+        </h2>
         <Filter className="h-4 w-4 text-gray-400" />
       </div>
 

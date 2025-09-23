@@ -1,0 +1,11 @@
+canonical_tx_id,device_id,store_id,brand,product_name,category,total_amount,total_items,payment_method,daypart,weekday_weekend,txn_ts,store_name,transaction_date
+01664552-b85a-4b5c-ba77-ea7bc7fda772,SCOUTPI-0004,104,Piattos,Piattos Cheese,Salty Snacks (Chichirya),35.95,1,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+03e22c7b-0487-4d4a-a617-6a5ed95d2788,SCOUTPI-0004,104,Gatorade,Gatorade Blue Bolt,Beverages,45.00,1,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+0976cc13-c406-42d7-8ca0-ce5f9f70de0e,SCOUTPI-0004,104,Jack 'n Jill,V-Cut Potato Chips BBQ,Snacks & Confectionery,22.00,1,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+15de1ec3-eff0-4eb9-96c8-6b096eb5a180,SCOUTPI-0004,104,C2,C2 Green Tea Apple 355ml,Non-Alcoholic,27.30,1,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+389ca05c-6e73-4f8f-9211-610133d073d2,SCOUTPI-0004,104,Combi,Combi Vanilla,Candies & Sweets,16.00,2,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+69b11005-753d-47b0-bf93-6984d9002d02,SCOUTPI-0004,104,Coca-Cola,Coca-Cola 355ml Can,Non-Alcoholic,28.00,1,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+7c895dca-a574-4285-9715-48286362769d,SCOUTPI-0004,104,Pantene,Pantene Conditioner,Hair Care,405.00,3,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+9b77f993-549b-42cb-8c83-a319dfaa0893,SCOUTPI-0004,104,Surf,Surf Powder Detergent Pack,Laundry,130.00,2,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+c5831871-2fc6-4f6e-838f-e8a941e087e0,SCOUTPI-0004,104,Oishi,Oishi Choco Chug,Snacks & Confectionery,54.60,2,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22
+d47867d7-1dec-4e70-84b0-43641f7dfbd5,SCOUTPI-0004,104,Safeguard,Safeguard Classic Beige,Body Care,40.08,1,cash,Morning,Weekday,2025-09-22 08:08:13.2266667,Store_104,2025-09-22

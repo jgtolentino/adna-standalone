@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { Filter, TrendingUp } from 'lucide-react';
+import { Filter, TrendingUp, Loader2 } from 'lucide-react';
+import { CSVDataService } from '@/services/csvDataService';
 
 interface CategoryData {
   name: string;
@@ -10,6 +11,7 @@ interface CategoryData {
 
 interface ProductMixChartProps {
   data?: CategoryData[];
+  useRealData?: boolean;
 }
 
 const sampleData: CategoryData[] = [
@@ -21,9 +23,37 @@ const sampleData: CategoryData[] = [
 ];
 
 export const ProductMixChart: React.FC<ProductMixChartProps> = ({
-  data = sampleData
+  data: propData,
+  useRealData = true
 }) => {
+  const [data, setData] = useState<CategoryData[]>(propData || sampleData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'categoryMix' | 'pareto' | 'substitutions' | 'basket'>('categoryMix');
+
+  useEffect(() => {
+    if (useRealData && !propData) {
+      loadRealData();
+    } else if (propData) {
+      setData(propData);
+    }
+  }, [useRealData, propData]);
+
+  const loadRealData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const csvService = CSVDataService.getInstance();
+      const productMixData = await csvService.getProductMix();
+      setData(productMixData);
+    } catch (err) {
+      setError('Failed to load product mix data');
+      console.error('Error loading real data:', err);
+      setData(sampleData); // Fallback to sample data
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const tabs = [
     { key: 'categoryMix', label: 'Category Mix' },
@@ -36,11 +66,34 @@ export const ProductMixChart: React.FC<ProductMixChartProps> = ({
     return `${entry.name}: ${entry.value}%`;
   };
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Loading product mix data...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-center h-64 text-red-600">
+          <span>Error: {error}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Product Mix & SKU Analytics</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Product Mix & SKU Analytics {useRealData && <span className="text-sm text-green-600">(Real Data)</span>}
+        </h2>
         <Filter className="h-4 w-4 text-gray-400" />
       </div>
 
