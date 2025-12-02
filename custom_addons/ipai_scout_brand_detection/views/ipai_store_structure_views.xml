@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_ipai_store_aisle_tree" model="ir.ui.view">
+        <field name="name">ipai.store.aisle.tree</field>
+        <field name="model">ipai.store.aisle</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="store_id"/>
+                <field name="sequence"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ipai_store_aisle_form" model="ir.ui.view">
+        <field name="name">ipai.store.aisle.form</field>
+        <field name="model">ipai.store.aisle</field>
+        <field name="arch" type="xml">
+            <form string="Store Aisle">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="store_id"/>
+                        <field name="sequence"/>
+                    </group>
+                    <notebook>
+                        <page string="Shelves">
+                            <field name="shelf_ids">
+                                <tree editable="bottom">
+                                    <field name="name"/>
+                                    <field name="sequence"/>
+                                    <field name="level"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ipai_store_shelf_tree" model="ir.ui.view">
+        <field name="name">ipai.store.shelf.tree</field>
+        <field name="model">ipai.store.shelf</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="aisle_id"/>
+                <field name="store_id"/>
+                <field name="level"/>
+                <field name="sequence"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ipai_store_shelf_form" model="ir.ui.view">
+        <field name="name">ipai.store.shelf.form</field>
+        <field name="model">ipai.store.shelf</field>
+        <field name="arch" type="xml">
+            <form string="Store Shelf">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="aisle_id"/>
+                        <field name="store_id" readonly="1"/>
+                        <field name="level"/>
+                        <field name="sequence"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ipai_store_aisle" model="ir.actions.act_window">
+        <field name="name">Store Aisles</field>
+        <field name="res_model">ipai.store.aisle</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_ipai_store_shelf" model="ir.actions.act_window">
+        <field name="name">Store Shelves</field>
+        <field name="res_model">ipai.store.shelf</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

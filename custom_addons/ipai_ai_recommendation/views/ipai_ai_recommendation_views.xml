@@ -1,0 +1,86 @@
+<!-- custom_addons/ipai_ai_recommendation/views/ipai_ai_recommendation_views.xml -->
+<odoo>
+    <record id="view_ipai_ai_recommendation_tree" model="ir.ui.view">
+        <field name="name">ipai.ai.recommendation.tree</field>
+        <field name="model">ipai.ai.recommendation</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="target_type"/>
+                <field name="reco_type"/>
+                <field name="store_partner_id"/>
+                <field name="region_id"/>
+                <field name="transaction_id"/>
+                <field name="product_id"/>
+                <field name="consumer_profile_id"/>
+                <field name="confidence_score"/>
+                <field name="source_system"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ipai_ai_recommendation_form" model="ir.ui.view">
+        <field name="name">ipai.ai.recommendation.form</field>
+        <field name="model">ipai.ai.recommendation</field>
+        <field name="arch" type="xml">
+            <form string="AI Recommendation">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="target_type"/>
+                        <field name="reco_type"/>
+                        <field name="confidence_score"/>
+                        <field name="source_system"/>
+                        <field name="active"/>
+                    </group>
+                    <group string="Targets">
+                        <field name="store_partner_id"/>
+                        <field name="region_id"/>
+                        <field name="transaction_id"/>
+                        <field name="product_id"/>
+                        <field name="consumer_profile_id"/>
+                    </group>
+                    <group string="Recommendation">
+                        <field name="recommendation_text" nolabel="1"/>
+                    </group>
+                    <group string="Metadata">
+                        <field name="metadata_json"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Mark Done"
+                            type="object"
+                            class="btn-primary"
+                            name="toggle_active"
+                            attrs="{'invisible': [('active', '=', False)]}"/>
+                    <button string="Reopen"
+                            type="object"
+                            class="btn-secondary"
+                            name="toggle_active"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ipai_ai_recommendation" model="ir.actions.act_window">
+        <field name="name">AI Recommendations</field>
+        <field name="res_model">ipai.ai.recommendation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>AI-generated recommendations targeting stores, regions, transactions, products, or consumer profiles.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_ipai_ai_root"
+              name="AI Insights"
+              parent="menu_ipai_scout_root"
+              sequence="20"/>
+
+    <menuitem id="menu_ipai_ai_recommendation"
+              name="Recommendations"
+              parent="menu_ipai_ai_root"
+              action="action_ipai_ai_recommendation"
+              sequence="10"/>
+</odoo>

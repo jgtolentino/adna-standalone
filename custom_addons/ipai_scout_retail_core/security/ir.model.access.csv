@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ipai_region_user,access.ipai.region.user,model_ipai_region,base.group_user,1,0,0,0
+access_ipai_region_admin,access.ipai.region.admin,model_ipai_region,base.group_system,1,1,1,1
+access_ipai_city_user,access.ipai.city.user,model_ipai_city,base.group_user,1,0,0,0
+access_ipai_city_admin,access.ipai.city.admin,model_ipai_city,base.group_system,1,1,1,1
+access_ipai_barangay_user,access.ipai.barangay.user,model_ipai_barangay,base.group_user,1,0,0,0
+access_ipai_barangay_admin,access.ipai.barangay.admin,model_ipai_barangay,base.group_system,1,1,1,1

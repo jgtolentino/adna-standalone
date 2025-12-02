@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="menu_ipai_brand_detection_root"
+              name="Brand Vision"
+              parent="ipai_scout_consumer.menu_ipai_scout_root"
+              sequence="30"/>
+
+    <menuitem id="menu_ipai_store_aisle"
+              name="Store Aisles"
+              parent="menu_ipai_brand_detection_root"
+              action="action_ipai_store_aisle"
+              sequence="5"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_user"/>
+
+    <menuitem id="menu_ipai_store_shelf"
+              name="Store Shelves"
+              parent="menu_ipai_brand_detection_root"
+              action="action_ipai_store_shelf"
+              sequence="10"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_user"/>
+
+    <menuitem id="menu_ipai_brand_image"
+              name="Detection Images"
+              parent="menu_ipai_brand_detection_root"
+              action="action_ipai_brand_image"
+              sequence="20"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_user"/>
+
+    <menuitem id="menu_ipai_brand_detection"
+              name="Brand Detections"
+              parent="menu_ipai_brand_detection_root"
+              action="action_ipai_brand_detection"
+              sequence="30"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_user"/>
+
+    <menuitem id="menu_ipai_shelf_brand_metric"
+              name="Shelf Metrics"
+              parent="menu_ipai_brand_detection_root"
+              action="action_ipai_shelf_brand_metric"
+              sequence="40"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_user"/>
+
+    <menuitem id="menu_ipai_brand_feedback"
+              name="Brand Feedback"
+              parent="menu_ipai_brand_detection_root"
+              action="action_ipai_brand_feedback"
+              sequence="45"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_manager"/>
+
+    <menuitem id="menu_ipai_market_competitiveness_root"
+              name="Market Competitiveness"
+              parent="menu_ipai_brand_detection_root"
+              sequence="50"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_manager"/>
+
+    <menuitem id="menu_ipai_market_channel"
+              name="Channels"
+              parent="menu_ipai_market_competitiveness_root"
+              action="action_ipai_market_channel"
+              sequence="5"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_manager"/>
+
+    <menuitem id="menu_ipai_product_competitor"
+              name="Competitor Mappings"
+              parent="menu_ipai_market_competitiveness_root"
+              action="action_ipai_product_competitor"
+              sequence="10"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_manager"/>
+
+    <menuitem id="menu_ipai_product_price_snapshot"
+              name="Price Snapshots"
+              parent="menu_ipai_market_competitiveness_root"
+              action="action_ipai_product_price_snapshot"
+              sequence="20"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_manager"/>
+
+    <menuitem id="menu_ipai_market_scraper_config"
+              name="Scraper Config"
+              parent="menu_ipai_market_competitiveness_root"
+              action="action_ipai_market_scraper_config"
+              sequence="30"
+              groups="ipai_scout_brand_detection.group_ipai_scout_brand_detection_manager"/>
+</odoo>

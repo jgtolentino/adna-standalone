@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_ipai_ai_recommendation_form_brand_metric" model="ir.ui.view">
+        <field name="name">ipai.ai.recommendation.form.brand.metric</field>
+        <field name="model">ipai.ai.recommendation</field>
+        <field name="inherit_id" ref="ipai_ai_recommendation.view_ipai_ai_recommendation_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@string='Targets']" position="inside">
+                <field name="metric_id"/>
+            </xpath>
+            <xpath expr="//group[@string='Recommendation']" position="before">
+                <group string="Trigger">
+                    <field name="trigger_type"/>
+                    <field name="action_code"/>
+                    <field name="priority"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
