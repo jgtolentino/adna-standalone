@@ -1,7 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
+# Ignore node_modules in all packages to prevent accidental commits of installed dependencies
 /node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -16,6 +18,9 @@
 # next.js
 /.next/
 /out/
+
+# nx
+.nx/
 
 # production
 /build
