@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="ir_cron_ipai_shelf_brand_metric" model="ir.cron">
+        <field name="name">IPAI – Compute Shelf Brand Metrics</field>
+        <field name="model_id" ref="model_ipai_shelf_brand_metric"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_compute_daily_metrics()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+    <record id="ir_cron_ipai_brand_recommendations" model="ir.cron">
+        <field name="name">IPAI – Generate Brand Shelf Recommendations</field>
+        <field name="model_id" ref="model_ipai_shelf_brand_metric"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_generate_brand_recommendations()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

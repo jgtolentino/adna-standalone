@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_ipai_shelf_brand_metric_tree" model="ir.ui.view">
+        <field name="name">ipai.shelf.brand.metric.tree</field>
+        <field name="model">ipai.shelf.brand.metric</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="date"/>
+                <field name="store_id"/>
+                <field name="aisle_id"/>
+                <field name="shelf_id"/>
+                <field name="brand_id"/>
+                <field name="facings"/>
+                <field name="share_of_shelf"/>
+                <field name="oos_flag"/>
+                <field name="last_image_id"/>
+                <field name="priority_brand"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ipai_shelf_brand_metric_form" model="ir.ui.view">
+        <field name="name">ipai.shelf.brand.metric.form</field>
+        <field name="model">ipai.shelf.brand.metric</field>
+        <field name="arch" type="xml">
+            <form string="Shelf Brand Metric">
+                <sheet>
+                    <group>
+                        <field name="date"/>
+                        <field name="store_id"/>
+                        <field name="aisle_id"/>
+                        <field name="shelf_id"/>
+                    </group>
+                    <group>
+                        <field name="brand_id"/>
+                        <field name="facings"/>
+                        <field name="share_of_shelf"/>
+                        <field name="oos_flag"/>
+                        <field name="priority_brand"/>
+                        <field name="last_image_id"/>
+                        <field name="low_share_threshold"/>
+                    </group>
+                    <notebook>
+                        <page string="Recommendations">
+                            <field name="recommendation_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="trigger_type"/>
+                                    <field name="action_code"/>
+                                    <field name="priority"/>
+                                    <field name="recommendation_text"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Feedback">
+                            <field name="feedback_ids">
+                                <tree>
+                                    <field name="create_date"/>
+                                    <field name="state"/>
+                                    <field name="expected_facings"/>
+                                    <field name="verified_presence"/>
+                                    <field name="verified_facings"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ipai_shelf_brand_metric" model="ir.actions.act_window">
+        <field name="name">Shelf Brand Metrics</field>
+        <field name="res_model">ipai.shelf.brand.metric</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

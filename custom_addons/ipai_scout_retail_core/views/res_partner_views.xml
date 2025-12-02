@@ -1,0 +1,24 @@
+<!-- custom_addons/ipai_scout_retail_core/views/res_partner_views.xml -->
+<odoo>
+    <record id="view_partner_form_ipai_scout" model="ir.ui.view">
+        <field name="name">res.partner.form.ipai.scout</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Scout fields as a separate page -->
+            <notebook position="inside">
+                <page string="Scout Store">
+                    <group>
+                        <field name="is_scout_store"/>
+                        <field name="scout_store_code"/>
+                    </group>
+                    <group string="Location (PH)">
+                        <field name="ipai_region_id"/>
+                        <field name="ipai_city_id"/>
+                        <field name="ipai_barangay_id"/>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>

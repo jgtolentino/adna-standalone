@@ -1,0 +1,48 @@
+<!-- custom_addons/ipai_scout_retail_core/views/sale_order_views.xml -->
+<odoo>
+    <!-- Extend Sale Order form -->
+    <record id="view_order_form_ipai_scout" model="ir.ui.view">
+        <field name="name">sale.order.form.ipai.scout</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Scout Transaction">
+                    <group string="Identification">
+                        <field name="scout_txn_uuid"/>
+                        <field name="partner_id" context="{'default_is_scout_store': True}"/>
+                    </group>
+                    <group string="Timing &amp; Basket">
+                        <field name="date_order"/>
+                        <field name="time_bucket"/>
+                        <field name="is_weekend"/>
+                        <field name="txn_duration_seconds"/>
+                        <field name="basket_size"/>
+                    </group>
+                    <group string="Request &amp; Substitution">
+                        <field name="request_type"/>
+                        <field name="request_channel"/>
+                        <field name="suggestion_accepted"/>
+                        <field name="consumer_profile_id"/>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <!-- Extend Sale Order line tree (in order form) -->
+    <record id="view_order_form_ipai_scout_lines" model="ir.ui.view">
+        <field name="name">sale.order.form.ipai.scout.lines</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/tree" position="inside">
+                <field name="is_substitution"/>
+                <field name="requested_brand_id"/>
+                <field name="substituted_from_brand_id"/>
+                <field name="substitution_reason"/>
+                <field name="unbranded_request"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

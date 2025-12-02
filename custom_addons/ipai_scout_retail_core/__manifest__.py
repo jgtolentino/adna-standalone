@@ -1,0 +1,27 @@
+{
+    "name": "IPAI Scout Retail Core",
+    "summary": "Core retail data model extensions for Scout Dashboard (transactions, basket, geo).",
+    "version": "18.0.1.0.0",
+    "author": "InsightPulseAI",
+    "website": "https://insightpulseai.net",
+    "license": "LGPL-3",
+    "category": "Sales",
+    "depends": [
+        "base",
+        "mail",
+        "contacts",
+        "sale_management",
+        "product",
+        "stock",
+        "product_brand",
+    ],
+    "data": [
+        "security/ipai_scout_retail_core_security.xml",
+        "security/ir.model.access.csv",
+        "views/geo_ph_views.xml",
+        "views/res_partner_views.xml",
+        "views/sale_order_views.xml",
+    ],
+    "installable": True,
+    "application": False,
+}

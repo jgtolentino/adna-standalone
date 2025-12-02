@@ -1,0 +1,76 @@
+<!-- custom_addons/ipai_scout_consumer/views/ipai_consumer_profile_views.xml -->
+<odoo>
+    <record id="view_ipai_consumer_profile_tree" model="ir.ui.view">
+        <field name="name">ipai.consumer.profile.tree</field>
+        <field name="model">ipai.consumer.profile</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="gender"/>
+                <field name="age_bracket"/>
+                <field name="region_id"/>
+                <field name="city_id"/>
+                <field name="barangay_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ipai_consumer_profile_form" model="ir.ui.view">
+        <field name="name">ipai.consumer.profile.form</field>
+        <field name="model">ipai.consumer.profile</field>
+        <field name="arch" type="xml">
+            <form string="Consumer Profile">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="gender"/>
+                        <field name="age_bracket"/>
+                    </group>
+                    <group string="Location (Inferred)">
+                        <field name="region_id"/>
+                        <field name="city_id"/>
+                        <field name="barangay_id"/>
+                    </group>
+                    <group string="Details">
+                        <field name="demographics_json"/>
+                        <field name="note"/>
+                    </group>
+                    <notebook>
+                        <page string="Transactions">
+                            <field name="transaction_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="date_order"/>
+                                    <field name="partner_id"/>
+                                    <field name="amount_total"/>
+                                    <field name="time_bucket"/>
+                                    <field name="basket_size"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ipai_consumer_profile" model="ir.actions.act_window">
+        <field name="name">Consumer Profiles</field>
+        <field name="res_model">ipai.consumer.profile</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>Anonymous consumer profiles derived from Scout transaction analytics.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_ipai_scout_root"
+              name="Scout Analytics"
+              parent="sale.sale_menu_root"
+              sequence="90"/>
+
+    <menuitem id="menu_ipai_consumer_profile"
+              name="Consumer Profiles"
+              parent="menu_ipai_scout_root"
+              action="action_ipai_consumer_profile"
+              sequence="10"/>
+</odoo>
