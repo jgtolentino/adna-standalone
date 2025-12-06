@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Allow placeholder values during CI build
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
 // one global, no duplicates
 let _client: ReturnType<typeof createClient> | null = null;
@@ -13,4 +14,9 @@ export function getSupabase() {
     });
   }
   return _client;
+}
+
+// Helper to check if using real Supabase or placeholder
+export function isSupabaseConfigured(): boolean {
+  return url !== 'https://placeholder.supabase.co' && anon !== 'placeholder-anon-key';
 }

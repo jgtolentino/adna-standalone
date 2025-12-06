@@ -20,6 +20,8 @@
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
+    "type-check": "npm run type-check --workspaces --if-present",
+    "validate:docs": "node scripts/validate-docs.mjs",
     "clean": "npm run clean --workspaces",
     "install-all": "npm install --workspaces",
     "dev:ces": "npm run dev --workspace=platforms/creative-ops/ces-jampacked",

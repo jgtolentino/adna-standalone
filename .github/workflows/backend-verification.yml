@@ -27,10 +27,12 @@ jobs:
       
     - name: Start application
       run: |
-        npm run dev &
-        sleep 10
+        npm run dev:scout &
+        sleep 15
       env:
-        VITE_USE_MOCK_API: false
+        NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
+        NEXT_PUBLIC_USE_MOCK: "0"
         
     - name: Install Playwright
       run: npx playwright install chromium
