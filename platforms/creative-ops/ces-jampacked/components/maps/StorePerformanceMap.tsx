@@ -12,6 +12,15 @@ const StorePerformanceMap: React.FC<StorePerformanceMapProps> = ({ className = '
   const { stores, loading, error } = useStoreData()
   const { data: realData, loading: realLoading } = useRealAnalytics()
 
+  const topStore = useMemo(() => {
+    return [...stores].sort((a, b) => b.revenue - a.revenue)[0]
+  }, [stores])
+
+  const averageRevenue = useMemo(() => {
+    if (!stores.length) return 0
+    return stores.reduce((sum, store) => sum + store.revenue, 0) / stores.length
+  }, [stores])
+
   // Performance summary calculations
   const performanceStats = useMemo(() => {
     if (!stores.length) return { top: 0, medium: 0, low: 0, analyzed: 0 }
@@ -113,17 +122,22 @@ const StorePerformanceMap: React.FC<StorePerformanceMapProps> = ({ className = '
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
           <h4 className="font-medium text-green-800 mb-2">Top Performing Store</h4>
-          <p className="text-sm text-green-700">
-            Store 108 (Quezon Ave) leads with ₱1.25M revenue, contributing 44.6% of total network revenue.
-            This represents significant concentration risk and expansion opportunity.
-          </p>
+          {topStore ? (
+            <p className="text-sm text-green-700">
+              {topStore.name} leads with ₱{topStore.revenue.toLocaleString()} in the latest seed data,
+              contributing {(topStore.revenue / Math.max(averageRevenue * stores.length, 1) * 100).toFixed(1)}% of network
+              revenue.
+            </p>
+          ) : (
+            <p className="text-sm text-green-700">No store performance data available yet.</p>
+          )}
         </div>
 
         <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
           <h4 className="font-medium text-blue-800 mb-2">Analytics Impact</h4>
           <p className="text-sm text-blue-700">
-            Analyzed stores show 38% higher average revenue (₱384K vs ₱124K) compared to network stores.
-            Upgrading remaining stores could unlock ₱1.2M+ potential revenue.
+            Live Supabase seeds show an average of ₱{Math.round(averageRevenue).toLocaleString()} per store.
+            Use regional filters to direct enablement where revenue trails the network average.
           </p>
         </div>
       </div>
