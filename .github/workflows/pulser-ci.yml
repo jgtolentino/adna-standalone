@@ -28,10 +28,10 @@ jobs:
       - name: Setup Pulser agents
         run: |
           export INSTALL_WRITER=true
-          ./scripts/pulser-dev-setup.sh
-      
+          ./infrastructure/scripts/pulser-dev-setup.sh
+
       - name: Run integration tests
-        run: ./scripts/test-pulser-integration.sh
+        run: ./infrastructure/scripts/test-pulser-integration.sh
       
       - name: Test migrations (CI only)
         if: github.event_name == 'push'
