@@ -1,9 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
+import { env } from './env';
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Get validated environment variables
+const url = env.NEXT_PUBLIC_SUPABASE_URL;
+const anon = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// one global, no duplicates
+// Singleton client - one global instance, no duplicates
 let _client: ReturnType<typeof createClient> | null = null;
 
 export function getSupabase() {
