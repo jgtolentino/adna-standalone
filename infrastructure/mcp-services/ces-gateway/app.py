@@ -1,15 +1,66 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 from typing import List, Optional, Dict, Any
 import httpx
 import os
 import logging
+import sys
 from supabase import create_client, Client
 import asyncio
 
-# Initialize logging
-logging.basicConfig(level=logging.INFO)
+
+# =============================================================================
+# Configuration with validation
+# =============================================================================
+
+class Settings(BaseSettings):
+    """Application settings with environment variable validation"""
+
+    # Required settings - will raise error if not set
+    SUPABASE_URL: str
+    SUPABASE_ANON_KEY: str
+    CES_API_TOKEN: str
+
+    # Optional settings with defaults
+    PALETTE_SERVICE_URL: str = "http://palette-svc:8000"
+    LOG_LEVEL: str = "INFO"
+
+    # CORS configuration - comma-separated list of allowed origins
+    # Default allows common development origins; override in production
+    CORS_ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,https://*.vercel.app"
+
+    # Environment identifier
+    ENVIRONMENT: str = "development"
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
+def get_cors_origins(origins_str: str) -> List[str]:
+    """Parse CORS origins from comma-separated string"""
+    origins = [origin.strip() for origin in origins_str.split(",") if origin.strip()]
+    # In production, never allow wildcard
+    if os.getenv("ENVIRONMENT", "development") == "production":
+        origins = [o for o in origins if o != "*"]
+    return origins
+
+
+# Initialize settings with validation
+try:
+    settings = Settings()
+except Exception as e:
+    logging.error(f"FATAL: Missing required environment variables: {e}")
+    logging.error("Required: SUPABASE_URL, SUPABASE_ANON_KEY, CES_API_TOKEN")
+    sys.exit(1)
+
+# Initialize logging with configured level
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
@@ -19,23 +70,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
+# CORS middleware with configurable origins
+allowed_origins = get_cors_origins(settings.CORS_ALLOWED_ORIGINS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
-# Configuration
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
-PALETTE_SERVICE_URL = os.getenv("PALETTE_SERVICE_URL", "http://palette-svc:8000")
-API_TOKEN = os.getenv("CES_API_TOKEN")
+# Log CORS configuration on startup
+logger.info(f"CORS allowed origins: {allowed_origins}")
 
 # Initialize Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
 
 # Request/Response models
 class AskRequest(BaseModel):
@@ -55,10 +104,12 @@ class HealthResponse(BaseModel):
 
 # Dependency for API key auth
 async def verify_api_key(authorization: str = Header(...)):
+    """Verify Bearer token matches configured API token"""
     if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid authorization header")
+        raise HTTPException(status_code=401, detail="Invalid authorization header format")
     token = authorization.split(" ")[1]
-    if token != API_TOKEN:
+    if token != settings.CES_API_TOKEN:
+        logger.warning("Invalid API token attempt")
         raise HTTPException(status_code=401, detail="Invalid API token")
     return token
 
@@ -70,7 +121,7 @@ async def health_check():
     # Check Palette Service
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{PALETTE_SERVICE_URL}/health", timeout=5.0)
+            response = await client.get(f"{settings.PALETTE_SERVICE_URL}/health", timeout=5.0)
             services_status["palette_service"] = "healthy" if response.status_code == 200 else "unhealthy"
     except Exception as e:
         services_status["palette_service"] = f"error: {str(e)}"
@@ -115,9 +166,9 @@ async def ask_ces(request: AskRequest):
                 try:
                     async with httpx.AsyncClient() as client:
                         score_response = await client.post(
-                            f"{PALETTE_SERVICE_URL}/score",
+                            f"{settings.PALETTE_SERVICE_URL}/score",
                             json={"image_url": asset["storage_url"]},
-                            headers={"Authorization": f"Bearer {API_TOKEN}"},
+                            headers={"Authorization": f"Bearer {settings.CES_API_TOKEN}"},
                             timeout=10.0
                         )
                         if score_response.status_code == 200:
@@ -161,9 +212,9 @@ async def proxy_score(request: Dict[str, Any]):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"{PALETTE_SERVICE_URL}/score",
+                f"{settings.PALETTE_SERVICE_URL}/score",
                 json=request,
-                headers={"Authorization": f"Bearer {API_TOKEN}"},
+                headers={"Authorization": f"Bearer {settings.CES_API_TOKEN}"},
                 timeout=30.0
             )
             response.raise_for_status()

@@ -1,24 +1,26 @@
 # Scout ETL Pipeline Dependencies
+# Pinned versions for deployment stability - last updated 2025-12-06
+
 # Core data processing
-pandas>=2.0.0
-numpy>=1.24.0
+pandas==2.1.4
+numpy==1.26.2
 
 # Database & API clients
-supabase>=2.0.0
-sqlalchemy>=2.0.0
-pyodbc>=4.0.39
-requests>=2.31.0
+supabase==2.3.0
+sqlalchemy==2.0.23
+pyodbc==5.0.1
+requests==2.31.0
 
 # File handling
-pyyaml>=6.0.1
-python-dotenv>=1.0.0
+pyyaml==6.0.1
+python-dotenv==1.0.0
 
 # Utilities
-blake3>=0.3.3
-tqdm>=4.66.0
+blake3==0.3.3
+tqdm==4.66.1
 
 # Development & testing
-pytest>=7.4.0
-pytest-cov>=4.1.0
-black>=23.0.0
-flake8>=6.0.0
+pytest==7.4.3
+pytest-cov==4.1.0
+black==23.12.1
+flake8==6.1.0

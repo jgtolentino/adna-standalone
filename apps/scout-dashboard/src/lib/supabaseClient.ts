@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
-// one global, no duplicates
+// Singleton client - one global instance, no duplicates
 let _client: ReturnType<typeof createClient> | null = null;
 
 export function getSupabase() {

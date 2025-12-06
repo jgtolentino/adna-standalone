@@ -5,25 +5,44 @@ from typing import List, Optional, Dict, Any
 import numpy as np
 from supabase import create_client, Client
 import os
+import sys
 import logging
 from .settings import Settings
 
-# Initialize logging
-logging.basicConfig(level=logging.INFO)
+# =============================================================================
+# Initialize settings with validation
+# =============================================================================
+
+try:
+    settings = Settings()
+except Exception as e:
+    logging.error(f"FATAL: Missing required environment variables: {e}")
+    logging.error("Required: SUPABASE_URL, SUPABASE_ANON_KEY, API_TOKEN")
+    sys.exit(1)
+
+# Initialize logging with configured level
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
-# Initialize app and settings
+# Initialize app
 app = FastAPI(title="Palette Forge Service", version="1.0.0")
-settings = Settings()
 
-# CORS middleware
+# CORS middleware with configurable origins
+allowed_origins = settings.get_cors_origins()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
+
+# Log CORS configuration on startup
+logger.info(f"CORS allowed origins: {allowed_origins}")
+logger.info(f"Environment: {settings.ENVIRONMENT}")
 
 # Initialize Supabase client
 supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
@@ -51,10 +70,12 @@ class HealthResponse(BaseModel):
 
 # Dependency for API key auth
 async def verify_api_key(authorization: str = Header(...)):
+    """Verify Bearer token matches configured API token"""
     if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid authorization header")
+        raise HTTPException(status_code=401, detail="Invalid authorization header format")
     token = authorization.split(" ")[1]
     if token != settings.API_TOKEN:
+        logger.warning("Invalid API token attempt")
         raise HTTPException(status_code=401, detail="Invalid API token")
     return token
 
