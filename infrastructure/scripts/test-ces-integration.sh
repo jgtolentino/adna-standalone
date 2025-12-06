@@ -76,7 +76,7 @@ test_ces_gateway_health() {
 
     response=$(curl -s -w "\n%{http_code}" "${CES_API_URL}/health" 2>/dev/null || echo "000")
     http_code=$(echo "$response" | tail -n1)
-    body=$(echo "$response" | head -n-1)
+    body=$(echo "$response" | sed '$d')
 
     log_verbose "Response: $body"
     log_verbose "HTTP Code: $http_code"
@@ -103,7 +103,7 @@ test_palette_service_health() {
 
     response=$(curl -s -w "\n%{http_code}" "${PALETTE_SERVICE_URL}/health" 2>/dev/null || echo "000")
     http_code=$(echo "$response" | tail -n1)
-    body=$(echo "$response" | head -n-1)
+    body=$(echo "$response" | sed '$d')
 
     log_verbose "Response: $body"
     log_verbose "HTTP Code: $http_code"
@@ -155,7 +155,7 @@ test_ces_auth_with_token() {
         -H "Authorization: Bearer ${CES_API_TOKEN}" \
         -d '{"prompt": "test palette query", "limit": 1}' 2>/dev/null || echo "000")
     http_code=$(echo "$response" | tail -n1)
-    body=$(echo "$response" | head -n-1)
+    body=$(echo "$response" | sed '$d')
 
     log_verbose "Response: $body"
     log_verbose "HTTP Code: $http_code"
