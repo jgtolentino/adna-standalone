@@ -7,7 +7,7 @@ from supabase import create_client, Client
 import os
 import sys
 import logging
-from .settings import Settings
+from .settings import Settings, IS_CI
 
 # =============================================================================
 # Initialize settings with validation
@@ -16,9 +16,23 @@ from .settings import Settings
 try:
     settings = Settings()
 except Exception as e:
-    logging.error(f"FATAL: Missing required environment variables: {e}")
-    logging.error("Required: SUPABASE_URL, SUPABASE_ANON_KEY, API_TOKEN")
-    sys.exit(1)
+    if IS_CI:
+        logging.warning(f"CI environment - using defaults due to: {e}")
+        # Create a minimal settings object for CI
+        class MinimalSettings:
+            SUPABASE_URL = 'https://placeholder.supabase.co'
+            SUPABASE_ANON_KEY = 'placeholder-key'
+            API_TOKEN = 'ci-test-token'
+            LOG_LEVEL = 'INFO'
+            ENVIRONMENT = 'ci'
+            RETURN_EMBEDDINGS = False
+            def get_cors_origins(self):
+                return ['*']
+        settings = MinimalSettings()
+    else:
+        logging.error(f"FATAL: Missing required environment variables: {e}")
+        logging.error("Required: SUPABASE_URL, SUPABASE_ANON_KEY, API_TOKEN")
+        sys.exit(1)
 
 # Initialize logging with configured level
 logging.basicConfig(

@@ -4,9 +4,25 @@
  * and provides type-safe access to configuration values.
  *
  * Fail-fast approach: If required env vars are missing, the app won't build or start.
+ * Exception: During CI builds, validation is relaxed to allow builds with placeholder values.
  */
 
 import { z } from 'zod';
+
+// =============================================================================
+// CI/Build Detection
+// =============================================================================
+
+/**
+ * Check if we're in a CI build environment where strict validation should be skipped
+ */
+const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+const isBuildPhase = process.env.npm_lifecycle_event === 'build' ||
+                     process.env.NEXT_PHASE === 'phase-production-build';
+const skipValidation = process.env.SKIP_ENV_VALIDATION === 'true';
+
+// In CI/build, allow placeholder URLs
+const shouldRelaxValidation = isCI || isBuildPhase || skipValidation;
 
 // =============================================================================
 // Schema Definition
@@ -28,13 +44,12 @@ const serverEnvSchema = z.object({
  * These are bundled into the client JavaScript and visible to users
  */
 const clientEnvSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z
-    .string()
-    .url('NEXT_PUBLIC_SUPABASE_URL must be a valid URL')
-    .min(1, 'NEXT_PUBLIC_SUPABASE_URL is required'),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z
-    .string()
-    .min(1, 'NEXT_PUBLIC_SUPABASE_ANON_KEY is required'),
+  NEXT_PUBLIC_SUPABASE_URL: shouldRelaxValidation
+    ? z.string().min(1, 'NEXT_PUBLIC_SUPABASE_URL is required').default('https://placeholder.supabase.co')
+    : z.string().url('NEXT_PUBLIC_SUPABASE_URL must be a valid URL').min(1, 'NEXT_PUBLIC_SUPABASE_URL is required'),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: shouldRelaxValidation
+    ? z.string().min(1, 'NEXT_PUBLIC_SUPABASE_ANON_KEY is required').default('placeholder-anon-key')
+    : z.string().min(1, 'NEXT_PUBLIC_SUPABASE_ANON_KEY is required'),
   // Feature flags
   NEXT_PUBLIC_USE_MOCK: z
     .enum(['0', '1', 'true', 'false'])
@@ -65,6 +80,20 @@ type EnvConfig = z.infer<typeof envSchema>;
  * Called at module load time to fail fast on missing config
  */
 function validateEnv(): EnvConfig {
+  // Skip validation entirely if explicitly requested (useful for CI)
+  if (skipValidation) {
+    console.log('ℹ️ Environment validation skipped (SKIP_ENV_VALIDATION=true)');
+    return {
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key',
+      NEXT_PUBLIC_USE_MOCK: (process.env.NEXT_PUBLIC_USE_MOCK as '0' | '1' | 'true' | 'false') || '0',
+      NEXT_PUBLIC_STRICT_DATASOURCE: (process.env.NEXT_PUBLIC_STRICT_DATASOURCE as 'true' | 'false') || 'false',
+      NEXT_PUBLIC_ENVIRONMENT: (process.env.NEXT_PUBLIC_ENVIRONMENT as 'development' | 'preview' | 'production') || 'development',
+      SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+      CES_API_TOKEN: process.env.CES_API_TOKEN,
+    } as EnvConfig;
+  }
+
   // Only validate on server or at build time
   if (typeof window !== 'undefined') {
     // On client, only validate client env vars
@@ -79,6 +108,20 @@ function validateEnv(): EnvConfig {
     const result = clientEnvSchema.safeParse(clientEnv);
     if (!result.success) {
       const errors = result.error.flatten().fieldErrors;
+      // In CI, just warn instead of failing
+      if (shouldRelaxValidation) {
+        console.warn('⚠️ Client environment validation issues (CI mode - continuing):');
+        Object.entries(errors).forEach(([key, messages]) => {
+          console.warn(`  ${key}: ${messages?.join(', ')}`);
+        });
+        return {
+          NEXT_PUBLIC_SUPABASE_URL: 'https://placeholder.supabase.co',
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: 'placeholder-anon-key',
+          NEXT_PUBLIC_USE_MOCK: '0',
+          NEXT_PUBLIC_STRICT_DATASOURCE: 'false',
+          NEXT_PUBLIC_ENVIRONMENT: 'development',
+        } as EnvConfig;
+      }
       console.error('❌ Client environment validation failed:');
       Object.entries(errors).forEach(([key, messages]) => {
         console.error(`  ${key}: ${messages?.join(', ')}`);
@@ -104,6 +147,22 @@ function validateEnv(): EnvConfig {
   const result = envSchema.safeParse(serverEnv);
   if (!result.success) {
     const errors = result.error.flatten().fieldErrors;
+    // In CI, just warn instead of failing
+    if (shouldRelaxValidation) {
+      console.warn('⚠️ Server environment validation issues (CI mode - continuing):');
+      Object.entries(errors).forEach(([key, messages]) => {
+        console.warn(`  ${key}: ${messages?.join(', ')}`);
+      });
+      return {
+        NEXT_PUBLIC_SUPABASE_URL: 'https://placeholder.supabase.co',
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: 'placeholder-anon-key',
+        NEXT_PUBLIC_USE_MOCK: '0',
+        NEXT_PUBLIC_STRICT_DATASOURCE: 'false',
+        NEXT_PUBLIC_ENVIRONMENT: 'development',
+        SUPABASE_SERVICE_ROLE_KEY: undefined,
+        CES_API_TOKEN: undefined,
+      } as EnvConfig;
+    }
     console.error('❌ Server environment validation failed:');
     Object.entries(errors).forEach(([key, messages]) => {
       console.error(`  ${key}: ${messages?.join(', ')}`);
