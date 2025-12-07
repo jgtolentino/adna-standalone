@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Search, Loader2, TrendingUp, BarChart3, PieChart, Area, Scatter } from 'lucide-react';
+import { Search, Loader2, TrendingUp, BarChart3, PieChart } from 'lucide-react';
 import {
   BarChart,
   Bar,
