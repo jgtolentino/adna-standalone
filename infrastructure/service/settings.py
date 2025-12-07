@@ -1,12 +1,16 @@
 from pydantic_settings import BaseSettings
 from typing import Optional, List
+import os
+
+# Check if we're in CI environment
+IS_CI = os.environ.get('CI', 'false').lower() == 'true' or os.environ.get('GITHUB_ACTIONS', 'false').lower() == 'true'
 
 class Settings(BaseSettings):
     """Application settings using pydantic for environment variable management"""
 
-    # Supabase configuration - required
-    SUPABASE_URL: str
-    SUPABASE_ANON_KEY: str
+    # Supabase configuration - optional in CI, required in production
+    SUPABASE_URL: str = 'https://placeholder.supabase.co' if IS_CI else ...
+    SUPABASE_ANON_KEY: str = 'placeholder-key' if IS_CI else ...
 
     # PGVector configuration
     PGVECTOR_URL: Optional[str] = None
@@ -14,8 +18,8 @@ class Settings(BaseSettings):
     # Model configuration
     MODEL_PATH: str = "models/ckpt.pt"
 
-    # API configuration - API_TOKEN is required for production security
-    API_TOKEN: str  # Required - no default, must be explicitly set
+    # API configuration - optional in CI, required in production
+    API_TOKEN: str = 'ci-test-token' if IS_CI else ...
     RETURN_EMBEDDINGS: bool = False
 
     # CORS configuration - comma-separated list of allowed origins
