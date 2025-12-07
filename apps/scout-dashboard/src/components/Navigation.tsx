@@ -10,7 +10,10 @@ import {
   Settings,
   Menu,
   X,
-  MessageSquare
+  MessageSquare,
+  TrendingUp,
+  PieChart,
+  MapPin
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -21,6 +24,21 @@ const navigation = [
     icon: BarChart3,
   },
   {
+    name: 'Trends',
+    href: '/trends',
+    icon: TrendingUp,
+  },
+  {
+    name: 'Product Mix',
+    href: '/product-mix',
+    icon: PieChart,
+  },
+  {
+    name: 'Geography',
+    href: '/geography',
+    icon: MapPin,
+  },
+  {
     name: 'AI Query',
     href: '/nlq',
     icon: MessageSquare,
@@ -29,16 +47,6 @@ const navigation = [
     name: 'Data Health',
     href: '/data-health',
     icon: Activity,
-  },
-  {
-    name: 'Data Sources',
-    href: '/data-sources',
-    icon: Database,
-  },
-  {
-    name: 'Settings',
-    href: '/settings',
-    icon: Settings,
   },
 ];
 
