@@ -29,7 +29,9 @@
     "build:ces": "npm run build --workspace=platforms/creative-ops/ces-jampacked",
     "build:scout": "npm run build --workspace=apps/scout-dashboard",
     "start:mcp-reader": "node infrastructure/mcp-services/reader/server.js",
-    "start:mcp-writer": "node infrastructure/mcp-services/writer/server.js"
+    "start:mcp-writer": "node infrastructure/mcp-services/writer/server.js",
+    "db:seed:scout": "echo 'Run: psql $DATABASE_URL -f infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql'",
+    "db:migrate:scout": "echo 'Apply migrations 051, 052, 053 in order via Supabase dashboard or psql'"
   },
   "keywords": [
     "tbwa",
