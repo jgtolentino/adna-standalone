@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(vercel ls:*)",
+      "Bash(curl:*)",
+      "Bash(mkdir:*)",
+      "Bash(if [ -n \"$SUPABASE_URL\" ])",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(__NEW_LINE__ if [ -n \"$POSTGRES_URL\" ])",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(vercel whoami:*)",
+      "Bash(vercel deployments:*)",
+      "Bash(psql:*)",
+      "Bash(npm --prefix apps/scout-dashboard install react-leaflet leaflet @types/leaflet)",
+      "Bash(npm --prefix apps/scout-dashboard install:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
