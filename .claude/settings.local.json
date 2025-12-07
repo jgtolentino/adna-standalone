@@ -7,7 +7,9 @@
       "Bash(git stash:*)",
       "Bash(git stash pop:*)",
       "Bash(git rm:*)",
-      "Bash(NEXT_PUBLIC_STRICT_DATASOURCE=true npm run build:*)"
+      "Bash(NEXT_PUBLIC_STRICT_DATASOURCE=true npm run build:*)",
+      "Bash(mv:*)",
+      "Bash(vercel link:*)"
     ],
     "deny": [],
     "ask": []
