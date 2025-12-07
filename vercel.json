@@ -1,7 +1,8 @@
 {
-  "buildCommand": "cd apps/scout-dashboard && npm run build:vercel",
-  "installCommand": "cd apps/scout-dashboard && npm ci",
-  "outputDirectory": "apps/scout-dashboard/.next",
+  "buildCommand": "npm run build:vercel",
+  "installCommand": "npm ci",
+  "outputDirectory": ".next",
+  "rootDirectory": "apps/scout-dashboard",
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
