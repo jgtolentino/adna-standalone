@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.rpc('execute_safe_query', {
       query_sql: queryConfig.sql,
       row_limit: limit
-    });
+    } as any);
 
     if (error) {
       // Fallback to direct query if RPC fails
