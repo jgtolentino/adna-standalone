@@ -1,11 +1,11 @@
-// useRegionMetrics - Fetch Philippine region metrics for choropleth map
-import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+/**
+ * useRegionMetrics - Fetch Philippine region metrics for choropleth map
+ *
+ * Supports both legacy view (gold_region_metrics) and new view (v_geo_regions).
+ * Falls back gracefully if the new view doesn't exist yet.
+ */
+import { useState, useEffect, useCallback } from 'react';
+import { getSupabaseSchema, isSupabaseConfigured } from '@/lib/supabaseClient';
 
 export interface RegionMetric {
   region_code: string;
@@ -29,15 +29,51 @@ export function useRegionMetrics(): UseRegionMetricsResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (!isSupabaseConfigured()) {
+      setError('Supabase not configured');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      const { data: metrics, error: queryError } = await supabase
-        .schema('scout')
-        .from('gold_region_metrics')
+      const supabase = getSupabaseSchema('scout');
+
+      // Try new v_geo_regions view first, fall back to gold_region_metrics
+      let metrics = null;
+      let queryError = null;
+
+      // Try new view first
+      const newViewResult = await supabase
+        .from('v_geo_regions')
         .select('*');
+
+      if (!newViewResult.error && newViewResult.data && newViewResult.data.length > 0) {
+        // Map new view fields to expected format
+        metrics = newViewResult.data.map((row: any) => ({
+          region_code: row.region_code,
+          region_name: row.region_name,
+          total_stores: row.stores_count || 0,
+          total_revenue: row.revenue || 0,
+          total_transactions: row.tx_count || 0,
+          unique_customers: row.unique_customers || 0,
+          growth_rate: row.growth_rate || 0,
+        }));
+      } else {
+        // Fall back to legacy view
+        const legacyResult = await supabase
+          .from('gold_region_metrics')
+          .select('*');
+
+        if (legacyResult.error) {
+          queryError = legacyResult.error;
+        } else {
+          metrics = legacyResult.data;
+        }
+      }
 
       if (queryError) throw queryError;
 
@@ -54,11 +90,11 @@ export function useRegionMetrics(): UseRegionMetricsResult {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return {
     data,

@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { env } from './env';
 
 // Use validated env when available; fall back to process.env (CI) and then to placeholders.
@@ -13,15 +13,25 @@ const anon =
   'placeholder-anon-key';
 
 // Singleton client - one global instance, no duplicates
-let _client: ReturnType<typeof createClient> | null = null;
+let _client: SupabaseClient | null = null;
 
-export function getSupabase() {
+export function getSupabase(): SupabaseClient {
   if (!_client) {
     _client = createClient(url, anon, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
   }
   return _client;
+}
+
+/**
+ * Get a Supabase client configured for a specific schema
+ * This is needed because the scout tables are in the 'scout' schema
+ */
+export function getSupabaseSchema(schemaName: string = 'scout'): SupabaseClient {
+  const client = getSupabase();
+  // Use type assertion since schema() returns a new client with different type
+  return (client as any).schema(schemaName) as SupabaseClient;
 }
 
 // Helper to check if using real Supabase or placeholder
