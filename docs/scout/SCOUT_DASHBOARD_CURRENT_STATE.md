@@ -12,7 +12,7 @@ This document captures the current implementation state of Scout Dashboard, alig
 
 | Layer | Technology | Version | Status |
 |-------|-----------|---------|--------|
-| Framework | Next.js | 24.0.0 | Active |
+| Framework | Next.js | 14.2.15 | Active |
 | Router | App Router | `src/app/` | Active |
 | Database | Supabase PostgreSQL | Latest | Active |
 | Schema | `scout.*` | 12 Gold Views | Active |
@@ -32,11 +32,11 @@ This document captures the current implementation state of Scout Dashboard, alig
 | `/geography` | `src/app/geography/page.tsx` | Live | Philippines Choropleth Map |
 | `/data-health` | `src/app/data-health/page.tsx` | Live | Data Quality Monitoring |
 | `/debug` | `src/app/debug/page.tsx` | Dev Only | Diagnostics |
-| `/trends` | - | **Planned** | Transaction Trends |
-| `/product-mix` | - | **Planned** | Product Mix & SKU |
-| `/behavior` | - | **Planned** | Consumer Behavior |
-| `/profiling` | - | **Planned** | Consumer Profiling |
-| `/competitive` | - | **Planned** | Competitive Analysis |
+| `/trends` | `src/app/trends/page.tsx` | **Live** | Transaction Trends |
+| `/product-mix` | `src/app/product-mix/page.tsx` | **Live** | Product Mix & SKU |
+| `/behavior` | - | Planned | Consumer Behavior |
+| `/profiling` | - | Planned | Consumer Profiling |
+| `/competitive` | - | Planned | Competitive Analysis |
 
 ---
 
@@ -57,9 +57,9 @@ This document captures the current implementation state of Scout Dashboard, alig
 | Hook | File | Source View | Used By |
 |------|------|-------------|---------|
 | `useKPISummary()` | `useScoutData.ts` | `scout.v_kpi_summary` | Dashboard Home |
-| `useTxTrends()` | `useScoutData.ts` | `scout.v_tx_trends` | (Planned) /trends |
-| `useProductMix()` | `useScoutData.ts` | `scout.v_product_mix` | (Planned) /product-mix |
-| `useBrandPerformance()` | `useScoutData.ts` | `scout.v_brand_performance` | NLQ |
+| `useTxTrends()` | `useScoutData.ts` | `scout.v_tx_trends` | /trends |
+| `useProductMix()` | `useScoutData.ts` | `scout.v_product_mix` | /product-mix |
+| `useBrandPerformance()` | `useScoutData.ts` | `scout.v_brand_performance` | /product-mix, NLQ |
 | `useConsumerProfile()` | `useScoutData.ts` | `scout.v_consumer_profile` | (Planned) /profiling |
 | `useAgeDistribution()` | `useScoutData.ts` | `scout.v_consumer_age_distribution` | (Planned) /profiling |
 | `useCompetitiveAnalysis()` | `useScoutData.ts` | `scout.v_competitive_analysis` | (Planned) /competitive |
@@ -70,6 +70,7 @@ This document captures the current implementation state of Scout Dashboard, alig
 | `usePaymentMethods()` | `useScoutData.ts` | `scout.v_payment_methods` | NLQ |
 | `useStorePerformance()` | `useScoutData.ts` | `scout.v_store_performance` | NLQ |
 | `useFilteredTransactions()` | `useScoutData.ts` | `scout.transactions` | Advanced queries |
+| `useGlobalFilters()` | `FilterContext.tsx` | URL state | All pages |
 
 ---
 
@@ -77,8 +78,8 @@ This document captures the current implementation state of Scout Dashboard, alig
 
 ### scout.* Tables
 - `scout.regions` - 17 Philippine regions
-- `scout.stores` - Retail outlet master
-- `scout.transactions` - Canonical fact table
+- `scout.stores` - Retail outlet master (130 stores)
+- `scout.transactions` - Canonical fact table (~18k transactions)
 
 ### scout.* Gold Views
 1. `scout.v_tx_trends` - Daily transaction trends
@@ -107,12 +108,19 @@ This document captures the current implementation state of Scout Dashboard, alig
 | Component | File | Purpose |
 |-----------|------|---------|
 | Navigation | `src/components/Navigation.tsx` | Top nav bar |
+| Providers | `src/components/Providers.tsx` | Context providers wrapper |
+| GlobalFilterBar | `src/components/GlobalFilterBar.tsx` | Global filter controls with URL sync |
 | NLQChart | `src/components/databank/NLQChart.tsx` | NLQ query UI |
 | PhilippinesChoropleth | `src/components/geography/PhilippinesChoropleth.tsx` | Map visualization |
-| FilterControls | `src/components/databank/FilterControls.tsx` | Filter dropdowns |
+| FilterControls | `src/components/databank/FilterControls.tsx` | Legacy filter dropdowns |
 | ConsumerProfilingChart | `src/components/databank/ConsumerProfilingChart.tsx` | Demographics |
 | ComparativeAnalytics | `src/components/databank/ComparativeAnalytics.tsx` | Comparative metrics |
 | HealthBadge | `src/components/HealthBadge.tsx` | Health indicator |
+
+### Context Providers
+| Context | File | Purpose |
+|---------|------|---------|
+| FilterContext | `src/contexts/FilterContext.tsx` | Global filter state with URL persistence |
 
 ---
 
@@ -127,28 +135,32 @@ This document captures the current implementation state of Scout Dashboard, alig
 
 ---
 
-## Current Gaps (P0 Items)
+## Completed Items
 
-1. **No seed data** - Database empty without demo transactions
-2. **Missing `/trends` page** - Transaction Trends not implemented
-3. **Missing `/product-mix` page** - Product Mix not implemented
-4. **No global filter state** - Filters don't persist across pages
-5. **Build verification** - Need to confirm `next build` passes
+### P0 - Critical (Done)
+- [x] Generate demo seed data (~18,000 transactions) - `053_scout_full_seed_18k.sql`
+- [x] Create Transaction Trends page (`/trends`)
+- [x] Create Product Mix page (`/product-mix`)
+- [x] Fix Next.js version (14.2.15)
+- [x] Build passes successfully
+
+### P1 - High (Done)
+- [x] Implement global filter persistence (FilterContext with URL sync)
+- [x] Add GlobalFilterBar component
 
 ---
 
-## Next Steps (Per Spec Kit tasks.md)
-
-### P0 - Critical
-- [ ] Generate demo seed data (~18,000 transactions)
-- [ ] Create Transaction Trends page (`/trends`)
-- [ ] Create Product Mix page (`/product-mix`)
-- [ ] Verify Vercel deployment readiness
+## Remaining Items
 
 ### P1 - High
 - [ ] Add stub pages for Behavior, Profiling, Competitive
-- [ ] Implement global filter persistence
+- [ ] Integrate GlobalFilterBar into Trends and Product Mix pages
 - [ ] Lay NLQ pattern foundations
+
+### P2 - Medium
+- [ ] Export functionality (CSV/Excel)
+- [ ] Advanced filter combinations
+- [ ] Date range custom picker
 
 ---
 

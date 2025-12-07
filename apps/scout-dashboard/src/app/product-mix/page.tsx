@@ -331,43 +331,15 @@ export default function ProductMixPage() {
               dataKey="size"
               aspectRatio={4 / 3}
               stroke="#fff"
-              fill="#8884d8"
-              content={({ x, y, width, height, name, size }: any) => {
-                if (width < 50 || height < 30) return null;
-                return (
-                  <g>
-                    <rect
-                      x={x}
-                      y={y}
-                      width={width}
-                      height={height}
-                      fill={treemapData.find(d => d.name === name)?.fill || '#ccc'}
-                      stroke="#fff"
-                      strokeWidth={2}
-                    />
-                    <text
-                      x={x + width / 2}
-                      y={y + height / 2 - 8}
-                      textAnchor="middle"
-                      fill="#fff"
-                      fontSize={width > 100 ? 14 : 11}
-                      fontWeight="bold"
-                    >
-                      {name}
-                    </text>
-                    <text
-                      x={x + width / 2}
-                      y={y + height / 2 + 10}
-                      textAnchor="middle"
-                      fill="#fff"
-                      fontSize={width > 100 ? 12 : 10}
-                    >
-                      {formatCurrency(size)}
-                    </text>
-                  </g>
-                );
-              }}
-            />
+            >
+              {treemapData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
+              <Tooltip
+                contentStyle={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                formatter={(value: number) => [formatCurrency(value), 'Revenue']}
+              />
+            </Treemap>
           </ResponsiveContainer>
         );
 
