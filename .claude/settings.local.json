@@ -20,7 +20,9 @@
       "Bash(psql:*)",
       "Bash(npm --prefix apps/scout-dashboard install react-leaflet leaflet @types/leaflet)",
       "Bash(npm --prefix apps/scout-dashboard install:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(vercel --prod:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

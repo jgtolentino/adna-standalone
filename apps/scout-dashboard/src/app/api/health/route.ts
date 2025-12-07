@@ -40,9 +40,9 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      status: dqData?.overall_health ?? 'unknown',
-      lastCheck: dqData?.last_check ?? new Date().toISOString(),
-      activeIssues: dqData?.active_issues ?? 0,
+      status: (dqData as any)?.overall_health ?? 'unknown',
+      lastCheck: (dqData as any)?.last_check ?? new Date().toISOString(),
+      activeIssues: (dqData as any)?.active_issues ?? 0,
       detail: dqData ?? null,
     });
 
