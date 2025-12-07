@@ -46,7 +46,9 @@ export default function NLQPage() {
         </div>
 
         {/* NLQ Component */}
-        <NLQChart className="mb-8" />
+        <div className="mb-8">
+          <NLQChart />
+        </div>
 
         {/* Features */}
         <div className="grid md:grid-cols-3 gap-6 mt-12">
