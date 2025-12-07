@@ -50,13 +50,7 @@ export const DataSourceBadge: React.FC<DataSourceBadgeProps> = ({
     } catch (err) {
       console.error('Error fetching data source status:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
-      // Fallback to mock status for development
-      setStatus({
-        source_status: 'Mock/Sample',
-        trusted_datasets: 0,
-        total_datasets: 5,
-        last_validation: new Date().toISOString()
-      });
+      setStatus(null);
     } finally {
       setLoading(false);
     }

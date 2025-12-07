@@ -6,12 +6,11 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { TrendingUp, TrendingDown, AlertCircle, DollarSign, Users, Package, Activity } from 'lucide-react'
 
 interface KPIData {
-  revenue: number
+  totalRevenue: number
   revenueChange: number
-  customerSatisfaction: number
-  projectDeliveryRate: number
-  clientRetention: number
-  creativePerformance: number
+  avgTransactionValue: number
+  totalTransactions: number
+  activeStores: number
 }
 
 interface TrendData {
@@ -21,10 +20,17 @@ interface TrendData {
   avgTransactionValue: number
 }
 
+interface CategoryData {
+  name: string
+  value: number
+}
+
 export default function ExecutiveDashboard() {
   const [kpiData, setKpiData] = useState<KPIData | null>(null)
   const [trendData, setTrendData] = useState<TrendData[]>([])
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [aiSummary, setAiSummary] = useState<string>('')
   const supabase = createClient()
 
@@ -33,39 +39,51 @@ export default function ExecutiveDashboard() {
   }, [])
 
   async function loadDashboardData() {
+    setLoading(true)
+    setError(null)
+
     try {
       // Load daily metrics for KPIs
       const thirtyDaysAgo = new Date()
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-      
-      const { data: metrics } = await supabase
+
+      const { data: metrics, error: metricsError } = await supabase
         .from('daily_metrics')
         .select('*')
         .gte('date', thirtyDaysAgo.toISOString())
         .order('date', { ascending: true })
 
+      if (metricsError) {
+        throw metricsError
+      }
+
+      let revenueChange = 0
+      let rollingRevenue = 0
+      let derivedKpis: KPIData | null = null
+
       if (metrics && metrics.length > 0) {
         // Calculate KPIs
         const totalRevenue = metrics.reduce((sum, m) => sum + Number(m.total_revenue), 0)
+        const totalTransactions = metrics.reduce((sum, m) => sum + Number(m.total_transactions), 0)
         const previousRevenue = metrics
           .slice(0, 15)
           .reduce((sum, m) => sum + Number(m.total_revenue), 0)
         const currentRevenue = metrics
           .slice(15)
           .reduce((sum, m) => sum + Number(m.total_revenue), 0)
-        
-        const revenueChange = previousRevenue > 0 
-          ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 
+
+        revenueChange = previousRevenue > 0
+          ? ((currentRevenue - previousRevenue) / previousRevenue) * 100
           : 0
 
-        setKpiData({
-          revenue: totalRevenue,
+        rollingRevenue = totalRevenue
+        derivedKpis = {
+          totalRevenue,
           revenueChange,
-          customerSatisfaction: 87.5,
-          projectDeliveryRate: 94.2,
-          clientRetention: 91.8,
-          creativePerformance: 88.9
-        })
+          avgTransactionValue: totalTransactions > 0 ? totalRevenue / totalTransactions : 0,
+          totalTransactions,
+          activeStores: 0
+        }
 
         // Prepare trend data
         const trends = metrics.map(m => ({
@@ -77,8 +95,56 @@ export default function ExecutiveDashboard() {
         setTrendData(trends)
       }
 
+      // Load executive-level KPI overview (live seed data)
+      const { data: kpiOverview, error: kpiError } = await supabase
+        .from('gold_kpi_overview')
+        .select('*')
+        .single()
+
+      if (kpiError) {
+        throw kpiError
+      }
+
+      setKpiData(
+        kpiOverview
+          ? {
+              totalRevenue: rollingRevenue || Number(kpiOverview.total_revenue) || 0,
+              revenueChange,
+              avgTransactionValue: Number(kpiOverview.avg_transaction_value) || 0,
+              totalTransactions: Number(kpiOverview.total_transactions) || 0,
+              activeStores: Number(kpiOverview.total_stores) || 0
+            }
+          : derivedKpis
+      )
+
+      // Category distribution (30-day window)
+      const { data: categoryRows, error: categoryError } = await supabase
+        .from('transactions')
+        .select('category, peso_value')
+        .gte('timestamp', thirtyDaysAgo.toISOString())
+
+      if (categoryError) {
+        throw categoryError
+      }
+
+      if (categoryRows) {
+        const aggregated = categoryRows.reduce<Record<string, number>>((acc, row) => {
+          const key = row.category || 'Uncategorized'
+          const value = Number(row.peso_value) || 0
+          acc[key] = (acc[key] || 0) + value
+          return acc
+        }, {})
+
+        const distribution = Object.entries(aggregated)
+          .map(([name, value]) => ({ name, value }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 8)
+
+        setCategoryData(distribution)
+      }
+
       // Load AI summary
-      const { data: insights } = await supabase
+      const { data: insights, error: insightsError } = await supabase
         .from('ai_insights')
         .select('*')
         .eq('insight_type', 'executive_summary')
@@ -86,11 +152,16 @@ export default function ExecutiveDashboard() {
         .limit(1)
         .single()
 
+      if (insightsError) {
+        throw insightsError
+      }
+
       if (insights) {
         setAiSummary(insights.content)
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load executive dashboard data')
     } finally {
       setLoading(false)
     }
@@ -98,6 +169,21 @@ export default function ExecutiveDashboard() {
 
   if (loading) {
     return <div className="animate-pulse">Loading executive insights...</div>
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-700/40 bg-red-900/20 p-6 text-red-200">
+        <p className="font-semibold text-red-100">Unable to load executive dashboard</p>
+        <p className="text-sm mt-1">{error}</p>
+        <button
+          className="mt-4 rounded bg-red-600 px-3 py-1 text-sm font-semibold text-white hover:bg-red-500"
+          onClick={loadDashboardData}
+        >
+          Retry loading data
+        </button>
+      </div>
+    )
   }
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
@@ -111,32 +197,32 @@ export default function ExecutiveDashboard() {
             <div>
               <p className="text-gray-400 text-sm">Total Revenue</p>
               <p className="text-3xl font-bold mt-1">
-                ₱{kpiData?.revenue.toLocaleString() || '0'}
+                ₱{(kpiData?.totalRevenue ?? 0).toLocaleString()}
               </p>
               <div className="flex items-center mt-2">
                 {kpiData?.revenueChange && kpiData.revenueChange > 0 ? (
                   <>
                     <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-green-500 text-sm">+{kpiData.revenueChange.toFixed(1)}%</span>
+                    <span className="text-green-500 text-sm">+{(kpiData?.revenueChange ?? 0).toFixed(1)}%</span>
                   </>
                 ) : (
                   <>
                     <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                    <span className="text-red-500 text-sm">{kpiData?.revenueChange.toFixed(1)}%</span>
+                    <span className="text-red-500 text-sm">{(kpiData?.revenueChange ?? 0).toFixed(1)}%</span>
                   </>
                 )}
               </div>
-            </div>
-            <DollarSign className="h-8 w-8 text-blue-500" />
           </div>
+          <DollarSign className="h-8 w-8 text-blue-500" />
         </div>
+      </div>
 
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Customer Satisfaction</p>
-              <p className="text-3xl font-bold mt-1">{kpiData?.customerSatisfaction}%</p>
-              <p className="text-green-500 text-sm mt-2">+2.3% from last month</p>
+              <p className="text-gray-400 text-sm">Avg Transaction Value</p>
+              <p className="text-3xl font-bold mt-1">₱{(kpiData?.avgTransactionValue ?? 0).toLocaleString()}</p>
+              <p className="text-gray-400 text-sm mt-2">Based on latest Supabase seed</p>
             </div>
             <Users className="h-8 w-8 text-green-500" />
           </div>
@@ -145,9 +231,9 @@ export default function ExecutiveDashboard() {
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Project Delivery Rate</p>
-              <p className="text-3xl font-bold mt-1">{kpiData?.projectDeliveryRate}%</p>
-              <p className="text-yellow-500 text-sm mt-2">3 projects at risk</p>
+              <p className="text-gray-400 text-sm">Total Transactions</p>
+              <p className="text-3xl font-bold mt-1">{(kpiData?.totalTransactions ?? 0).toLocaleString()}</p>
+              <p className="text-yellow-500 text-sm mt-2">90-day seed window</p>
             </div>
             <Package className="h-8 w-8 text-yellow-500" />
           </div>
@@ -156,9 +242,9 @@ export default function ExecutiveDashboard() {
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Creative Performance</p>
-              <p className="text-3xl font-bold mt-1">{kpiData?.creativePerformance}%</p>
-              <p className="text-purple-500 text-sm mt-2">Above industry avg</p>
+              <p className="text-gray-400 text-sm">Active Stores</p>
+              <p className="text-3xl font-bold mt-1">{(kpiData?.activeStores ?? 0).toLocaleString()}</p>
+              <p className="text-purple-500 text-sm mt-2">Seeded in Supabase</p>
             </div>
             <Activity className="h-8 w-8 text-purple-500" />
           </div>
@@ -224,29 +310,30 @@ export default function ExecutiveDashboard() {
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <h3 className="text-xl font-semibold mb-4">Category Distribution</h3>
           <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={[
-                    { name: 'Electronics', value: 35 },
-                    { name: 'Groceries', value: 25 },
-                    { name: 'Fashion', value: 20 },
-                    { name: 'Other', value: 20 }
-                  ]}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {[0, 1, 2, 3].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {categoryData.length ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                No category data available
+              </div>
+            )}
           </div>
         </div>
       </div>
