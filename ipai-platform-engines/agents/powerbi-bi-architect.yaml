@@ -1,0 +1,61 @@
+# agents/powerbi-bi-architect.yaml
+version: 1.0.0
+id: powerbi_bi_architect
+name: "Power BI / Fabric BI Architect Agent"
+authority_issuer: "ipai-agent-cert-v1"
+
+human_cert_analogs:
+  - "PL-300: Power BI Data Analyst Associate"
+  - "DP-500: Azure Enterprise Data Analyst Associate"
+  - "Power Platform Solution Architect Expert"
+
+skill_profile:
+  primary_domain: "cloud_ai_platforms.power_bi"
+  skills:
+    - ref: powerbi_fundamentals
+    - ref: powerbi_data_analyst_associate
+    - ref: fabric_analytics_engineer
+    - ref: ai_bi_business_professional
+    - ref: powerbi_solution_architect_expert
+
+tools:
+  - pbix_reader
+  - dax_analyzer
+  - sql_query_runner
+  - report_layout_exporter
+  - kpi_contract_validator
+
+certification_policy:
+  levels:
+    fundamentals:
+      required_skills:
+        - powerbi_fundamentals
+      min_benchmarks_passed: 1
+    associate:
+      required_skills:
+        - powerbi_data_analyst_associate
+      min_benchmarks_passed: 2
+    expert:
+      required_skills:
+        - fabric_analytics_engineer
+        - ai_bi_business_professional
+        - powerbi_solution_architect_expert
+      min_benchmarks_passed: 3
+
+  issuance:
+    title_template: "Certified Power BI / Fabric BI Architect Agent"
+    validity_days: 365
+    conditions:
+      - "All required benchmarks green on latest run."
+      - "All generated reports pass KPI contract validation."
+      - "No failing security/governance checks in last CI cycle."
+
+benchmarks_runtime:
+  repo_sources:
+    - id: powerbi_desktop_samples
+      clone_url: "https://github.com/microsoft/powerbi-desktop-samples.git"
+      usage:
+        - "Load Store Sales.pbix and Competitive Marketing Analysis.pbix for tests."
+  execution:
+    runner: "ci.pipeline.powerbi"
+    schedule: "nightly"
