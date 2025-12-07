@@ -44,14 +44,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
+        working-directory: ./apps/scout-dashboard
         run: npm ci --ignore-scripts || npm install --legacy-peer-deps
         continue-on-error: true
 
       - name: Run ESLint with production guards
+        working-directory: ./apps/scout-dashboard
         run: |
           echo "Running ESLint with production mock guards..."
           npm run lint || echo "::warning::ESLint found issues - review recommended"
@@ -105,24 +107,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
+        working-directory: ./apps/scout-dashboard
         run: npm ci --ignore-scripts || npm install --legacy-peer-deps
         continue-on-error: true
 
       - name: Build with production environment
+        working-directory: ./apps/scout-dashboard
         env:
           # CI flags
           CI: 'true'
           SKIP_ENV_VALIDATION: 'true'
-          # Vite env vars
-          VITE_USE_MOCK: '0'
-          VITE_ALLOW_FALLBACK_IN_PROD: '0'
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key-for-ci' }}
-          # Next.js env vars
+          # Next.js env vars (Vite vars removed - this is a Next.js app)
           NEXT_PUBLIC_USE_MOCK: '0'
           NEXT_PUBLIC_ALLOW_FALLBACK_IN_PROD: '0'
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}

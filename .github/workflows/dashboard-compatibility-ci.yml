@@ -30,18 +30,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
+        working-directory: ./apps/scout-dashboard
         run: npm ci --ignore-scripts || npm install --legacy-peer-deps
         continue-on-error: true
 
       - name: Run ESLint
+        working-directory: ./apps/scout-dashboard
         run: npm run lint || echo "::warning::ESLint found issues"
         continue-on-error: true
 
       - name: TypeScript check
+        working-directory: ./apps/scout-dashboard
         run: npm run type-check || echo "::warning::TypeScript check found issues"
         continue-on-error: true
 
@@ -134,10 +137,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
+        working-directory: ./apps/scout-dashboard
         run: npm ci --ignore-scripts || npm install --legacy-peer-deps
         continue-on-error: true
 
@@ -146,6 +150,7 @@ jobs:
         continue-on-error: true
 
       - name: Start development server
+        working-directory: ./apps/scout-dashboard
         run: |
           npm run dev &
           # Wait up to 60 seconds for server to start
@@ -158,6 +163,7 @@ jobs:
         continue-on-error: true
 
       - name: Run Playwright tests
+        working-directory: ./apps/scout-dashboard
         run: npx playwright test || echo "::warning::Some Playwright tests failed"
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ env.SUPABASE_URL || 'https://placeholder.supabase.co' }}

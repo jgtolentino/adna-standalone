@@ -19,10 +19,11 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '24'
         cache: 'npm'
 
     - name: Install dependencies
+      working-directory: ./apps/scout-dashboard
       run: npm ci --ignore-scripts || npm install --legacy-peer-deps
       continue-on-error: true
 
@@ -37,9 +38,10 @@ jobs:
       continue-on-error: true
 
     - name: Start application
+      working-directory: ./apps/scout-dashboard
       run: |
         # Try to start the scout dashboard
-        npm run dev:scout &
+        npm run dev &
         APP_PID=$!
 
         # Wait for app to be ready (max 30 seconds)
