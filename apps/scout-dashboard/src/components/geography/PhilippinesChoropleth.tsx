@@ -203,7 +203,7 @@ export const PhilippinesChoropleth: React.FC<PhilippinesChoroplethProps> = ({
     });
 
     // Update paint property
-    map.current.setPaintProperty('regions-fill', 'fill-color', colorExpression);
+    map.current.setPaintProperty('regions-fill', 'fill-color', colorExpression as any);
 
   }, [regionMetrics, activeMetric, loading]);
 
