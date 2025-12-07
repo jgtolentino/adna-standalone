@@ -2,6 +2,9 @@
   "name": "scout-dashboard",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build:guard": "node ./scripts/guard-no-csv.mjs",
