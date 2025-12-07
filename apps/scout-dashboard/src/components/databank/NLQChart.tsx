@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Search, Loader2, TrendingUp, BarChart3, PieChart, Area, Scatter } from 'lucide-react';
+import { Search, Loader2, TrendingUp, BarChart3, PieChart } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -45,8 +45,8 @@ const CHART_ICONS = {
   bar: BarChart3,
   line: TrendingUp,
   pie: PieChart,
-  area: Area,
-  scatter: Scatter
+  area: TrendingUp,
+  scatter: BarChart3
 };
 
 const COLORS = [
@@ -107,7 +107,7 @@ export default function NLQChart({ className = '' }: NLQChartProps) {
     if (!result?.data || result.data.length === 0) return null;
 
     const { data, chartConfig } = result;
-    const { type, xField, yField, dataKey, nameKey } = chartConfig;
+    const { type, xField = 'name', yField = 'value', dataKey = 'value', nameKey = 'name' } = chartConfig;
 
     const commonProps = {
       width: '100%',

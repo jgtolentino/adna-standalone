@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm --prefix apps/scout-dashboard run)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git stash pop:*)",
+      "Bash(git rm:*)",
+      "Bash(NEXT_PUBLIC_STRICT_DATASOURCE=true npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

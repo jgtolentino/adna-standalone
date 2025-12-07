@@ -1,12 +1,13 @@
 {
-  "buildCommand": "npm --prefix apps/scout-dashboard run build:vercel",
-  "installCommand": "npm --prefix apps/scout-dashboard ci",
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://cxzllzyxwpyptfretryc.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4emxsenl4d3B5cHRmcmV0cnljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyMDYzMzQsImV4cCI6MjA3MDc4MjMzNH0.adA0EO89jw5uPH4qdL_aox6EbDPvJ28NcXGYW7u33Ok",
-    "NEXT_PUBLIC_STRICT_DATASOURCE": "true"
+    "NEXT_PUBLIC_SUPABASE_URL": "https://ublqmilcjtpnflofprkr.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVibHFtaWxjanRwbmZsb2ZwcmtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNjMyNzUsImV4cCI6MjA3ODczOTI3NX0.aVVY4Kgain0575E3GmLHTluLcFkZbcoC0G-Dmy9kzUs",
+    "NEXT_PUBLIC_MAPBOX_TOKEN": "pk.eyJ1Ijoiamd0b2xlbnRpbm8iLCJhIjoiY21jMmNycWRiMDc0ajJqcHZoaDYyeTJ1NiJ9.Dns6WOql16BUQ4l7otaeww",
+    "NEXT_PUBLIC_STRICT_DATASOURCE": "true",
+    "NEXT_PUBLIC_USE_MOCK": "0",
+    "NEXT_PUBLIC_ENVIRONMENT": "production"
   },
   "headers": [
     {

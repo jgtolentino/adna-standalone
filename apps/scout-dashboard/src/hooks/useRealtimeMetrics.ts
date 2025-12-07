@@ -48,6 +48,7 @@ export function useRealtimeMetrics() {
 
   return {
     tick, // Use this to trigger re-fetches via SWR/React Query
+    setTick, // Expose for manual refetch capability
     lastUpdate,
     isConnected,
   };
@@ -61,7 +62,7 @@ export function useRealtimeData<T>(
     enabled?: boolean;
   } = {}
 ) {
-  const { tick } = useRealtimeMetrics();
+  const { tick, setTick } = useRealtimeMetrics();
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
