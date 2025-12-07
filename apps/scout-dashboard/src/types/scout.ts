@@ -12,6 +12,7 @@ export type PaymentMethod = 'cash' | 'gcash' | 'maya' | 'card' | 'other';
 export type IncomeBand = 'low' | 'middle' | 'high' | 'unknown';
 export type UrbanRural = 'urban' | 'rural' | 'unknown';
 export type FunnelStage = 'visit' | 'browse' | 'request' | 'accept' | 'purchase';
+export type RequestType = 'branded' | 'generic' | 'indirect';
 
 // ============================================================================
 // BASE TABLES
@@ -68,6 +69,9 @@ export interface ScoutTransaction {
   funnel_stage: FunnelStage | null;
   basket_size: number | null;
   repeated_customer: boolean | null;
+  request_type: RequestType | null;
+  suggestion_accepted: boolean | null;
+  substitution_occurred: boolean | null;
   created_at: string;
 }
 
@@ -128,6 +132,20 @@ export interface ConsumerProfileRow {
 
 export interface AgeDistributionRow {
   age_bracket: string;
+  tx_count: number;
+  revenue: number;
+  unique_customers: number;
+}
+
+// ============================================================================
+// VIEW TYPES - Consumer Behavior
+// ============================================================================
+
+export interface ConsumerBehaviorRow {
+  funnel_stage: FunnelStage;
+  request_type: RequestType | null;
+  suggestion_accepted: boolean | null;
+  substitution_occurred: boolean | null;
   tx_count: number;
   revenue: number;
   unique_customers: number;

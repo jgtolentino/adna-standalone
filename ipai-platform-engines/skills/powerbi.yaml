@@ -1,0 +1,154 @@
+# skills/powerbi.yaml
+version: 1.0.0
+domain: "cloud_ai_platforms.power_bi"
+
+human_analogs:
+  fundamentals:
+    - "PL-900: Power Platform Fundamentals"
+    - "DP-900: Azure Data Fundamentals"
+  role_based:
+    - "PL-300: Power BI Data Analyst Associate"
+    - "DP-500: Azure Enterprise Data Analyst Associate"
+  specialty:
+    - "Fabric Analytics Engineer Associate"
+  business:
+    - "AI Business Professional (AB-710)"
+
+sources:
+  - id: powerbi_desktop_samples
+    type: github_repo
+    url: "https://github.com/microsoft/powerbi-desktop-samples"
+    repo: "microsoft/powerbi-desktop-samples"
+    notes: >
+      Canonical benchmark set. Agent MUST be able to open, inspect and reason
+      over Store Sales.pbix, Competitive Marketing Analysis.pbix, and Sample Reports.
+
+tools:
+  - id: pbix_reader
+    kind: "tool"
+    description: "Loads .pbix files and exposes model, visuals, measures, and relationships as JSON."
+  - id: dax_analyzer
+    kind: "tool"
+    description: "Parses and analyzes DAX measures; checks for correctness, performance, and best practices."
+  - id: sql_query_runner
+    kind: "tool"
+    description: "Runs SQL queries against the semantic model or external warehouse."
+  - id: report_layout_exporter
+    kind: "tool"
+    description: "Exports report layout (pages, visuals, interactions) to JSON spec."
+  - id: kpi_contract_validator
+    kind: "tool"
+    description: "Validates that key BI KPIs match the product PRD / spec."
+
+skills:
+  - id: powerbi_fundamentals
+    level: "fundamentals"
+    human_analog: "PL-900 / DP-900"
+    description: >
+      Understands basic concepts of data models, reports, dashboards, and
+      semantic layers. Can navigate sample .pbix files and explain structure.
+    required_tools:
+      - pbix_reader
+    benchmarks:
+      - id: fundamentals.store_sales_walkthrough
+        description: "Open Store Sales.pbix and output a structured summary of tables, relationships, and main visuals."
+        repo_source: powerbi_desktop_samples
+        success_criteria:
+          - "Correctly lists all model tables and at least 90% of relationships."
+          - "Identifies purpose of each report page."
+          - "Explains at least 5 key measures."
+
+  - id: powerbi_data_analyst_associate
+    level: "role_based"
+    human_analog: "PL-300"
+    description: >
+      Can clean, transform, model data, and build performant reports in Power BI.
+      Able to reverse engineer sample reports and replicate layouts with new data.
+    required_tools:
+      - pbix_reader
+      - dax_analyzer
+      - sql_query_runner
+      - report_layout_exporter
+    prerequisites:
+      - powerbi_fundamentals
+    benchmarks:
+      - id: role_based.store_sales_rebuild
+        description: >
+          Recreate Store Sales.pbix layout and metrics in a new workspace using a
+          provided SQL source schema.
+        repo_source: powerbi_desktop_samples
+        success_criteria:
+          - "All report pages replicated with >90% visual parity."
+          - "All KPIs and totals match within 1% tolerance."
+          - "No visual uses auto-generated measures; all measures are explicit DAX."
+
+  - id: fabric_analytics_engineer
+    level: "role_based"
+    human_analog: "Fabric Analytics Engineer Associate"
+    description: >
+      Designs and optimizes semantic models across Power BI / Fabric, including
+      Direct Lake / DirectQuery strategies, aggregations, and performance tuning.
+    required_tools:
+      - pbix_reader
+      - dax_analyzer
+      - sql_query_runner
+      - kpi_contract_validator
+    prerequisites:
+      - powerbi_data_analyst_associate
+    benchmarks:
+      - id: fabric.performance_tuning
+        description: >
+          Given a slow-performing sample report, propose and implement a model
+          optimization plan (aggregations, incremental refresh, measure tuning).
+        success_criteria:
+          - "Documented model diagram with bottlenecks identified."
+          - "Proposed optimizations reduce estimated query time by at least 50%."
+          - "Explains tradeoffs of Import vs DirectQuery vs Direct Lake."
+
+  - id: ai_bi_business_professional
+    level: "business"
+    human_analog: "AB-710 / AI Business Professional"
+    description: >
+      Translates business questions into BI requirements and AI-powered insights,
+      ensuring metrics definitions match organizational goals.
+    required_tools:
+      - kpi_contract_validator
+      - report_layout_exporter
+    prerequisites:
+      - powerbi_fundamentals
+    benchmarks:
+      - id: business.requirements_to_dashboard
+        description: >
+          Given a business PRD, produce a BI spec (pages, visuals, KPIs) mapped
+          to Power BI constructs and AI-assist features (natural language Q&A, explainers).
+        success_criteria:
+          - "Each business question is mapped to at least one metric and one visual."
+          - "Clear separation of source-of-truth tables vs derived metrics."
+          - "Includes plan for AI-driven narrative or NL-to-insights."
+
+  - id: powerbi_solution_architect_expert
+    level: "expert"
+    human_analog: "Power Platform Solution Architect / DP-500"
+    description: >
+      Designs end-to-end BI solutions spanning data sources, governance, RLS,
+      workspace strategy, CI/CD, and AI-assisted analytics.
+    required_tools:
+      - pbix_reader
+      - dax_analyzer
+      - sql_query_runner
+      - report_layout_exporter
+      - kpi_contract_validator
+    prerequisites:
+      - fabric_analytics_engineer
+      - ai_bi_business_professional
+    benchmarks:
+      - id: expert.full_stack_powerbi_solution
+        description: >
+          Given a sample dataset and three .pbix examples (Store Sales, Competitive
+          Marketing Analysis, Sample Reports), design an enterprise-ready BI architecture
+          and migrate reports into a governed workspace pattern.
+        repo_source: powerbi_desktop_samples
+        success_criteria:
+          - "Produces workspace, dataset, and RLS design diagram."
+          - "Defines CI/CD strategy (PBIP / Git integration) and test steps."
+          - "Documents AI features (Q&A, anomaly detection, smart narratives) with guardrails."
