@@ -45,8 +45,8 @@ const CHART_ICONS = {
   bar: BarChart3,
   line: TrendingUp,
   pie: PieChart,
-  area: Area,
-  scatter: Scatter
+  area: TrendingUp,
+  scatter: BarChart3
 };
 
 const COLORS = [
