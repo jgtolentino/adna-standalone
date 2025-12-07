@@ -16,21 +16,13 @@ interface TransactionTrendsChartProps {
   useRealData?: boolean;
 }
 
-const sampleData: TransactionData[] = [
-  { date: '2025-08-19', volume: 450, revenue: 150000, basketSize: 3.2, duration: 12.5 },
-  { date: '2025-08-20', volume: 380, revenue: 145000, basketSize: 3.0, duration: 11.8 },
-  { date: '2025-08-21', volume: 520, revenue: 175000, basketSize: 3.5, duration: 13.2 },
-  { date: '2025-08-22', volume: 690, revenue: 220000, basketSize: 3.8, duration: 15.1 },
-  { date: '2025-08-23', volume: 410, revenue: 160000, basketSize: 2.9, duration: 10.5 },
-  { date: '2025-08-24', volume: 580, revenue: 190000, basketSize: 3.4, duration: 12.8 },
-  { date: '2025-09-15', volume: 506, revenue: 173695, basketSize: 3.2, duration: 11.9 }
-];
+// No hardcoded sample data - production must use real Supabase data only
 
 export const TransactionTrendsChart: React.FC<TransactionTrendsChartProps> = ({
   data: propData,
   useRealData = true
 }) => {
-  const [data, setData] = useState<TransactionData[]>(propData || sampleData);
+  const [data, setData] = useState<TransactionData[]>(propData || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'volume' | 'revenue' | 'basketSize' | 'duration'>('volume');
@@ -52,9 +44,9 @@ export const TransactionTrendsChart: React.FC<TransactionTrendsChartProps> = ({
       const trendsData = await csvService.getTransactionTrends();
       setData(trendsData);
     } catch (err) {
-      setError('Failed to load transaction data');
+      setError('Failed to load transaction data from Supabase');
       console.error('Error loading real data:', err);
-      setData(sampleData); // Fallback to sample data
+      // NO FALLBACK - Production must show error, not fake data
     } finally {
       setLoading(false);
     }

@@ -14,19 +14,13 @@ interface ProductMixChartProps {
   useRealData?: boolean;
 }
 
-const sampleData: CategoryData[] = [
-  { name: 'Beverages', value: 35, fill: '#3B82F6' },
-  { name: 'Snacks', value: 25, fill: '#10B981' },
-  { name: 'Personal Care', value: 20, fill: '#F59E0B' },
-  { name: 'Household', value: 15, fill: '#EF4444' },
-  { name: 'Others', value: 5, fill: '#8B5CF6' }
-];
+// No hardcoded sample data - production must use real Supabase data only
 
 export const ProductMixChart: React.FC<ProductMixChartProps> = ({
   data: propData,
   useRealData = true
 }) => {
-  const [data, setData] = useState<CategoryData[]>(propData || sampleData);
+  const [data, setData] = useState<CategoryData[]>(propData || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'categoryMix' | 'pareto' | 'substitutions' | 'basket'>('categoryMix');
@@ -47,9 +41,9 @@ export const ProductMixChart: React.FC<ProductMixChartProps> = ({
       const productMixData = await csvService.getProductMix();
       setData(productMixData);
     } catch (err) {
-      setError('Failed to load product mix data');
+      setError('Failed to load product mix data from Supabase');
       console.error('Error loading real data:', err);
-      setData(sampleData); // Fallback to sample data
+      // NO FALLBACK - Production must show error, not fake data
     } finally {
       setLoading(false);
     }

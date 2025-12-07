@@ -14,13 +14,7 @@ interface ConsumerBehaviorChartProps {
   useRealData?: boolean;
 }
 
-const sampleData: FunnelData[] = [
-  { name: 'Store Visit', value: 1000, fill: '#3B82F6' },
-  { name: 'Product Browse', value: 850, fill: '#10B981' },
-  { name: 'Brand Request', value: 650, fill: '#F59E0B' },
-  { name: 'Accept Suggestion', value: 480, fill: '#8B5CF6' },
-  { name: 'Purchase', value: 420, fill: '#EC4899' }
-];
+// No hardcoded sample data - production must use real Supabase data only
 
 // Custom Funnel Component since Recharts doesn't have a built-in Funnel chart
 const CustomFunnel: React.FC<{ data: FunnelData[] }> = ({ data }) => {
@@ -75,7 +69,7 @@ export const ConsumerBehaviorChart: React.FC<ConsumerBehaviorChartProps> = ({
   data: propData,
   useRealData = true
 }) => {
-  const [data, setData] = useState<FunnelData[]>(propData || sampleData);
+  const [data, setData] = useState<FunnelData[]>(propData || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'funnel' | 'methods' | 'acceptance' | 'traits'>('funnel');
@@ -96,9 +90,9 @@ export const ConsumerBehaviorChart: React.FC<ConsumerBehaviorChartProps> = ({
       const behaviorData = await csvService.getConsumerBehavior();
       setData(behaviorData);
     } catch (err) {
-      setError('Failed to load consumer behavior data');
+      setError('Failed to load consumer behavior data from Supabase');
       console.error('Error loading real data:', err);
-      setData(sampleData); // Fallback to sample data
+      // NO FALLBACK - Production must show error, not fake data
     } finally {
       setLoading(false);
     }
