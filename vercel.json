@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm --prefix apps/scout-dashboard run build:vercel",
   "installCommand": "npm --prefix apps/scout-dashboard ci",
+  "outputDirectory": "apps/scout-dashboard/.next",
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
