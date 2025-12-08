@@ -7,20 +7,22 @@
  * Uses:
  * - Mapbox GL JS for rendering
  * - GeoJSON file: /geo/philippines_regions_v1.geojson (17 regions, simplified boundaries)
- * - Database view: scout.gold_region_metrics (region_code → revenue, transactions, customers, growth)
+ * - Database view: v_geo_regions (region_code → revenue, transactions, customers, growth)
  *
  * Region Codes:
  * - NCR, REGION_I, CAR, REGION_II, REGION_III, REGION_IV_A, REGION_IV_B,
  *   REGION_V, REGION_VI, REGION_VII, REGION_VIII, REGION_IX, REGION_X,
  *   REGION_XI, REGION_XII, REGION_XIII, BARMM
  *
- * Metrics Flow: Database → useRegionMetrics hook → Map paint properties
+ * Metrics Flow: Database → useGeoRegionsMap hook → Map paint properties
  */
 
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useRegionMetrics, RegionMetric } from '@/data/hooks/useRegionMetrics';
+import { useGeoRegionsMap } from '@/data/hooks/useScoutData';
+import { useGlobalFilters } from '@/contexts/FilterContext';
+import type { GeoRegionRow } from '@/types/scout';
 
 // Mapbox access token (from env)
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1Ijoiamd0b2xlbnRpbm8iLCJhIjoiY21jMmNycWRiMDc0ajJqcHZoaDYyeTJ1NiJ9.Dns6WOql16BUQ4l7otaeww';
@@ -40,7 +42,13 @@ export const PhilippinesChoropleth: React.FC<PhilippinesChoroplethProps> = ({
   const map = useRef<mapboxgl.Map | null>(null);
   const [activeMetric, setActiveMetric] = useState<MetricType>(initialMetric);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const { data: regionMetrics, loading, error } = useRegionMetrics();
+  const { filters } = useGlobalFilters();
+  const { dataMap: regionMetrics, loading, error, refetch } = useGeoRegionsMap(filters);
+
+  // Refetch when filters change
+  useEffect(() => {
+    refetch();
+  }, [filters, refetch]);
 
   // Initialize map
   useEffect(() => {
@@ -177,8 +185,8 @@ export const PhilippinesChoropleth: React.FC<PhilippinesChoroplethProps> = ({
   useEffect(() => {
     if (!map.current || !map.current.isStyleLoaded() || loading) return;
 
-    const metricKey = activeMetric === 'revenue' ? 'total_revenue' :
-                       activeMetric === 'transactions' ? 'total_transactions' :
+    const metricKey = activeMetric === 'revenue' ? 'revenue' :
+                       activeMetric === 'transactions' ? 'tx_count' :
                        activeMetric === 'customers' ? 'unique_customers' :
                        'growth_rate';
 
@@ -320,15 +328,15 @@ export const PhilippinesChoropleth: React.FC<PhilippinesChoroplethProps> = ({
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <div className="text-gray-500">Stores</div>
-                <div className="font-semibold">{selectedMetric.total_stores}</div>
+                <div className="font-semibold">{selectedMetric.stores_count}</div>
               </div>
               <div>
                 <div className="text-gray-500">Revenue</div>
-                <div className="font-semibold">₱{selectedMetric.total_revenue.toLocaleString()}</div>
+                <div className="font-semibold">₱{selectedMetric.revenue.toLocaleString()}</div>
               </div>
               <div>
                 <div className="text-gray-500">Transactions</div>
-                <div className="font-semibold">{selectedMetric.total_transactions.toLocaleString()}</div>
+                <div className="font-semibold">{selectedMetric.tx_count.toLocaleString()}</div>
               </div>
               <div>
                 <div className="text-gray-500">Customers</div>

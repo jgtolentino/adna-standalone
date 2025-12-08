@@ -10,7 +10,8 @@
       "Bash(NEXT_PUBLIC_STRICT_DATASOURCE=true npm run build:*)",
       "Bash(mv:*)",
       "Bash(vercel link:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
