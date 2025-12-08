@@ -7,6 +7,7 @@
 
 import React, { createContext, useContext, useCallback, useEffect, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import type { ReadonlyURLSearchParams } from 'next/navigation';
 import type { ScoutFilters } from '@/types/scout';
 
 // ============================================================================
@@ -82,7 +83,7 @@ function getDateRangeFromPreset(preset: DateRangePreset): { start: string; end: 
   }
 }
 
-function parseFiltersFromURL(searchParams: URLSearchParams): Partial<GlobalFilters> {
+function parseFiltersFromURL(searchParams: URLSearchParams | ReadonlyURLSearchParams): Partial<GlobalFilters> {
   const filters: Partial<GlobalFilters> = {};
 
   const preset = searchParams.get('period') as DateRangePreset | null;

@@ -33,13 +33,14 @@ function useScoutView<T>(
     orderBy?: string;
     ascending?: boolean;
     limit?: number;
+    filters?: ScoutFilters;
   }
 ): UseScoutDataResult<T[]> {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { schema = 'scout', orderBy, ascending = true, limit } = options || {};
+  const { schema = 'scout', orderBy, ascending = true, limit, filters } = options || {};
 
   const fetchData = useCallback(async () => {
     if (!isSupabaseConfigured()) {
@@ -55,10 +56,48 @@ function useScoutView<T>(
       const supabase = getSupabaseSchema(schema);
       let query = supabase.from(viewName).select('*');
 
+      // Apply filters
+      if (filters) {
+        // Date range filter (works with tx_date or timestamp fields)
+        if (filters.dateRange) {
+          // Try both field names - views use tx_date, base tables use timestamp
+          query = query
+            .gte('tx_date', filters.dateRange.start)
+            .lte('tx_date', filters.dateRange.end);
+        }
+
+        // Region filter
+        if (filters.regionCodes && filters.regionCodes.length > 0) {
+          query = query.in('region_code', filters.regionCodes);
+        }
+
+        // Product category filter
+        if (filters.productCategories && filters.productCategories.length > 0) {
+          query = query.in('product_category', filters.productCategories);
+        }
+
+        // Brand filter
+        if (filters.brandNames && filters.brandNames.length > 0) {
+          query = query.in('brand_name', filters.brandNames);
+        }
+
+        // Income filter
+        if (filters.incomes && filters.incomes.length > 0) {
+          query = query.in('income', filters.incomes);
+        }
+
+        // Urban/Rural filter
+        if (filters.urbanRural && filters.urbanRural.length > 0) {
+          query = query.in('urban_rural', filters.urbanRural);
+        }
+      }
+
+      // Apply ordering
       if (orderBy) {
         query = query.order(orderBy, { ascending });
       }
 
+      // Apply limit
       if (limit) {
         query = query.limit(limit);
       }
@@ -77,7 +116,7 @@ function useScoutView<T>(
     } finally {
       setLoading(false);
     }
-  }, [viewName, schema, orderBy, ascending, limit]);
+  }, [viewName, schema, orderBy, ascending, limit, filters]);
 
   useEffect(() => {
     fetchData();
@@ -90,10 +129,11 @@ function useScoutView<T>(
 // TRANSACTION TRENDS HOOK
 // ============================================================================
 
-export function useTxTrends(): UseScoutDataResult<TxTrendsRow[]> {
+export function useTxTrends(filters?: ScoutFilters): UseScoutDataResult<TxTrendsRow[]> {
   return useScoutView<TxTrendsRow>('v_tx_trends', {
     orderBy: 'tx_date',
     ascending: true,
+    filters,
   });
 }
 
@@ -101,18 +141,20 @@ export function useTxTrends(): UseScoutDataResult<TxTrendsRow[]> {
 // PRODUCT MIX HOOKS
 // ============================================================================
 
-export function useProductMix(): UseScoutDataResult<ProductMixRow[]> {
+export function useProductMix(filters?: ScoutFilters): UseScoutDataResult<ProductMixRow[]> {
   return useScoutView<ProductMixRow>('v_product_mix', {
     orderBy: 'revenue',
     ascending: false,
+    filters,
   });
 }
 
-export function useBrandPerformance(limit?: number): UseScoutDataResult<BrandPerformanceRow[]> {
+export function useBrandPerformance(limit?: number, filters?: ScoutFilters): UseScoutDataResult<BrandPerformanceRow[]> {
   return useScoutView<BrandPerformanceRow>('v_brand_performance', {
     orderBy: 'revenue',
     ascending: false,
     limit,
+    filters,
   });
 }
 
@@ -120,23 +162,24 @@ export function useBrandPerformance(limit?: number): UseScoutDataResult<BrandPer
 // CONSUMER PROFILE HOOKS
 // ============================================================================
 
-export function useConsumerProfile(): UseScoutDataResult<ConsumerProfileRow[]> {
-  return useScoutView<ConsumerProfileRow>('v_consumer_profile');
+export function useConsumerProfile(filters?: ScoutFilters): UseScoutDataResult<ConsumerProfileRow[]> {
+  return useScoutView<ConsumerProfileRow>('v_consumer_profile', { filters });
 }
 
-export function useAgeDistribution(): UseScoutDataResult<AgeDistributionRow[]> {
-  return useScoutView<AgeDistributionRow>('v_consumer_age_distribution');
+export function useAgeDistribution(filters?: ScoutFilters): UseScoutDataResult<AgeDistributionRow[]> {
+  return useScoutView<AgeDistributionRow>('v_consumer_age_distribution', { filters });
 }
 
 // ============================================================================
 // COMPETITIVE ANALYSIS HOOK
 // ============================================================================
 
-export function useCompetitiveAnalysis(limit?: number): UseScoutDataResult<CompetitiveRow[]> {
+export function useCompetitiveAnalysis(limit?: number, filters?: ScoutFilters): UseScoutDataResult<CompetitiveRow[]> {
   return useScoutView<CompetitiveRow>('v_competitive_analysis', {
     orderBy: 'revenue',
     ascending: false,
     limit,
+    filters,
   });
 }
 
@@ -144,10 +187,11 @@ export function useCompetitiveAnalysis(limit?: number): UseScoutDataResult<Compe
 // GEO REGIONS HOOK
 // ============================================================================
 
-export function useGeoRegions(): UseScoutDataResult<GeoRegionRow[]> {
+export function useGeoRegions(filters?: ScoutFilters): UseScoutDataResult<GeoRegionRow[]> {
   return useScoutView<GeoRegionRow>('v_geo_regions', {
     orderBy: 'revenue',
     ascending: false,
+    filters,
   });
 }
 
@@ -155,14 +199,14 @@ export function useGeoRegions(): UseScoutDataResult<GeoRegionRow[]> {
  * Returns geo region data as a map keyed by region_code
  * (compatible with existing PhilippinesChoropleth component)
  */
-export function useGeoRegionsMap(): {
+export function useGeoRegionsMap(filters?: ScoutFilters): {
   data: GeoRegionRow[];
   dataMap: Record<string, GeoRegionRow>;
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 } {
-  const result = useGeoRegions();
+  const result = useGeoRegions(filters);
 
   const dataMap = result.data.reduce((acc, row) => {
     acc[row.region_code] = row;
@@ -176,18 +220,19 @@ export function useGeoRegionsMap(): {
 // FUNNEL & BEHAVIOR HOOKS
 // ============================================================================
 
-export function useFunnelAnalysis(): UseScoutDataResult<FunnelRow[]> {
-  return useScoutView<FunnelRow>('v_funnel_analysis');
+export function useFunnelAnalysis(filters?: ScoutFilters): UseScoutDataResult<FunnelRow[]> {
+  return useScoutView<FunnelRow>('v_funnel_analysis', { filters });
 }
 
-export function useDaypartAnalysis(): UseScoutDataResult<DaypartRow[]> {
-  return useScoutView<DaypartRow>('v_daypart_analysis');
+export function useDaypartAnalysis(filters?: ScoutFilters): UseScoutDataResult<DaypartRow[]> {
+  return useScoutView<DaypartRow>('v_daypart_analysis', { filters });
 }
 
-export function usePaymentMethods(): UseScoutDataResult<PaymentMethodRow[]> {
+export function usePaymentMethods(filters?: ScoutFilters): UseScoutDataResult<PaymentMethodRow[]> {
   return useScoutView<PaymentMethodRow>('v_payment_methods', {
     orderBy: 'tx_count',
     ascending: false,
+    filters,
   });
 }
 
@@ -195,11 +240,12 @@ export function usePaymentMethods(): UseScoutDataResult<PaymentMethodRow[]> {
 // STORE PERFORMANCE HOOK
 // ============================================================================
 
-export function useStorePerformance(limit?: number): UseScoutDataResult<StorePerformanceRow[]> {
+export function useStorePerformance(limit?: number, filters?: ScoutFilters): UseScoutDataResult<StorePerformanceRow[]> {
   return useScoutView<StorePerformanceRow>('v_store_performance', {
     orderBy: 'revenue',
     ascending: false,
     limit,
+    filters,
   });
 }
 

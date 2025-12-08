@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTxTrends } from '@/data/hooks/useScoutData';
+import { useGlobalFilters } from '@/contexts/FilterContext';
 import {
   LineChart,
   Line,
@@ -93,7 +94,13 @@ function KPICard({ title, value, subtitle, trend, icon: Icon, loading }: KPICard
 
 export default function TrendsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('volume');
-  const { data: trendsData, loading, error, refetch } = useTxTrends();
+  const { filters } = useGlobalFilters();
+  const { data: trendsData, loading, error, refetch } = useTxTrends(filters);
+
+  // Refetch when filters change
+  useEffect(() => {
+    refetch();
+  }, [filters, refetch]);
 
   // Calculate KPI summaries
   const totalVolume = trendsData.reduce((sum, d) => sum + (d.tx_count || 0), 0);

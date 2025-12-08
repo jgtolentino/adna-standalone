@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProductMix, useBrandPerformance } from '@/data/hooks/useScoutData';
+import { useGlobalFilters } from '@/contexts/FilterContext';
 import {
   PieChart,
   Pie,
@@ -131,8 +132,9 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
 
 export default function ProductMixPage() {
   const [activeTab, setActiveTab] = useState<TabType>('category');
-  const { data: productMix, loading: mixLoading, error: mixError, refetch: refetchMix } = useProductMix();
-  const { data: brandData, loading: brandLoading, error: brandError, refetch: refetchBrand } = useBrandPerformance(20);
+  const { filters } = useGlobalFilters();
+  const { data: productMix, loading: mixLoading, error: mixError, refetch: refetchMix } = useProductMix(filters);
+  const { data: brandData, loading: brandLoading, error: brandError, refetch: refetchBrand } = useBrandPerformance(20, filters);
 
   const loading = mixLoading || brandLoading;
   const error = mixError || brandError;
@@ -141,6 +143,11 @@ export default function ProductMixPage() {
     refetchMix();
     refetchBrand();
   };
+
+  // Refetch when filters change
+  useEffect(() => {
+    refetch();
+  }, [filters]);
 
   // Calculate KPI summaries
   const totalRevenue = productMix.reduce((sum, d) => sum + (d.revenue || 0), 0);
