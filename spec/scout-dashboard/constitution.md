@@ -7,7 +7,23 @@
 **Owner:** TBWA Enterprise Platform
 **Vercel Project:** `scout-dashboard`
 **Deployment URL:** https://scout-dashboard-xi.vercel.app/
-**Version:** 1.0.0
+**Supabase Project:** `spdtwktxdalcfigzeqrz` (superset)
+**Version:** 2.0.0
+
+---
+
+## CRITICAL BLOCKER: Database State
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
+| Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
+| Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
+| Functions | ✅ Ready | 26 edge functions in Supabase |
+| Frontend | ✅ Live | Running on Vercel (displays mock data until seeded) |
+
+**BLOCKER:** Dashboard displays hardcoded mock data because database is unpopulated.
+**ACTION REQUIRED:** Run `053_scout_full_seed_18k.sql` before production launch.
 
 ---
 

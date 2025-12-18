@@ -4,18 +4,49 @@
 
 **Product:** Suqi Analytics - Scout Dashboard (TBWA Retail Intelligence Platform)
 
-**Status:** 95% Production-Ready - All dashboards use real Supabase data
+**Status:** 🟡 85% Production-Ready (Schema complete, database empty, frontend ready)
 
 **Deployment:** https://scout-dashboard-xi.vercel.app/
+**Supabase Project:** `spdtwktxdalcfigzeqrz` (superset)
 
 Scout Dashboard is a comprehensive retail intelligence platform for the Philippine market. It transforms point-of-sale transaction data from 250+ retail outlets into actionable insights through interactive visualizations, AI-powered natural language queries, and geographic intelligence maps across 17 Philippine regions.
 
-**Key Achievements:**
-- Zero mock data - All metrics from Supabase views
-- 6 main dashboards live with real data
-- 11 specialized React hooks for data fetching
-- Global filter system with URL persistence
-- Complete TypeScript coverage
+---
+
+## CRITICAL FINDING: Database State
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
+| Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
+| Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
+| Functions | ✅ Ready | 26 edge functions in Supabase |
+| Frontend | ✅ Live | Running on Vercel (displays mock data until seeded) |
+
+**BLOCKER:** Dashboard displays hardcoded mock data because database is unpopulated.
+
+**GO-LIVE REQUIREMENT:**
+1. Seed database with ≥18,000 transaction records (`infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql`)
+2. Verify views return non-empty result sets
+3. Test end-to-end: Each page should display real data from Supabase
+4. Deploy to production once data is verified
+
+---
+
+**What Works:**
+- ✅ All 6 dashboards render without errors
+- ✅ UI is complete (sidebar, filters, charts, KPI cards)
+- ✅ Supabase schema is properly designed (3-tier: bronze/silver/gold)
+- ✅ React hooks architecture ready (useScoutData factory + 11 specialized hooks)
+- ✅ Filter system implemented (FilterContext + GlobalFilterBar)
+- ✅ All API endpoints scaffolded in Next.js
+- ✅ Export functionality designed (routes ready, CSV/XLSX implementation pending)
+- ✅ Type safety 100% (TypeScript strict mode)
+
+**What Needs Data:**
+- 🟡 Dashboard KPIs: Currently hardcoded, will read from scout.v_kpi_summary view (once seeded)
+- 🟡 Charts: Currently mock, will query scout.v_tx_trends, scout.v_product_mix, etc. (once seeded)
+- 🟡 Filters: Currently non-functional, will populate from scout.silver_transactions dimension tables (once seeded)
 
 ---
 
@@ -693,20 +724,35 @@ CREATE TABLE audit_logs (
 
 ---
 
-## Production Readiness Score: 95%
+## Production Readiness Score: 85%
 
-| Criterion | Status | Score |
+| Component | Status | Notes |
 |-----------|--------|-------|
-| No mock data | ✅ Complete | 100% |
-| All routes populated | ✅ Complete | 100% |
-| All tabs functional | ✅ Complete | 100% |
-| Filters wired | ✅ Complete | 100% |
-| Export buttons | 🔄 In Progress | 80% |
-| AI panel wired | 🔄 In Progress | 70% |
-| Loading states | ✅ Complete | 100% |
-| Error handling | ✅ Complete | 100% |
-| Empty states | ✅ Complete | 100% |
-| Type safety | ✅ Complete | 100% |
+| **Frontend UI** | ✅ 95% | All 6 pages render; displays mock data until database seeded |
+| **Supabase Schema** | ✅ 100% | All 29 tables + views exist; verified in project |
+| **Data (Transactions)** | 🔴 **0%** | **BLOCKER:** Must run seed script (053_scout_full_seed_18k.sql) |
+| **React Hooks** | ✅ 95% | useScoutData factory + 11 specialized hooks ready |
+| **Filters** | ✅ 100% | FilterContext + GlobalFilterBar complete |
+| **API Endpoints** | ✅ 90% | Routes scaffolded; missing actual DB queries in some endpoints |
+| **Export** | 🟡 30% | Routes exist; CSV/XLSX conversion logic pending |
+| **NLQ (Ask Suqi)** | 🟡 50% | Modal ready; needs NLQ service integration (WrenAI) |
+| **Auth/RLS** | 🟡 20% | Supabase Auth initialized; RLS policies not enforced yet |
+| **Monitoring** | 🟡 10% | Sentry not configured; Vercel Analytics default |
+
+**What Would Make It 100%:**
+1. ✅ Database seeded (1 hour – SQL script exists)
+2. ✅ Vercel build fixed (1–2 hours – type-check locally)
+3. ✅ E2E smoke tests pass (2–3 hours – Playwright tests)
+4. 🟡 Export endpoints fully functional (4–6 hours)
+5. 🟡 NLQ service integrated (8–12 hours)
+6. 🟡 RLS policies enforced for multi-tenant (4–6 hours)
+
+**Minimum Viable Launch:**
+- Seed database ✅
+- Fix build ✅
+- Deploy to production ✅
+- Users can view real data, apply filters, drill-down on charts
+- Export/NLQ/Auth as Phase 2 enhancements
 
 ---
 

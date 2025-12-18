@@ -4,8 +4,20 @@
 
 This document contains all actionable tasks for Scout Dashboard production readiness, organized by priority and domain. Each task includes an ID, summary, files touched, acceptance criteria, and dependencies.
 
-**Current Status:** 95% Production-Ready
-**Remaining Work:** Export UI, AI Panel, Testing, Security
+**Current Status:** 🟡 85% Production-Ready (Schema complete, database empty, frontend ready)
+**Remaining Work:** **DATABASE SEEDING (BLOCKING)**, Export UI, AI Panel, Testing, Security
+
+---
+
+## CRITICAL BLOCKER: Empty Database
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
+| Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
+| Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
+
+**ALL TASKS BLOCKED** until database is seeded.
 
 ---
 
@@ -13,10 +25,50 @@ This document contains all actionable tasks for Scout Dashboard production readi
 
 | Priority | Description | Tasks |
 |----------|-------------|-------|
+| **P-1 - BLOCKING** | Must complete first | SEED-001 (Database Seeding) |
 | **P0 - Critical** | Blocking production | FIX-001, UI-008 |
 | **P1 - High** | Core functionality | UI-001 through UI-007, API-001 through API-004 |
 | **P2 - Medium** | Important features | TEST-001 through TEST-003, SEC-001 through SEC-003 |
 | **P3 - Low** | Nice-to-have | PERF-001 through PERF-003, DOC-001 |
+
+---
+
+## P-1 - BLOCKING (Must Complete First)
+
+### SEED-001: Populate Empty Database
+**Summary:** Database is currently empty. Must seed with transaction data before any other work.
+
+**CRITICAL:** Dashboard displays hardcoded mock data because database is unpopulated.
+
+**Files Touched:**
+- `infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql`
+- Supabase project: `spdtwktxdalcfigzeqrz` (superset)
+
+**Commands to Run:**
+```bash
+# Set connection string
+export SUPABASE_DATABASE_URL="postgresql://postgres:PASSWORD@db.spdtwktxdalcfigzeqrz.supabase.co:5432/postgres"
+
+# Run seeding script
+psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql
+
+# Verify data loaded
+psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.scout_bronze_transactions;"
+# Expected output: 18000+
+```
+
+**Acceptance Criteria:**
+- [ ] scout_bronze_transactions: ≥18,000 rows
+- [ ] scout_silver_transactions: ≥17,000 rows (after dedup)
+- [ ] v_tx_trends: ~90 rows (last 90 days)
+- [ ] v_product_mix: ~12 categories
+- [ ] v_brand_performance: ≥8 brands
+- [ ] v_geo_regions: 17 Philippines regions
+- [ ] Each dashboard page shows real data (not mock)
+
+**Dependencies:** None (this is the first task)
+**Estimated Effort:** 1 hour
+**Blocks:** ALL OTHER TASKS
 
 ---
 
@@ -545,10 +597,10 @@ CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
 
 ### Database
 - [x] All migrations applied to production
-- [x] Seed data loaded (18,000+ transactions)
-- [x] 11 Gold views exist and return data
-- [ ] RLS policies active and verified
-- [ ] Indexes created and analyzed
+- [ ] **BLOCKING: Seed data loaded (18,000+ transactions)** ← REQUIRED FIRST
+- [ ] 11 Gold views return non-empty data (blocked by seeding)
+- [ ] RLS policies active and verified (blocked by seeding)
+- [ ] Indexes created and analyzed (blocked by seeding)
 
 ### Application
 - [x] All 6 routes accessible without errors
@@ -581,22 +633,28 @@ CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
 
 ## Task Status Summary
 
-| Domain | Total | Completed | In Progress | Pending |
-|--------|-------|-----------|-------------|---------|
-| Frontend/UI | 8 | 0 | 0 | 8 |
-| API/Backend | 4 | 0 | 0 | 4 |
-| Data/ETL | 2 | 0 | 0 | 2 |
-| Testing | 3 | 0 | 0 | 3 |
-| Security | 3 | 0 | 0 | 3 |
-| Performance | 3 | 0 | 0 | 3 |
-| Documentation | 1 | 0 | 0 | 1 |
-| **Total** | **24** | **0** | **0** | **24** |
+| Domain | Total | Completed | In Progress | Pending | Blocked By |
+|--------|-------|-----------|-------------|---------|------------|
+| **Database Seeding** | **1** | **0** | **0** | **1** | **None** |
+| Frontend/UI | 8 | 0 | 0 | 8 | SEED-001 |
+| API/Backend | 4 | 0 | 0 | 4 | SEED-001 |
+| Data/ETL | 2 | 0 | 0 | 2 | SEED-001 |
+| Testing | 3 | 0 | 0 | 3 | SEED-001 |
+| Security | 3 | 0 | 0 | 3 | SEED-001 |
+| Performance | 3 | 0 | 0 | 3 | SEED-001 |
+| Documentation | 1 | 0 | 0 | 1 | None |
+| **Total** | **25** | **0** | **0** | **25** | — |
+
+**NOTE:** All tasks except SEED-001 and DOC-001 are blocked until database is seeded.
 
 ---
 
 ## Quick Reference: Remaining Work
 
-### Week 1 (Verification)
+### Week 0 (BLOCKING - Must Do First)
+1. **SEED-001: Populate Empty Database** ← START HERE
+
+### Week 1 (Verification - After Seeding)
 1. FIX-001: Verify production deployment
 
 ### Week 2 (Export + AI)

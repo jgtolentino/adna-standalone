@@ -3,10 +3,24 @@
 ## Executive Summary
 
 **Product:** Suqi Analytics - Scout Dashboard
-**Status:** 95% Production-Ready
+**Status:** 🟡 85% Production-Ready (Schema complete, database empty, frontend ready)
+**Supabase Project:** `spdtwktxdalcfigzeqrz` (superset)
 **Target:** Full production readiness by end of Q4 2025
 
-This document provides the complete architecture overview and phased implementation plan for achieving 100% production readiness, including remaining work on export functionality, AI panel integration, and security hardening.
+This document provides the complete architecture overview and phased implementation plan for achieving 100% production readiness, including **critical database seeding**, export functionality, AI panel integration, and security hardening.
+
+---
+
+## CRITICAL BLOCKER: Empty Database
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
+| Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
+| Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
+
+**BLOCKER:** Dashboard displays hardcoded mock data because database is unpopulated.
+**ACTION REQUIRED:** Run seed script before any other work.
 
 ---
 
@@ -220,22 +234,59 @@ apps/scout-dashboard/
 
 ## Implementation Phases
 
-### Phase 1: Current State Verification (Week 1)
+### Phase 0: DATABASE SEEDING (BLOCKING - Week 0)
 
-**Objective:** Verify all existing functionality works in production
+**Objective:** Populate empty database before any other work
+
+**CRITICAL:** Database is currently empty. All views return 0 rows.
 
 **Tasks:**
-1. ✅ Verify Supabase connection in production
-2. ✅ Confirm all 11 Gold views return data
-3. ✅ Test all 6 dashboard routes render correctly
-4. ✅ Validate filter context URL persistence
+1. ⬜ Connect to Supabase PostgreSQL (`spdtwktxdalcfigzeqrz`)
+2. ⬜ Run seed script: `053_scout_full_seed_18k.sql`
+3. ⬜ Verify row counts after seeding
+4. ⬜ Test each view returns non-empty results
+
+**Seeding Commands:**
+```bash
+# Set connection string
+export SUPABASE_DATABASE_URL="postgresql://postgres:PASSWORD@db.spdtwktxdalcfigzeqrz.supabase.co:5432/postgres"
+
+# Run seeding script
+psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql
+
+# Verify data loaded
+psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.scout_bronze_transactions;"
+# Expected output: 18000+
+```
+
+**Expected Post-Seed State:**
+- scout_bronze_transactions: 18,000+ rows
+- scout_silver_transactions: 17,000+ rows (after dedup)
+- v_tx_trends: 90 rows (last 90 days)
+- v_product_mix: 12 categories
+- v_brand_performance: 8+ brands
+- v_geo_regions: 17 Philippines regions
+
+**Exit Criteria:** All views return non-empty results
+
+---
+
+### Phase 1: Current State Verification (Week 1)
+
+**Objective:** Verify all existing functionality works in production (AFTER seeding)
+
+**Tasks:**
+1. ⬜ Verify Supabase connection in production
+2. ⬜ Confirm all 11 Gold views return data
+3. ⬜ Test all 6 dashboard routes render correctly
+4. ⬜ Validate filter context URL persistence
 5. ⬜ Fix any Vercel deployment errors
 
 **Verification Checklist:**
 - [x] All enums created in scout schema
 - [x] regions table has 17 rows
-- [x] scout_bronze_transactions has 18,000+ rows
-- [x] All views return data when queried
+- [ ] scout_bronze_transactions has 18,000+ rows (AFTER SEEDING)
+- [ ] All views return data when queried (AFTER SEEDING)
 - [ ] Production deployment stable (no 500 errors)
 
 ### Phase 2: Filter Integration Completion (Week 1-2)
@@ -567,10 +618,13 @@ jobs:
 
 | Week | Phase | Deliverables | Status |
 |------|-------|--------------|--------|
-| Week 1 | Verification + Filters | Production stable, filters complete | 🔄 90% |
-| Week 2 | Export + AI Panel | Export buttons, AI insights | ⬜ 0% |
-| Week 3 | Testing + Security | Playwright tests, RLS policies | ⬜ 0% |
-| Week 4 | Production Deploy | Full deployment, monitoring | ⬜ 0% |
+| **Week 0** | **DATABASE SEEDING** | **Seed 18K+ transactions, verify views** | 🔴 **BLOCKING** |
+| Week 1 | Verification + Filters | Production stable, filters complete | ⬜ Blocked |
+| Week 2 | Export + AI Panel | Export buttons, AI insights | ⬜ Blocked |
+| Week 3 | Testing + Security | Playwright tests, RLS policies | ⬜ Blocked |
+| Week 4 | Production Deploy | Full deployment, monitoring | ⬜ Blocked |
+
+**NOTE:** All phases after Week 0 are blocked until database is seeded.
 
 ---
 
