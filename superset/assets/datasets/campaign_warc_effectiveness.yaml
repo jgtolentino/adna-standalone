@@ -1,0 +1,207 @@
+# =============================================================================
+# Superset Dataset: Campaign - WARC Effectiveness
+# Source: analytics.vw_warc_effectiveness
+# =============================================================================
+
+database_name: PostgreSQL
+schema: analytics
+table_name: vw_warc_effectiveness
+description: "WARC effectiveness case studies with performance scores"
+
+# -----------------------------------------------------------------------------
+# Column Definitions
+# -----------------------------------------------------------------------------
+columns:
+  - column_name: case_id
+    description: "Unique case identifier"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: campaign_name
+    description: "Campaign name"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: brand
+    description: "Brand name"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: parent_company
+    description: "Parent company"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: publication_year
+    description: "Year published"
+    type: INTEGER
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: warc_source
+    description: "WARC source publication"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: industry_sector
+    description: "Industry sector"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: sub_category
+    description: "Sub-category"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: primary_market
+    description: "Primary market"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: market_type
+    description: "Market type"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: target_audience
+    description: "Target audience"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: primary_challenge
+    description: "Primary business challenge"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: strategic_approach
+    description: "Strategic approach"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: key_insight
+    description: "Key insight"
+    type: STRING
+    is_dimension: false
+    filterable: true
+    groupby: false
+
+  - column_name: creative_concept
+    description: "Creative concept"
+    type: STRING
+    is_dimension: false
+    filterable: true
+    groupby: false
+
+  - column_name: media_mix
+    description: "Media mix (array)"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: effectiveness_score
+    description: "Overall effectiveness score"
+    type: FLOAT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: roi_score
+    description: "ROI score"
+    type: FLOAT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: brand_awareness_score
+    description: "Brand awareness score"
+    type: FLOAT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: awards_won
+    description: "Awards won (array)"
+    type: STRING
+    is_dimension: false
+    filterable: true
+    groupby: false
+
+  - column_name: technology_used
+    description: "Technology used (array)"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: created_at
+    description: "Record creation timestamp"
+    type: TIMESTAMP
+    is_dimension: false
+    filterable: true
+    groupby: false
+    is_temporal: true
+
+# -----------------------------------------------------------------------------
+# Metrics
+# -----------------------------------------------------------------------------
+metrics:
+  - metric_name: case_count
+    expression: "COUNT(DISTINCT case_id)"
+    description: "Number of cases"
+    d3format: ",.0f"
+
+  - metric_name: avg_effectiveness
+    expression: "AVG(effectiveness_score)"
+    description: "Average effectiveness score"
+    d3format: ",.2f"
+
+  - metric_name: avg_roi
+    expression: "AVG(roi_score)"
+    description: "Average ROI score"
+    d3format: ",.2f"
+
+  - metric_name: avg_brand_awareness
+    expression: "AVG(brand_awareness_score)"
+    description: "Average brand awareness score"
+    d3format: ",.2f"
+
+  - metric_name: brand_count
+    expression: "COUNT(DISTINCT brand)"
+    description: "Unique brands"
+    d3format: ",.0f"
+
+  - metric_name: industry_count
+    expression: "COUNT(DISTINCT industry_sector)"
+    description: "Industry sectors covered"
+    d3format: ",.0f"
+
+# -----------------------------------------------------------------------------
+# Cache Settings
+# -----------------------------------------------------------------------------
+cache_timeout: 86400

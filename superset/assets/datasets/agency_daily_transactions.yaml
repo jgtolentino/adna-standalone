@@ -1,0 +1,130 @@
+# =============================================================================
+# Superset Dataset: Agency - Daily Transactions
+# Source: analytics.vw_daily_transactions
+# =============================================================================
+
+database_name: PostgreSQL
+schema: analytics
+table_name: vw_daily_transactions
+description: "Daily transaction aggregations for time-series analysis"
+
+# -----------------------------------------------------------------------------
+# Column Definitions
+# -----------------------------------------------------------------------------
+columns:
+  - column_name: transaction_date
+    description: "Transaction date"
+    type: DATE
+    is_dimension: true
+    filterable: true
+    groupby: true
+    is_temporal: true
+
+  - column_name: day_of_week
+    description: "Day of week (0=Sunday, 6=Saturday)"
+    type: INTEGER
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: day_name
+    description: "Day name (Monday, Tuesday, etc.)"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: week_number
+    description: "Week number of year"
+    type: INTEGER
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: month_number
+    description: "Month number"
+    type: INTEGER
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: month_name
+    description: "Month name"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: transaction_count
+    description: "Number of transactions"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: total_revenue
+    description: "Total revenue"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: avg_transaction_value
+    description: "Average transaction value"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: unique_stores
+    description: "Unique stores with transactions"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: unique_customers
+    description: "Unique customers"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+# -----------------------------------------------------------------------------
+# Metrics
+# -----------------------------------------------------------------------------
+metrics:
+  - metric_name: daily_transactions
+    expression: "SUM(transaction_count)"
+    description: "Total daily transactions"
+    d3format: ",.0f"
+
+  - metric_name: daily_revenue
+    expression: "SUM(total_revenue)"
+    description: "Total daily revenue"
+    d3format: ",.2f"
+
+  - metric_name: daily_avg_value
+    expression: "AVG(avg_transaction_value)"
+    description: "Average daily transaction value"
+    d3format: ",.2f"
+
+  - metric_name: active_stores
+    expression: "SUM(unique_stores)"
+    description: "Active stores count"
+    d3format: ",.0f"
+
+  - metric_name: customer_count
+    expression: "SUM(unique_customers)"
+    description: "Unique customers"
+    d3format: ",.0f"
+
+# -----------------------------------------------------------------------------
+# Time Settings
+# -----------------------------------------------------------------------------
+main_datetime_column: transaction_date
+
+# -----------------------------------------------------------------------------
+# Cache Settings
+# -----------------------------------------------------------------------------
+cache_timeout: 1800

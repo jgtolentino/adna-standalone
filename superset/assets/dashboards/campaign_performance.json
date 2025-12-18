@@ -1,0 +1,288 @@
+{
+  "dashboard_title": "TBWA Campaign Performance",
+  "slug": "tbwa-campaign-performance",
+  "description": "Campaign effectiveness metrics, WARC case studies, and creative operations performance analysis",
+  "certified_by": "TBWA Analytics Team",
+  "certification_details": "Production-ready dashboard for campaign effectiveness tracking",
+  "published": true,
+  "css": "",
+  "json_metadata": {
+    "timed_refresh_immune_slices": [],
+    "expanded_slices": {},
+    "refresh_frequency": 1800,
+    "default_filters": "{}",
+    "color_scheme": "supersetColors",
+    "label_colors": {
+      "High": "#2ca02c",
+      "Medium": "#ff7f0e",
+      "Low": "#d62728"
+    },
+    "shared_label_colors": {},
+    "color_scheme_domain": [],
+    "cross_filters_enabled": true,
+    "native_filter_configuration": [
+      {
+        "id": "filter_year",
+        "name": "Publication Year",
+        "filterType": "filter_select",
+        "targets": [
+          {"datasetId": 6, "column": {"name": "publication_year"}}
+        ],
+        "defaultDataMask": {
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+        "isInstant": true,
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "multiSelect": true
+        }
+      },
+      {
+        "id": "filter_industry",
+        "name": "Industry Sector",
+        "filterType": "filter_select",
+        "targets": [
+          {"datasetId": 6, "column": {"name": "industry_sector"}}
+        ],
+        "defaultDataMask": {
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+        "isInstant": true,
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "multiSelect": true
+        }
+      },
+      {
+        "id": "filter_market",
+        "name": "Primary Market",
+        "filterType": "filter_select",
+        "targets": [
+          {"datasetId": 6, "column": {"name": "primary_market"}}
+        ],
+        "defaultDataMask": {
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+        "isInstant": true,
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "multiSelect": true
+        }
+      },
+      {
+        "id": "filter_brand",
+        "name": "Brand",
+        "filterType": "filter_select",
+        "targets": [
+          {"datasetId": 6, "column": {"name": "brand"}}
+        ],
+        "defaultDataMask": {
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+        "isInstant": true,
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "multiSelect": true
+        }
+      }
+    ]
+  },
+  "position_json": {
+    "HEADER_ID": {
+      "id": "HEADER_ID",
+      "type": "HEADER",
+      "meta": {"text": "TBWA Campaign Performance & Effectiveness"}
+    },
+    "ROOT_ID": {"type": "ROOT", "id": "ROOT_ID", "children": ["GRID_ID"]},
+    "GRID_ID": {
+      "type": "GRID",
+      "id": "GRID_ID",
+      "children": ["ROW-kpi", "ROW-charts-1", "ROW-charts-2", "ROW-table"],
+      "parents": ["ROOT_ID"]
+    },
+    "ROW-kpi": {
+      "type": "ROW",
+      "id": "ROW-kpi",
+      "children": ["CHART-kpi-cases", "CHART-kpi-effectiveness", "CHART-kpi-roi", "CHART-kpi-brands"],
+      "parents": ["ROOT_ID", "GRID_ID"],
+      "meta": {"background": "BACKGROUND_TRANSPARENT"}
+    },
+    "ROW-charts-1": {
+      "type": "ROW",
+      "id": "ROW-charts-1",
+      "children": ["CHART-effectiveness-by-year", "CHART-effectiveness-by-industry"],
+      "parents": ["ROOT_ID", "GRID_ID"],
+      "meta": {"background": "BACKGROUND_TRANSPARENT"}
+    },
+    "ROW-charts-2": {
+      "type": "ROW",
+      "id": "ROW-charts-2",
+      "children": ["CHART-market-performance", "CHART-strategic-approach"],
+      "parents": ["ROOT_ID", "GRID_ID"],
+      "meta": {"background": "BACKGROUND_TRANSPARENT"}
+    },
+    "ROW-table": {
+      "type": "ROW",
+      "id": "ROW-table",
+      "children": ["CHART-cases-table"],
+      "parents": ["ROOT_ID", "GRID_ID"],
+      "meta": {"background": "BACKGROUND_TRANSPARENT"}
+    }
+  },
+  "charts": [
+    {
+      "slice_name": "Total Cases",
+      "viz_type": "big_number_total",
+      "description": "Total WARC effectiveness cases",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "metric": {"expressionType": "SQL", "sqlExpression": "COUNT(DISTINCT case_id)", "label": "Cases"},
+        "header_font_size": 0.4,
+        "subheader_font_size": 0.15,
+        "y_axis_format": ",.0f"
+      }
+    },
+    {
+      "slice_name": "Avg Effectiveness Score",
+      "viz_type": "big_number_total",
+      "description": "Average effectiveness score across all cases",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "metric": {"expressionType": "SQL", "sqlExpression": "AVG(effectiveness_score)", "label": "Effectiveness"},
+        "header_font_size": 0.4,
+        "subheader_font_size": 0.15,
+        "y_axis_format": ",.2f"
+      }
+    },
+    {
+      "slice_name": "Avg ROI Score",
+      "viz_type": "big_number_total",
+      "description": "Average ROI score across all cases",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "metric": {"expressionType": "SQL", "sqlExpression": "AVG(roi_score)", "label": "ROI"},
+        "header_font_size": 0.4,
+        "subheader_font_size": 0.15,
+        "y_axis_format": ",.2f"
+      }
+    },
+    {
+      "slice_name": "Unique Brands",
+      "viz_type": "big_number_total",
+      "description": "Number of unique brands in case studies",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "metric": {"expressionType": "SQL", "sqlExpression": "COUNT(DISTINCT brand)", "label": "Brands"},
+        "header_font_size": 0.4,
+        "subheader_font_size": 0.15,
+        "y_axis_format": ",.0f"
+      }
+    },
+    {
+      "slice_name": "Effectiveness by Year",
+      "viz_type": "echarts_timeseries_bar",
+      "description": "Campaign effectiveness scores by publication year",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "x_axis": "publication_year",
+        "metrics": [
+          {"expressionType": "SQL", "sqlExpression": "AVG(effectiveness_score)", "label": "Effectiveness"},
+          {"expressionType": "SQL", "sqlExpression": "AVG(roi_score)", "label": "ROI"},
+          {"expressionType": "SQL", "sqlExpression": "AVG(brand_awareness_score)", "label": "Brand Awareness"}
+        ],
+        "groupby": [],
+        "row_limit": 10,
+        "show_legend": true,
+        "legendType": "scroll",
+        "legendOrientation": "top",
+        "y_axis_format": ",.2f",
+        "rich_tooltip": true
+      }
+    },
+    {
+      "slice_name": "Effectiveness by Industry",
+      "viz_type": "echarts_bar",
+      "description": "Average effectiveness by industry sector",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "metrics": [
+          {"expressionType": "SQL", "sqlExpression": "AVG(effectiveness_score)", "label": "Effectiveness"}
+        ],
+        "groupby": ["industry_sector"],
+        "columns": [],
+        "row_limit": 15,
+        "order_desc": true,
+        "show_legend": true,
+        "rich_tooltip": true,
+        "y_axis_format": ",.2f",
+        "bar_stacked": false,
+        "orientation": "horizontal"
+      }
+    },
+    {
+      "slice_name": "Market Performance",
+      "viz_type": "bubble",
+      "description": "Market performance comparison (effectiveness vs ROI vs case count)",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "x": {"expressionType": "SQL", "sqlExpression": "AVG(effectiveness_score)", "label": "Effectiveness"},
+        "y": {"expressionType": "SQL", "sqlExpression": "AVG(roi_score)", "label": "ROI"},
+        "size": {"expressionType": "SQL", "sqlExpression": "COUNT(DISTINCT case_id)", "label": "Cases"},
+        "series": "primary_market",
+        "row_limit": 50,
+        "show_legend": true,
+        "x_axis_format": ",.2f",
+        "y_axis_format": ",.2f"
+      }
+    },
+    {
+      "slice_name": "Strategic Approaches",
+      "viz_type": "word_cloud",
+      "description": "Most common strategic approaches",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "metric": {"expressionType": "SQL", "sqlExpression": "COUNT(*)", "label": "Frequency"},
+        "series": "strategic_approach",
+        "row_limit": 50,
+        "size_from": 10,
+        "size_to": 70,
+        "rotation": "square"
+      }
+    },
+    {
+      "slice_name": "WARC Cases Detail",
+      "viz_type": "table",
+      "description": "Detailed view of all WARC effectiveness cases",
+      "params": {
+        "datasource": "analytics.vw_warc_effectiveness",
+        "all_columns": [
+          "campaign_name",
+          "brand",
+          "publication_year",
+          "industry_sector",
+          "primary_market",
+          "primary_challenge",
+          "strategic_approach",
+          "effectiveness_score",
+          "roi_score",
+          "brand_awareness_score"
+        ],
+        "row_limit": 100,
+        "order_by_cols": ["effectiveness_score"],
+        "order_desc": true,
+        "table_timestamp_format": "%Y-%m-%d",
+        "page_length": 25,
+        "include_search": true,
+        "show_cell_bars": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+# =============================================================================
+# Superset Dataset: Agency - Brand Performance
+# Source: analytics.vw_brand_performance
+# =============================================================================
+
+database_name: PostgreSQL
+schema: analytics
+table_name: vw_brand_performance
+description: "Brand-level performance metrics with TBWA client classification"
+
+# -----------------------------------------------------------------------------
+# Column Definitions
+# -----------------------------------------------------------------------------
+columns:
+  - column_name: brand_id
+    description: "Unique brand identifier"
+    type: INTEGER
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: brand_name
+    description: "Brand name"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: brand_tier
+    description: "Brand tier classification (Premium, Standard, Value)"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: is_tbwa_client
+    description: "Whether brand is a TBWA client"
+    type: BOOLEAN
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: transaction_count
+    description: "Total transactions featuring this brand"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: total_revenue
+    description: "Total revenue associated with brand"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: avg_transaction_value
+    description: "Average transaction value"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: unique_stores
+    description: "Number of stores carrying this brand"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: active_days
+    description: "Days with brand activity"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: last_transaction_date
+    description: "Most recent brand transaction"
+    type: DATE
+    is_dimension: false
+    filterable: true
+    groupby: false
+
+# -----------------------------------------------------------------------------
+# Metrics
+# -----------------------------------------------------------------------------
+metrics:
+  - metric_name: total_brand_revenue
+    expression: "SUM(total_revenue)"
+    description: "Total revenue by brand"
+    d3format: ",.2f"
+
+  - metric_name: brand_transaction_count
+    expression: "SUM(transaction_count)"
+    description: "Total transactions by brand"
+    d3format: ",.0f"
+
+  - metric_name: brand_count
+    expression: "COUNT(DISTINCT brand_id)"
+    description: "Number of brands"
+    d3format: ",.0f"
+
+  - metric_name: tbwa_client_count
+    expression: "COUNT(DISTINCT CASE WHEN is_tbwa_client THEN brand_id END)"
+    description: "Number of TBWA client brands"
+    d3format: ",.0f"
+
+  - metric_name: avg_store_reach
+    expression: "AVG(unique_stores)"
+    description: "Average store reach per brand"
+    d3format: ",.1f"
+
+  - metric_name: market_concentration
+    expression: "SUM(total_revenue) / NULLIF(COUNT(DISTINCT brand_id), 0)"
+    description: "Revenue per brand (market concentration)"
+    d3format: ",.2f"
+
+# -----------------------------------------------------------------------------
+# Cache Settings
+# -----------------------------------------------------------------------------
+cache_timeout: 3600

@@ -1,0 +1,308 @@
+{
+  "dashboard_title": "TBWA Client Portfolio Health",
+  "slug": "tbwa-client-portfolio-health",
+  "description": "Monitor TBWA client portfolio health, engagement levels, market share, and activity status",
+  "certified_by": "TBWA Analytics Team",
+  "certification_details": "Production-ready dashboard for client relationship management",
+  "published": true,
+  "css": "",
+  "json_metadata": {
+    "timed_refresh_immune_slices": [],
+    "expanded_slices": {},
+    "refresh_frequency": 600,
+    "default_filters": "{}",
+    "color_scheme": "supersetColors",
+    "label_colors": {
+      "TBWA Client": "#FFD100",
+      "Non-Client": "#666666",
+      "High": "#2ca02c",
+      "Medium": "#ff7f0e",
+      "Low": "#d62728",
+      "Inactive": "#999999",
+      "Active": "#2ca02c",
+      "Recent": "#1f77b4",
+      "Dormant": "#ff7f0e",
+      "No Activity": "#d62728"
+    },
+    "shared_label_colors": {},
+    "color_scheme_domain": [],
+    "cross_filters_enabled": true,
+    "native_filter_configuration": [
+      {
+        "id": "filter_client_status",
+        "name": "Client Status",
+        "filterType": "filter_select",
+        "targets": [
+          {"datasetId": 4, "column": {"name": "client_status"}}
+        ],
+        "defaultDataMask": {
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+        "isInstant": true,
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "multiSelect": true
+        }
+      },
+      {
+        "id": "filter_engagement",
+        "name": "Engagement Level",
+        "filterType": "filter_select",
+        "targets": [
+          {"datasetId": 4, "column": {"name": "engagement_level"}}
+        ],
+        "defaultDataMask": {
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+        "isInstant": true,
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "multiSelect": true
+        }
+      },
+      {
+        "id": "filter_activity",
+        "name": "Activity Status",
+        "filterType": "filter_select",
+        "targets": [
+          {"datasetId": 4, "column": {"name": "activity_status"}}
+        ],
+        "defaultDataMask": {
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+        "isInstant": true,
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "multiSelect": true
+        }
+      },
+      {
+        "id": "filter_brand_tier",
+        "name": "Brand Tier",
+        "filterType": "filter_select",
+        "targets": [
+          {"datasetId": 4, "column": {"name": "brand_tier"}}
+        ],
+        "defaultDataMask": {
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+        "isInstant": true,
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "multiSelect": true
+        }
+      }
+    ]
+  },
+  "position_json": {
+    "HEADER_ID": {
+      "id": "HEADER_ID",
+      "type": "HEADER",
+      "meta": {"text": "TBWA Client Portfolio Health"}
+    },
+    "ROOT_ID": {"type": "ROOT", "id": "ROOT_ID", "children": ["GRID_ID"]},
+    "GRID_ID": {
+      "type": "GRID",
+      "id": "GRID_ID",
+      "children": ["ROW-kpi", "ROW-charts-1", "ROW-charts-2", "ROW-table"],
+      "parents": ["ROOT_ID"]
+    },
+    "ROW-kpi": {
+      "type": "ROW",
+      "id": "ROW-kpi",
+      "children": ["CHART-kpi-clients", "CHART-kpi-tbwa-revenue", "CHART-kpi-market-share", "CHART-kpi-active"],
+      "parents": ["ROOT_ID", "GRID_ID"],
+      "meta": {"background": "BACKGROUND_TRANSPARENT"}
+    },
+    "ROW-charts-1": {
+      "type": "ROW",
+      "id": "ROW-charts-1",
+      "children": ["CHART-engagement-dist", "CHART-activity-status"],
+      "parents": ["ROOT_ID", "GRID_ID"],
+      "meta": {"background": "BACKGROUND_TRANSPARENT"}
+    },
+    "ROW-charts-2": {
+      "type": "ROW",
+      "id": "ROW-charts-2",
+      "children": ["CHART-client-heatmap", "CHART-demographics"],
+      "parents": ["ROOT_ID", "GRID_ID"],
+      "meta": {"background": "BACKGROUND_TRANSPARENT"}
+    },
+    "ROW-table": {
+      "type": "ROW",
+      "id": "ROW-table",
+      "children": ["CHART-client-table"],
+      "parents": ["ROOT_ID", "GRID_ID"],
+      "meta": {"background": "BACKGROUND_TRANSPARENT"}
+    }
+  },
+  "charts": [
+    {
+      "slice_name": "Total TBWA Clients",
+      "viz_type": "big_number_total",
+      "description": "Number of TBWA client brands",
+      "params": {
+        "datasource": "analytics.vw_client_portfolio",
+        "adhoc_filters": [
+          {"expressionType": "SIMPLE", "clause": "WHERE", "subject": "is_tbwa_client", "operator": "==", "comparator": true}
+        ],
+        "metric": {"expressionType": "SQL", "sqlExpression": "COUNT(DISTINCT brand_id)", "label": "TBWA Clients"},
+        "header_font_size": 0.4,
+        "subheader_font_size": 0.15,
+        "y_axis_format": ",.0f"
+      }
+    },
+    {
+      "slice_name": "TBWA Client Revenue",
+      "viz_type": "big_number_total",
+      "description": "Total revenue from TBWA clients",
+      "params": {
+        "datasource": "analytics.vw_client_portfolio",
+        "adhoc_filters": [
+          {"expressionType": "SIMPLE", "clause": "WHERE", "subject": "is_tbwa_client", "operator": "==", "comparator": true}
+        ],
+        "metric": {"expressionType": "SQL", "sqlExpression": "SUM(total_revenue)", "label": "Revenue"},
+        "header_font_size": 0.4,
+        "subheader_font_size": 0.15,
+        "y_axis_format": "$,.2f"
+      }
+    },
+    {
+      "slice_name": "Average Market Share",
+      "viz_type": "big_number_total",
+      "description": "Average market share of TBWA clients",
+      "params": {
+        "datasource": "analytics.vw_client_portfolio",
+        "adhoc_filters": [
+          {"expressionType": "SIMPLE", "clause": "WHERE", "subject": "is_tbwa_client", "operator": "==", "comparator": true}
+        ],
+        "metric": {"expressionType": "SQL", "sqlExpression": "AVG(market_share_pct)", "label": "Market Share %"},
+        "header_font_size": 0.4,
+        "subheader_font_size": 0.15,
+        "y_axis_format": ",.2f"
+      }
+    },
+    {
+      "slice_name": "Active Clients",
+      "viz_type": "big_number_total",
+      "description": "Number of active TBWA clients",
+      "params": {
+        "datasource": "analytics.vw_client_portfolio",
+        "adhoc_filters": [
+          {"expressionType": "SIMPLE", "clause": "WHERE", "subject": "is_tbwa_client", "operator": "==", "comparator": true},
+          {"expressionType": "SIMPLE", "clause": "WHERE", "subject": "activity_status", "operator": "==", "comparator": "Active"}
+        ],
+        "metric": {"expressionType": "SQL", "sqlExpression": "COUNT(DISTINCT brand_id)", "label": "Active"},
+        "header_font_size": 0.4,
+        "subheader_font_size": 0.15,
+        "y_axis_format": ",.0f"
+      }
+    },
+    {
+      "slice_name": "Engagement Distribution",
+      "viz_type": "pie",
+      "description": "Distribution of clients by engagement level",
+      "params": {
+        "datasource": "analytics.vw_client_portfolio",
+        "metrics": [
+          {"expressionType": "SQL", "sqlExpression": "COUNT(DISTINCT brand_id)", "label": "Clients"}
+        ],
+        "groupby": ["engagement_level"],
+        "row_limit": 10,
+        "show_labels": true,
+        "labels_outside": true,
+        "show_legend": true,
+        "legendType": "scroll",
+        "legendOrientation": "right",
+        "number_format": ",.0f"
+      }
+    },
+    {
+      "slice_name": "Activity Status",
+      "viz_type": "echarts_bar",
+      "description": "Client distribution by activity status",
+      "params": {
+        "datasource": "analytics.vw_client_portfolio",
+        "metrics": [
+          {"expressionType": "SQL", "sqlExpression": "COUNT(DISTINCT brand_id)", "label": "Clients"},
+          {"expressionType": "SQL", "sqlExpression": "SUM(total_revenue)", "label": "Revenue"}
+        ],
+        "groupby": ["activity_status"],
+        "columns": ["client_status"],
+        "row_limit": 20,
+        "order_desc": true,
+        "show_legend": true,
+        "rich_tooltip": true,
+        "y_axis_format": ",.0f",
+        "bar_stacked": true
+      }
+    },
+    {
+      "slice_name": "Client Revenue Heatmap",
+      "viz_type": "heatmap",
+      "description": "Revenue distribution by engagement and activity",
+      "params": {
+        "datasource": "analytics.vw_client_portfolio",
+        "all_columns_x": "engagement_level",
+        "all_columns_y": "activity_status",
+        "metric": {"expressionType": "SQL", "sqlExpression": "SUM(total_revenue)", "label": "Revenue"},
+        "row_limit": 100,
+        "normalize_across": "heatmap",
+        "xscale_interval": 1,
+        "yscale_interval": 1,
+        "left_margin": "auto",
+        "bottom_margin": "auto",
+        "y_axis_format": "$,.0f"
+      }
+    },
+    {
+      "slice_name": "Customer Demographics",
+      "viz_type": "sunburst_v2",
+      "description": "Customer demographic breakdown",
+      "params": {
+        "datasource": "analytics.vw_customer_demographics",
+        "metric": {"expressionType": "SQL", "sqlExpression": "SUM(total_revenue)", "label": "Revenue"},
+        "groupby": ["gender", "age_group"],
+        "row_limit": 100,
+        "show_labels": true,
+        "show_total": true,
+        "number_format": "$,.0f"
+      }
+    },
+    {
+      "slice_name": "Client Portfolio Table",
+      "viz_type": "table",
+      "description": "Detailed client portfolio view",
+      "params": {
+        "datasource": "analytics.vw_client_portfolio",
+        "all_columns": [
+          "brand_name",
+          "brand_tier",
+          "client_status",
+          "total_revenue",
+          "transaction_count",
+          "store_reach",
+          "market_share_pct",
+          "engagement_level",
+          "activity_status",
+          "last_activity_date"
+        ],
+        "row_limit": 100,
+        "order_by_cols": ["total_revenue"],
+        "order_desc": true,
+        "table_timestamp_format": "%Y-%m-%d",
+        "page_length": 25,
+        "include_search": true,
+        "show_cell_bars": true
+      }
+    }
+  ]
+}

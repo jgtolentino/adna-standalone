@@ -1,0 +1,89 @@
+# =============================================================================
+# Superset Dataset: Customer Demographics
+# Source: analytics.vw_customer_demographics
+# =============================================================================
+
+database_name: PostgreSQL
+schema: analytics
+table_name: vw_customer_demographics
+description: "Customer demographic segmentation analysis"
+
+# -----------------------------------------------------------------------------
+# Column Definitions
+# -----------------------------------------------------------------------------
+columns:
+  - column_name: gender
+    description: "Customer gender"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: age_group
+    description: "Customer age group"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: transaction_count
+    description: "Number of transactions"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: total_revenue
+    description: "Total revenue"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: avg_transaction_value
+    description: "Average transaction value"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: unique_customers
+    description: "Unique customer count"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+# -----------------------------------------------------------------------------
+# Metrics
+# -----------------------------------------------------------------------------
+metrics:
+  - metric_name: segment_transactions
+    expression: "SUM(transaction_count)"
+    description: "Total transactions by segment"
+    d3format: ",.0f"
+
+  - metric_name: segment_revenue
+    expression: "SUM(total_revenue)"
+    description: "Total revenue by segment"
+    d3format: ",.2f"
+
+  - metric_name: segment_avg_value
+    expression: "AVG(avg_transaction_value)"
+    description: "Average value by segment"
+    d3format: ",.2f"
+
+  - metric_name: customer_count
+    expression: "SUM(unique_customers)"
+    description: "Unique customers"
+    d3format: ",.0f"
+
+  - metric_name: revenue_per_customer
+    expression: "SUM(total_revenue) / NULLIF(SUM(unique_customers), 0)"
+    description: "Revenue per customer"
+    d3format: ",.2f"
+
+# -----------------------------------------------------------------------------
+# Cache Settings
+# -----------------------------------------------------------------------------
+cache_timeout: 3600

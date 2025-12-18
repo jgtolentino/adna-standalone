@@ -1,0 +1,150 @@
+# =============================================================================
+# Superset Dataset: Client Portfolio Health
+# Source: analytics.vw_client_portfolio
+# =============================================================================
+
+database_name: PostgreSQL
+schema: analytics
+table_name: vw_client_portfolio
+description: "Client portfolio health with market share and engagement metrics"
+
+# -----------------------------------------------------------------------------
+# Column Definitions
+# -----------------------------------------------------------------------------
+columns:
+  - column_name: brand_id
+    description: "Unique brand identifier"
+    type: INTEGER
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: brand_name
+    description: "Brand name"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: brand_tier
+    description: "Brand tier (Premium, Standard, Value)"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: is_tbwa_client
+    description: "TBWA client flag"
+    type: BOOLEAN
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: client_status
+    description: "Client status label"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: transaction_count
+    description: "Total transactions"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: total_revenue
+    description: "Total revenue"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: store_reach
+    description: "Number of stores"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: active_days
+    description: "Days with activity"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: last_activity_date
+    description: "Most recent activity"
+    type: DATE
+    is_dimension: false
+    filterable: true
+    groupby: false
+
+  - column_name: first_activity_date
+    description: "First activity in period"
+    type: DATE
+    is_dimension: false
+    filterable: true
+    groupby: false
+
+  - column_name: market_share_pct
+    description: "Market share percentage"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: engagement_level
+    description: "Engagement level (High, Medium, Low, Inactive)"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: activity_status
+    description: "Activity status (Active, Recent, Dormant, No Activity)"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+# -----------------------------------------------------------------------------
+# Metrics
+# -----------------------------------------------------------------------------
+metrics:
+  - metric_name: client_revenue
+    expression: "SUM(total_revenue)"
+    description: "Total client revenue"
+    d3format: ",.2f"
+
+  - metric_name: client_count
+    expression: "COUNT(DISTINCT brand_id)"
+    description: "Number of clients"
+    d3format: ",.0f"
+
+  - metric_name: tbwa_client_revenue
+    expression: "SUM(CASE WHEN is_tbwa_client THEN total_revenue ELSE 0 END)"
+    description: "TBWA client revenue"
+    d3format: ",.2f"
+
+  - metric_name: avg_market_share
+    expression: "AVG(market_share_pct)"
+    description: "Average market share"
+    d3format: ",.2f"
+
+  - metric_name: active_client_count
+    expression: "COUNT(DISTINCT CASE WHEN activity_status = 'Active' THEN brand_id END)"
+    description: "Active clients"
+    d3format: ",.0f"
+
+  - metric_name: high_engagement_count
+    expression: "COUNT(DISTINCT CASE WHEN engagement_level = 'High' THEN brand_id END)"
+    description: "High engagement clients"
+    d3format: ",.0f"
+
+# -----------------------------------------------------------------------------
+# Cache Settings
+# -----------------------------------------------------------------------------
+cache_timeout: 3600

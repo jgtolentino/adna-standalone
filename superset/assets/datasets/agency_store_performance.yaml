@@ -1,0 +1,124 @@
+# =============================================================================
+# Superset Dataset: Agency - Store Performance
+# Source: analytics.vw_store_performance
+# =============================================================================
+
+database_name: PostgreSQL
+schema: analytics
+table_name: vw_store_performance
+description: "Store-level performance metrics for agency overview dashboard"
+
+# -----------------------------------------------------------------------------
+# Column Definitions
+# -----------------------------------------------------------------------------
+columns:
+  - column_name: store_id
+    description: "Unique store identifier"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: store_name
+    description: "Human-readable store name"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: city
+    description: "City where store is located"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: region
+    description: "Geographic region"
+    type: STRING
+    is_dimension: true
+    filterable: true
+    groupby: true
+
+  - column_name: transaction_count
+    description: "Total number of transactions"
+    type: BIGINT
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: total_revenue
+    description: "Total revenue in PHP"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: avg_transaction_value
+    description: "Average transaction value"
+    type: NUMERIC
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: active_days
+    description: "Number of days with transactions"
+    type: INTEGER
+    is_dimension: false
+    filterable: false
+    groupby: false
+
+  - column_name: last_transaction_date
+    description: "Most recent transaction date"
+    type: DATE
+    is_dimension: false
+    filterable: true
+    groupby: false
+
+  - column_name: first_transaction_date
+    description: "First transaction date in period"
+    type: DATE
+    is_dimension: false
+    filterable: true
+    groupby: false
+
+# -----------------------------------------------------------------------------
+# Metrics
+# -----------------------------------------------------------------------------
+metrics:
+  - metric_name: total_transactions
+    expression: "SUM(transaction_count)"
+    description: "Total number of transactions across all stores"
+    d3format: ",.0f"
+
+  - metric_name: total_revenue
+    expression: "SUM(total_revenue)"
+    description: "Total revenue in PHP"
+    d3format: ",.2f"
+
+  - metric_name: avg_transaction_value
+    expression: "AVG(avg_transaction_value)"
+    description: "Average transaction value"
+    d3format: ",.2f"
+
+  - metric_name: store_count
+    expression: "COUNT(DISTINCT store_id)"
+    description: "Number of unique stores"
+    d3format: ",.0f"
+
+  - metric_name: avg_daily_revenue
+    expression: "SUM(total_revenue) / NULLIF(SUM(active_days), 0)"
+    description: "Average daily revenue per store"
+    d3format: ",.2f"
+
+# -----------------------------------------------------------------------------
+# Default Filters
+# -----------------------------------------------------------------------------
+default_filters:
+  time_column: last_transaction_date
+  time_grain: day
+
+# -----------------------------------------------------------------------------
+# Cache Settings
+# -----------------------------------------------------------------------------
+cache_timeout: 3600
