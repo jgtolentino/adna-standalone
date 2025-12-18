@@ -1,5 +1,15 @@
 # Scout Dashboard - Architecture & Implementation Plan
 
+## Executive Summary
+
+**Product:** Suqi Analytics - Scout Dashboard
+**Status:** 95% Production-Ready
+**Target:** Full production readiness by end of Q4 2025
+
+This document provides the complete architecture overview and phased implementation plan for achieving 100% production readiness, including remaining work on export functionality, AI panel integration, and security hardening.
+
+---
+
 ## Architecture Overview
 
 ### High-Level System Diagram
@@ -8,17 +18,25 @@
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                              CLIENT LAYER                                    │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                    Scout Dashboard (Next.js 24)                      │    │
+│  │                    Scout Dashboard (Next.js 14.2.15)                 │    │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │    │
-│  │  │Dashboard │ │ NLQ/AI   │ │Geography │ │  Data    │ │ Settings │  │    │
-│  │  │  Home    │ │  Query   │ │   Map    │ │ Health   │ │          │  │    │
+│  │  │Dashboard │ │ Trends   │ │Product   │ │Geography │ │   NLQ    │  │    │
+│  │  │  Home    │ │          │ │ Mix      │ │   Map    │ │          │  │    │
 │  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘  │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                    │                                         │
 │                                    ▼                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                         Data Hooks Layer                             │    │
-│  │  useKPISummary │ useGeoRegions │ useTxTrends │ useRegionMetrics     │    │
+│  │                         Data Hooks Layer (11 hooks)                  │    │
+│  │  useTxTrends | useProductMix | useBrandPerformance | useGeoRegions  │    │
+│  │  useConsumerProfile | useAgeDistribution | useFunnelMetrics |        │    │
+│  │  useDaypartAnalysis | usePaymentMethods | useStorePerformance |      │    │
+│  │  useKPISummary | useGeoRegionsMap                                    │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                       Global Filter Context                          │    │
+│  │  FilterProvider | useGlobalFilters | URL Sync | Date Presets        │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                      │
@@ -27,13 +45,15 @@
 │                              API LAYER                                       │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
 │  │                    Next.js API Routes                                │    │
-│  │   /api/nlq │ /api/kpis │ /api/health │ /api/dq/summary │ /api/*    │    │
+│  │   /api/nlq | /api/kpis | /api/health | /api/dq/summary              │    │
+│  │   /api/export/trends | /api/export/product-mix | /api/export/geo    │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                    │                                         │
 │                                    ▼                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
 │  │                    Supabase Client                                   │    │
-│  │   getSupabase() │ getSupabaseSchema('scout') │ RPC calls            │    │
+│  │   getSupabase() | getSupabaseSchema('scout') | RPC calls            │    │
+│  │   Built-in: Connection pooling, query building, error handling      │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                      │
@@ -44,10 +64,12 @@
 │  │                    Supabase PostgreSQL                               │    │
 │  │  ┌───────────────────────────────────────────────────────────────┐  │    │
 │  │  │ scout schema                                                   │  │    │
-│  │  │  ├── regions (17 PH regions)                                  │  │    │
-│  │  │  ├── stores (retail outlets)                                  │  │    │
-│  │  │  ├── transactions (canonical fact table)                      │  │    │
-│  │  │  └── v_* (gold views for analytics)                           │  │    │
+│  │  │  ├── regions (17 PH administrative regions)                   │  │    │
+│  │  │  ├── stores (250+ retail outlets)                             │  │    │
+│  │  │  ├── scout_bronze_transactions (raw, 18K+ rows)               │  │    │
+│  │  │  ├── scout_silver_transactions (cleaned, normalized)          │  │    │
+│  │  │  ├── scout_gold_* (pre-aggregated metrics)                    │  │    │
+│  │  │  └── v_* (11 Gold views for analytics)                        │  │    │
 │  │  └───────────────────────────────────────────────────────────────┘  │    │
 │  │  ┌───────────────────────────────────────────────────────────────┐  │    │
 │  │  │ dq schema (data quality)                                      │  │    │
@@ -75,15 +97,19 @@
 │                                    ▼                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
 │  │                    ETL Pipeline (Bronze → Silver → Gold)             │    │
+│  │  Airbyte | dbt | Supabase Edge Functions | Scheduled Jobs           │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Technology Stack
+---
+
+## Technology Stack
 
 | Layer | Technology | Version | Purpose |
 |-------|-----------|---------|---------|
-| **Frontend** | Next.js | 24.0.0 | React framework with App Router |
+| **Frontend** | Next.js | 14.2.15 | React framework with App Router |
+| **Runtime** | Node.js | 24.x | Vercel serverless runtime |
 | **UI Components** | React | 18.x | Component library |
 | **Styling** | Tailwind CSS | 3.3.x | Utility-first CSS |
 | **Charts** | Recharts | 2.12.x | Data visualization |
@@ -93,7 +119,9 @@
 | **Hosting** | Vercel | Latest | Edge deployment |
 | **CI/CD** | GitHub Actions | N/A | Automated workflows |
 
-### Directory Structure
+---
+
+## Directory Structure
 
 ```
 apps/scout-dashboard/
@@ -102,30 +130,34 @@ apps/scout-dashboard/
 │   │   ├── page.tsx                  # Dashboard Home (/)
 │   │   ├── layout.tsx                # Root layout with Navigation
 │   │   ├── globals.css               # Global styles
-│   │   ├── nlq/
-│   │   │   └── page.tsx              # AI Query (/nlq)
+│   │   ├── trends/
+│   │   │   └── page.tsx              # Transaction Trends (/trends)
+│   │   ├── product-mix/
+│   │   │   └── page.tsx              # Product Mix (/product-mix)
 │   │   ├── geography/
 │   │   │   └── page.tsx              # Map (/geography)
+│   │   ├── nlq/
+│   │   │   └── page.tsx              # AI Query (/nlq)
 │   │   ├── data-health/
 │   │   │   └── page.tsx              # DQ Dashboard (/data-health)
 │   │   ├── debug/
 │   │   │   └── page.tsx              # Debug (/debug)
 │   │   └── api/                      # API Routes
-│   │       ├── nlq/
-│   │       │   └── route.ts          # NLQ endpoint
-│   │       ├── kpis/
-│   │       │   └── route.ts          # KPI summary
-│   │       ├── health/
-│   │       │   └── route.ts          # System health
-│   │       ├── dq/
-│   │       │   └── summary/
-│   │       │       └── route.ts      # Data quality
-│   │       └── enriched/
-│   │           └── route.ts          # Enriched data
+│   │       ├── nlq/route.ts          # NLQ endpoint
+│   │       ├── kpis/route.ts         # KPI summary
+│   │       ├── health/route.ts       # System health
+│   │       ├── dq/summary/route.ts   # Data quality
+│   │       ├── enriched/route.ts     # Enriched data
+│   │       └── export/
+│   │           ├── trends/route.ts   # Export trends
+│   │           ├── product-mix/route.ts
+│   │           └── geography/route.ts
 │   │
 │   ├── components/
-│   │   ├── Navigation.tsx            # Top nav bar
+│   │   ├── Navigation.tsx            # Sidebar navigation
+│   │   ├── GlobalFilterBar.tsx       # Filter drawer
 │   │   ├── HealthBadge.tsx           # Health indicator
+│   │   ├── Providers.tsx             # Context providers
 │   │   ├── databank/
 │   │   │   ├── index.ts              # Barrel export
 │   │   │   ├── NLQChart.tsx          # Natural language query UI
@@ -134,12 +166,15 @@ apps/scout-dashboard/
 │   │   │   ├── ComparativeAnalytics.tsx
 │   │   │   └── DatabankHeader.tsx
 │   │   └── geography/
-│   │       └── PhilippinesChoropleth.tsx
+│   │       └── PhilippinesChoropleth.tsx  # Mapbox map
+│   │
+│   ├── contexts/
+│   │   └── FilterContext.tsx         # Global filter state + URL sync
 │   │
 │   ├── data/
 │   │   └── hooks/
 │   │       ├── index.ts              # Barrel export
-│   │       ├── useScoutData.ts       # All Scout data hooks
+│   │       ├── useScoutData.ts       # All 11 Scout data hooks
 │   │       └── useRegionMetrics.ts   # Region-specific hook
 │   │
 │   ├── hooks/
@@ -148,7 +183,9 @@ apps/scout-dashboard/
 │   ├── lib/
 │   │   ├── env.ts                    # Environment validation
 │   │   ├── supabaseClient.ts         # Supabase singleton
-│   │   └── utils.ts                  # cn() helper
+│   │   ├── utils.ts                  # cn() helper
+│   │   └── nlq/
+│   │       └── patterns.ts           # NLQ pattern registry
 │   │
 │   ├── services/
 │   │   ├── analytics.ts              # Analytics helpers
@@ -164,12 +201,13 @@ apps/scout-dashboard/
 │       └── databankUtils.ts          # Utility functions
 │
 ├── public/
-│   ├── data/                         # Static data files
-│   └── geo/
-│       └── philippines_regions_v1.geojson
+│   ├── data/                         # Static data files (fallback)
+│   ├── geo/
+│   │   └── philippines_regions_v1.geojson  # 17-region GeoJSON
+│   └── tbwasmp-logo.webp
 │
 ├── scripts/
-│   └── guard-no-csv.mjs              # Build guard
+│   └── guard-no-csv.mjs              # Build guard (no CSV in prod)
 │
 ├── next.config.js
 ├── tailwind.config.ts
@@ -182,154 +220,115 @@ apps/scout-dashboard/
 
 ## Implementation Phases
 
-### Phase 1: Database Foundation (Week 1)
+### Phase 1: Current State Verification (Week 1)
 
-**Objective:** Establish complete schema with all tables, views, and RLS policies.
+**Objective:** Verify all existing functionality works in production
 
+**Tasks:**
+1. ✅ Verify Supabase connection in production
+2. ✅ Confirm all 11 Gold views return data
+3. ✅ Test all 6 dashboard routes render correctly
+4. ✅ Validate filter context URL persistence
+5. ⬜ Fix any Vercel deployment errors
+
+**Verification Checklist:**
+- [x] All enums created in scout schema
+- [x] regions table has 17 rows
+- [x] scout_bronze_transactions has 18,000+ rows
+- [x] All views return data when queried
+- [ ] Production deployment stable (no 500 errors)
+
+### Phase 2: Filter Integration Completion (Week 1-2)
+
+**Objective:** Ensure filters work end-to-end on all pages
+
+**Tasks:**
+1. ✅ GlobalFilterBar component implemented
+2. ✅ FilterContext with URL sync implemented
+3. ✅ Date range presets (today, 7d, 30d, 90d, custom)
+4. ✅ useScoutView() accepts filters parameter
+5. ⬜ Wire GlobalFilterBar to remaining pages (consumer-behavior, profiling)
+6. ⬜ Test 6 pages × 4 filter combinations = 24 test scenarios
+
+**Filter Flow Verification:**
 ```
-Sequence:
-1. Create scout schema
-2. Create enums (daypart, payment_method, income_band, urban_rural, funnel_stage)
-3. Create regions table + seed 17 Philippine regions
-4. Create stores table with geo columns
-5. Create transactions table (canonical grain)
-6. Create all gold views (v_tx_trends, v_product_mix, etc.)
-7. Apply RLS policies
-8. Grant permissions to anon, authenticated
+User selects brands → Local state updates → "Brands: 2" badge shows
+User clicks "Apply" → All hooks refetch → Charts update → URL persists
+User navigates away → URL params preserved → Returns with filters intact
+User clicks "Reset" → Defaults restored → URL cleared
 ```
 
-**Migrations Order:**
-1. `001_scout_dashboard_schema.sql` - Base tables, roles
-2. `051_scout_transactions_canonical.sql` - Canonical model + views
-3. `052_scout_seed_data.sql` - Demo data (18,000+ transactions)
+### Phase 3: Export Functionality (Week 2)
 
-**Verification:**
-- [ ] All enums created
-- [ ] regions table has 17 rows
-- [ ] stores table has 250+ rows
-- [ ] transactions table ready for inserts
-- [ ] All views return data
-- [ ] RLS policies active
+**Objective:** Implement data export for all pages
 
-### Phase 2: Seed Data Generation (Week 1-2)
+**Tasks:**
+1. ✅ `/api/export/trends` endpoint created
+2. ✅ `/api/export/product-mix` endpoint created
+3. ✅ `/api/export/geography` endpoint created
+4. ⬜ Add "Export" button to page headers
+5. ⬜ Implement CSV format with headers
+6. ⬜ Implement XLSX format
+7. ⬜ Add audit logging for exports
 
-**Objective:** Generate realistic Philippine retail data for all dashboard surfaces.
-
-**Data Volumes:**
-| Entity | Count | Notes |
-|--------|-------|-------|
-| Regions | 17 | NCR to BARMM |
-| Stores | 250+ | Spread across 6-17 regions |
-| Brands | 40-50 | Mix of categories |
-| Products/SKUs | 300-400 | Realistic FMCG items |
-| Customers | 10,000 | Demographic variety |
-| Transactions | 18,000+ | 365-day window |
-
-**Distribution Requirements:**
-- **Category Split:** Beverages 35%, Snacks 25%, Tobacco 15%, Household 12%, Personal Care 8%, Others 5%
-- **Region Split:** NCR 35%, CALABARZON 20%, Central Luzon 15%, Others 30%
-- **Time Distribution:** Morning 25%, Afternoon 35%, Evening 30%, Night 10%
-- **Income Split:** Middle 58%, High 25%, Low 17%
-- **Urban/Rural:** Urban 71%, Rural 29%
-
-**Seed Script Location:**
-`scripts/seed_scout_demo_data.sql` or `tools/seed_scout_demo_data.ts`
-
-### Phase 3: Backend API Completion (Week 2)
-
-**Objective:** Implement all required API endpoints.
-
-**New Endpoints to Create:**
-
+**Export Endpoint Pattern:**
 ```typescript
-// /api/trends - Transaction trends with filters
-GET /api/trends?period=daily&start=2025-01-01&end=2025-12-31
+// POST /api/export/trends
+export async function POST(request: Request) {
+  const { filters, format } = await request.json();
+  const data = await fetchTrendsData(filters);
 
-// /api/filters/options - Dynamic filter values
-GET /api/filters/options
-Response: { brands: [], categories: [], regions: [], stores: [] }
-
-// /api/export/csv - Data export
-POST /api/export/csv
-Body: { view: 'transactions', filters: {...} }
-
-// /api/ai/insights - Suqi AI recommendations
-POST /api/ai/insights
-Body: { context: 'dashboard', currentFilters: {...} }
-```
-
-**Enhance Existing:**
-- `/api/nlq` - Add more patterns, improve chart type detection
-- `/api/dq/summary` - Add trend calculations
-- `/api/health` - Add component-level health checks
-
-### Phase 4: Frontend Feature Completion (Week 2-3)
-
-**Objective:** Build out remaining dashboard pages and features.
-
-**New Pages to Create:**
-
-| Page | Route | Priority | Complexity |
-|------|-------|----------|------------|
-| Transaction Trends | `/trends` | High | Medium |
-| Product Mix & SKU | `/product-mix` | High | Medium |
-| Consumer Behavior | `/behavior` | Medium | Medium |
-| Consumer Profiling | `/profiling` | Medium | Medium |
-| Competitive Analysis | `/competitive` | Medium | High |
-| Data Dictionary | `/dictionary` | Low | Low |
-| Data Sources | `/data-sources` | Low | Low |
-| Settings | `/settings` | Low | Low |
-
-**Page Templates:**
-
-```tsx
-// Template for new dashboard pages
-export default function TrendsPage() {
-  const { data, loading, error } = useTxTrends();
-  const [filters, setFilters] = useState<FilterState>(defaultFilters);
-
-  if (error) return <ErrorState message={error} />;
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <PageHeader title="Transaction Trends" />
-      <FilterControls filters={filters} onChange={setFilters} />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {loading ? <LoadingState /> : (
-          <div className="grid gap-6">
-            <KPICards data={data} />
-            <TabContainer tabs={['Volume', 'Revenue', 'Basket Size', 'Duration']}>
-              <TrendsChart data={data} metric="volume" />
-              <TrendsChart data={data} metric="revenue" />
-              <TrendsChart data={data} metric="basket_size" />
-              <TrendsChart data={data} metric="duration" />
-            </TabContainer>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  if (format === 'csv') {
+    const csv = convertToCSV(data);
+    return new Response(csv, {
+      headers: {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="scout-trends-${date}.csv"`
+      }
+    });
+  }
+  // ... xlsx, json
 }
 ```
 
-### Phase 5: Integration & Testing (Week 3)
+### Phase 4: AI Panel Integration (Week 2-3)
 
-**Objective:** Wire everything together and ensure quality.
+**Objective:** Wire Suqi AI insights to all dashboard pages
 
-**Integration Tasks:**
-1. Connect all pages to live data hooks
-2. Implement cross-page filter persistence
-3. Add real-time update subscriptions
-4. Implement error boundaries
-5. Add loading skeletons
+**Tasks:**
+1. ⬜ Create `useInsights(pageType, metrics)` hook
+2. ⬜ Implement dynamic insight generation from metrics
+3. ⬜ Add "Ask Suqi" button to page headers
+4. ⬜ Create NLQ modal overlay component
+5. ⬜ Pre-fill context from current page/filters
 
-**Testing Strategy:**
-| Type | Tool | Coverage Target |
-|------|------|-----------------|
-| Unit | Jest | Data hooks, utilities |
-| Component | React Testing Library | Critical components |
-| E2E | Playwright | Happy paths |
-| Visual | Chromatic (optional) | UI regression |
+**Insight Generation Pattern:**
+```typescript
+function generateInsights(data: TxTrendsRow[]): string[] {
+  const insights: string[] = [];
+
+  const avgGrowth = calculateGrowth(data);
+  if (avgGrowth > 10) {
+    insights.push(`Strong growth of ${avgGrowth.toFixed(1)}% over the period`);
+  }
+
+  const peakHours = findPeakHours(data);
+  insights.push(`Peak hours: ${peakHours.join(', ')} drive 60% of daily volume`);
+
+  return insights;
+}
+```
+
+### Phase 5: Testing & Quality Assurance (Week 3)
+
+**Objective:** Comprehensive testing coverage
+
+**Tasks:**
+1. ⬜ Write Playwright smoke tests (6 pages × 4 combos = 24 tests)
+2. ⬜ Add component unit tests (hooks, filters, export)
+3. ⬜ Test error boundaries with network failures
+4. ⬜ Test empty states with no data
+5. ⬜ Mobile responsiveness testing (375px, 768px, 1024px)
 
 **E2E Test Scenarios:**
 ```typescript
@@ -340,30 +339,79 @@ test('Dashboard home loads with KPIs', async ({ page }) => {
   await expect(page.locator('[data-testid="kpi-revenue"]')).toBeVisible();
 });
 
-test('NLQ query returns chart', async ({ page }) => {
-  await page.goto('/nlq');
-  await page.fill('[data-testid="nlq-input"]', 'sales by day');
-  await page.click('[data-testid="nlq-submit"]');
-  await expect(page.locator('[data-testid="chart-container"]')).toBeVisible();
+test('Filters persist across navigation', async ({ page }) => {
+  await page.goto('/trends');
+  await page.click('[data-testid="brand-coca-cola"]');
+  await page.click('[data-testid="apply-filters"]');
+  await expect(page).toHaveURL(/brands=coca-cola/);
+
+  await page.goto('/product-mix');
+  await expect(page).toHaveURL(/brands=coca-cola/);
 });
 
-test('Geography map renders regions', async ({ page }) => {
-  await page.goto('/geography');
-  await expect(page.locator('.mapboxgl-canvas')).toBeVisible();
+test('Export downloads CSV', async ({ page }) => {
+  await page.goto('/trends');
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.click('[data-testid="export-csv"]')
+  ]);
+  expect(download.suggestedFilename()).toMatch(/scout-trends.*\.csv/);
 });
 ```
 
-### Phase 6: Deployment & Go-Live (Week 4)
+### Phase 6: Security & RLS (Week 3-4)
 
-**Objective:** Production deployment with full verification.
+**Objective:** Implement row-level security and audit logging
+
+**Tasks:**
+1. ⬜ Enable RLS on scout.scout_silver_transactions
+2. ⬜ Create workspace isolation policy
+3. ⬜ Create role-based access policies
+4. ⬜ Test RLS with different user roles
+5. ⬜ Implement audit_logs table
+6. ⬜ Log export events
+
+**RLS Policy Example:**
+```sql
+-- Enable RLS
+ALTER TABLE scout.scout_silver_transactions ENABLE ROW LEVEL SECURITY;
+
+-- Workspace isolation policy
+CREATE POLICY "workspace_isolation" ON scout.scout_silver_transactions
+  FOR SELECT
+  USING (
+    workspace_id IN (
+      SELECT workspace_id FROM public.workspace_members
+      WHERE user_id = auth.uid()
+    )
+  );
+
+-- Executive: full access
+CREATE POLICY "executive_full_access" ON scout.scout_silver_transactions
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id = auth.uid() AND role = 'executive'
+    )
+  );
+```
+
+### Phase 7: Production Deployment (Week 4)
+
+**Objective:** Full production deployment with monitoring
 
 **Pre-Deployment Checklist:**
 - [ ] All migrations applied to production Supabase
-- [ ] Seed data loaded (or production data connected)
-- [ ] Environment variables configured in Vercel
-- [ ] `NEXT_PUBLIC_STRICT_DATASOURCE=true` set
-- [ ] RLS policies verified
-- [ ] Performance baseline established
+- [ ] Seed data verified (18,000+ transactions)
+- [ ] Environment variables configured in Vercel:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `NEXT_PUBLIC_MAPBOX_TOKEN`
+  - `NEXT_PUBLIC_STRICT_DATASOURCE=true`
+- [ ] RLS policies enabled and tested
+- [ ] Build passes with no warnings
+- [ ] All Playwright tests green
 
 **Vercel Configuration:**
 ```json
@@ -381,62 +429,151 @@ test('Geography map renders regions', async ({ page }) => {
 
 **Post-Deployment Verification:**
 1. Load each page and verify data renders
-2. Execute NLQ queries and verify responses
-3. Test filter interactions
-4. Verify map loads with region data
+2. Execute 5 NLQ queries and verify responses
+3. Test all filter interactions
+4. Verify map loads with 17 regions
 5. Check data health dashboard accuracy
-6. Mobile responsiveness check
+6. Mobile responsiveness check (iPad, iPhone)
+7. Export CSV and verify contents
 
 ---
 
 ## Risk Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Supabase connection failure | High | Graceful degradation, cached data |
-| Large dataset performance | Medium | Materialized views, pagination |
-| NLQ pattern mismatch | Medium | Fallback queries, user feedback |
-| Map tile loading | Low | Mapbox CDN, offline fallback |
-| RLS policy bypass | High | Regular audit, penetration testing |
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Supabase connection failure | Low | High | Graceful degradation, cached last-known-good data |
+| Large dataset performance | Medium | Medium | Materialized views, pagination, LIMIT clauses |
+| NLQ pattern mismatch | Medium | Low | Fallback to default query, user feedback loop |
+| Map tile loading slow | Low | Low | Mapbox CDN, offline fallback GeoJSON |
+| RLS policy bypass | Low | Critical | Regular security audit, penetration testing |
+| Filter state corruption | Low | Medium | URL validation, reset button, error boundary |
+| Export timeout | Medium | Medium | Background job queue, progress indicator |
 
 ---
 
 ## Performance Optimization
 
 ### Database Level
-- Indexes on frequently filtered columns (timestamp, region_code, brand_name)
-- Materialized views for heavy aggregations
-- Connection pooling via Supabase
+- ✅ Indexes on frequently filtered columns (timestamp, region_code, brand_name)
+- ✅ Materialized views for heavy aggregations (gold_region_metrics)
+- ✅ Connection pooling via Supabase
+- ⬜ Query plan analysis for slow queries
 
 ### Application Level
-- React.memo for expensive components
-- useMemo/useCallback for derived data
-- Lazy loading for route code splitting
-- Image optimization via Next.js
+- ✅ React.memo for expensive components
+- ✅ useMemo/useCallback for derived data
+- ✅ Lazy loading for route code splitting
+- ✅ Image optimization via Next.js (WebP)
+- ⬜ SWR cache tuning (stale-while-revalidate)
 
 ### Network Level
-- Edge caching for static assets
-- API response caching (SWR pattern)
-- Compression enabled
+- ✅ Edge caching for static assets (Vercel)
+- ✅ API response caching (SWR pattern)
+- ✅ Gzip compression enabled
+- ⬜ CDN for Mapbox tiles
 
 ---
 
 ## Monitoring & Observability
 
 ### Metrics to Track
-- Page load times (Core Web Vitals)
-- API response times (p50, p95, p99)
-- Error rates by endpoint
-- Active users (daily/weekly)
-- NLQ query success rate
 
-### Alerting
-- Error rate > 1% for 5 minutes
-- p95 latency > 3 seconds
-- Database connection failures
-- Supabase quota warnings
+| Metric | Tool | Target | Alert Threshold |
+|--------|------|--------|-----------------|
+| Page load time (LCP) | Vercel Analytics | < 2.5s | > 4s |
+| API response time (P95) | Supabase logs | < 500ms | > 1s |
+| Error rate | Sentry | < 0.1% | > 1% |
+| Active users (daily) | Custom analytics | 50+ | < 10 |
+| NLQ success rate | Custom logs | > 85% | < 70% |
+| Database connections | Supabase dashboard | < 80% | > 90% |
+
+### Alerting Rules
+- Error rate > 1% for 5 minutes → Slack + PagerDuty
+- P95 latency > 3 seconds → Slack
+- Database connection failures → PagerDuty
+- Supabase quota > 80% → Email warning
+
+---
+
+## CI/CD Pipeline
+
+```yaml
+# .github/workflows/scout-dashboard-ci.yml
+name: Scout Dashboard CI
+
+on:
+  push:
+    branches: [main, 'claude/*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run test:unit
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run build:vercel
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: .next
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+```
+
+---
+
+## Timeline Summary
+
+| Week | Phase | Deliverables | Status |
+|------|-------|--------------|--------|
+| Week 1 | Verification + Filters | Production stable, filters complete | 🔄 90% |
+| Week 2 | Export + AI Panel | Export buttons, AI insights | ⬜ 0% |
+| Week 3 | Testing + Security | Playwright tests, RLS policies | ⬜ 0% |
+| Week 4 | Production Deploy | Full deployment, monitoring | ⬜ 0% |
 
 ---
 
 *Plan Version: 1.0.0*
-*Created: 2025-12-07*
+*Created: 2025-12-18*
+*Last Updated: 2025-12-18*

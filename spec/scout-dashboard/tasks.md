@@ -2,720 +2,620 @@
 
 ## Overview
 
-This document contains all actionable tasks for Scout Dashboard implementation, organized by domain. Each task includes an ID, summary, files touched, and dependencies.
+This document contains all actionable tasks for Scout Dashboard production readiness, organized by priority and domain. Each task includes an ID, summary, files touched, acceptance criteria, and dependencies.
 
----
-
-## Task Domains
-
-1. [Frontend/UI](#frontendui)
-2. [Data/ETL](#dataetl)
-3. [API/Backend](#apibackend)
-4. [Odoo/OCA Delta](#odoooca-delta)
-5. [AI/NLQ](#ainlq)
-6. [Infrastructure/CI-CD](#infrastructureci-cd)
-
----
-
-## Frontend/UI
-
-### UI-001: Create Transaction Trends Page
-**Summary:** Build the Transaction Trends page with Volume, Revenue, Basket Size, and Duration tabs.
-
-**Files Touched:**
-- `src/app/trends/page.tsx` (new)
-- `src/components/trends/TrendsChart.tsx` (new)
-- `src/components/trends/TrendsKPICards.tsx` (new)
-- `src/components/Navigation.tsx` (update routes)
-
-**Dependencies:** DATA-001, API-002
-
-**Acceptance Criteria:**
-- [ ] Page accessible at `/trends`
-- [ ] 4 tabs: Volume, Revenue, Basket Size, Duration
-- [ ] Line charts render with date on X-axis
-- [ ] KPI cards show totals and trends
-- [ ] Filters apply to chart data
-
----
-
-### UI-002: Create Product Mix & SKU Page
-**Summary:** Build the Product Mix page with Category Mix, Pareto, Substitutions, and Basket Analysis views.
-
-**Files Touched:**
-- `src/app/product-mix/page.tsx` (new)
-- `src/components/product-mix/CategoryPieChart.tsx` (new)
-- `src/components/product-mix/ParetoChart.tsx` (new)
-- `src/components/product-mix/BasketAnalysis.tsx` (new)
-
-**Dependencies:** DATA-002
-
-**Acceptance Criteria:**
-- [ ] Page accessible at `/product-mix`
-- [ ] Pie chart shows category distribution
-- [ ] Pareto chart shows 80/20 analysis
-- [ ] Basket analysis shows cross-sell patterns
-
----
-
-### UI-003: Create Consumer Behavior Page
-**Summary:** Build Consumer Behavior page with Purchase Funnel, Request Methods, Acceptance Rates.
-
-**Files Touched:**
-- `src/app/behavior/page.tsx` (new)
-- `src/components/behavior/FunnelChart.tsx` (new)
-- `src/components/behavior/AcceptanceRateChart.tsx` (new)
-
-**Dependencies:** DATA-003
-
-**Acceptance Criteria:**
-- [ ] Page accessible at `/behavior`
-- [ ] Funnel chart shows visit → browse → request → accept → purchase
-- [ ] Acceptance rates visualized as bar chart
-
----
-
-### UI-004: Create Consumer Profiling Page
-**Summary:** Build Consumer Profiling page with Demographics, Age & Gender, Location, Segments.
-
-**Files Touched:**
-- `src/app/profiling/page.tsx` (new)
-- `src/components/profiling/DemographicsChart.tsx` (new)
-- `src/components/profiling/AgeGenderChart.tsx` (new)
-- `src/components/profiling/SegmentBehavior.tsx` (new)
-
-**Dependencies:** DATA-004
-
-**Acceptance Criteria:**
-- [ ] Page accessible at `/profiling`
-- [ ] Demographics breakdown by income band
-- [ ] Age distribution histogram
-- [ ] Gender split visualization
-- [ ] Urban vs Rural comparison
-
----
-
-### UI-005: Create Competitive Analysis Page
-**Summary:** Build Competitive Analysis page with Market Share, Brand Comparison.
-
-**Files Touched:**
-- `src/app/competitive/page.tsx` (new)
-- `src/components/competitive/MarketShareChart.tsx` (new)
-- `src/components/competitive/BrandComparisonTable.tsx` (new)
-
-**Dependencies:** DATA-005
-
-**Acceptance Criteria:**
-- [ ] Page accessible at `/competitive`
-- [ ] Market share pie chart
-- [ ] Brand ranking table with sorting
-- [ ] TBWA client brand highlighting
-
----
-
-### UI-006: Create Data Dictionary Page
-**Summary:** Build Data Dictionary page showing schema documentation.
-
-**Files Touched:**
-- `src/app/dictionary/page.tsx` (new)
-- `src/components/dictionary/TableExplorer.tsx` (new)
-- `src/components/dictionary/FieldDefinitions.tsx` (new)
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Page accessible at `/dictionary`
-- [ ] Lists all scout.* tables
-- [ ] Shows column names, types, descriptions
-- [ ] Searchable/filterable
-
----
-
-### UI-007: Implement Global Filter Persistence
-**Summary:** Add filter state management that persists across page navigation.
-
-**Files Touched:**
-- `src/context/FilterContext.tsx` (new)
-- `src/app/layout.tsx` (wrap with provider)
-- All page components (use context)
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Filters persist when navigating between pages
-- [ ] URL params reflect current filter state
-- [ ] Reset button clears all filters
-
----
-
-### UI-008: Add Export Functionality
-**Summary:** Implement CSV/PDF export buttons on dashboard pages.
-
-**Files Touched:**
-- `src/components/common/ExportButton.tsx` (new)
-- `src/utils/exportUtils.ts` (new)
-- All dashboard pages (add button)
-
-**Dependencies:** API-005
-
-**Acceptance Criteria:**
-- [ ] CSV export downloads data file
-- [ ] Filename includes date and page name
-- [ ] Filtered data exports (not all data)
-
----
-
-### UI-009: Enhance Mobile Responsiveness
-**Summary:** Optimize all pages for mobile viewports (375px+).
-
-**Files Touched:**
-- `src/app/globals.css`
-- All page and component files
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Navigation collapses to hamburger menu
-- [ ] Charts stack vertically on mobile
-- [ ] Filters accessible via sheet/modal
-- [ ] Touch-friendly interactions
-
----
-
-### UI-010: Add Loading Skeletons
-**Summary:** Replace spinner loading states with skeleton placeholders.
-
-**Files Touched:**
-- `src/components/common/Skeleton.tsx` (new)
-- All page components
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Skeleton matches final layout shape
-- [ ] Smooth transition to loaded content
-- [ ] Consistent skeleton style across pages
-
----
-
-## Data/ETL
-
-### DATA-001: Create v_tx_trends View
-**Summary:** Create/update the transaction trends view for daily aggregations.
-
-**Files Touched:**
-- `infrastructure/database/supabase/migrations/051_scout_transactions_canonical.sql`
-
-**Dependencies:** None
-
-**SQL Output:**
-```sql
-CREATE OR REPLACE VIEW scout.v_tx_trends AS
-SELECT
-  date_trunc('day', timestamp)::date AS tx_date,
-  count(*) AS tx_count,
-  sum(net_amount) AS total_revenue,
-  round(avg(net_amount)::numeric, 2) AS avg_basket_value,
-  count(DISTINCT store_id) AS active_stores,
-  count(DISTINCT customer_id) AS unique_customers
-FROM scout.transactions
-GROUP BY 1
-ORDER BY 1;
-```
-
-**Acceptance Criteria:**
-- [ ] View returns daily aggregations
-- [ ] Covers last 365 days of data
-- [ ] Indexes support efficient queries
-
----
-
-### DATA-002: Create v_product_mix View
-**Summary:** Create product category mix view for Product Mix page.
-
-**Files Touched:**
-- `infrastructure/database/supabase/migrations/051_scout_transactions_canonical.sql`
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Shows category distribution percentages
-- [ ] Includes brand count per category
-- [ ] Supports filtering by date range
-
----
-
-### DATA-003: Create v_funnel_analysis View
-**Summary:** Create purchase funnel view for Consumer Behavior page.
-
-**Files Touched:**
-- `infrastructure/database/supabase/migrations/051_scout_transactions_canonical.sql`
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Shows funnel stage counts
-- [ ] Calculates conversion rates
-- [ ] Orders stages correctly
-
----
-
-### DATA-004: Create v_consumer_profile Views
-**Summary:** Create consumer demographic views for Profiling page.
-
-**Files Touched:**
-- `infrastructure/database/supabase/migrations/051_scout_transactions_canonical.sql`
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] v_consumer_profile shows income/urban-rural splits
-- [ ] v_consumer_age_distribution shows age brackets
-- [ ] Supports gender breakdown
-
----
-
-### DATA-005: Create v_competitive_analysis View
-**Summary:** Create market share view for Competitive Analysis page.
-
-**Files Touched:**
-- `infrastructure/database/supabase/migrations/051_scout_transactions_canonical.sql`
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Shows brand market share percentages
-- [ ] Flags TBWA client brands
-- [ ] Category-level share calculations
-
----
-
-### DATA-006: Generate Demo Seed Data
-**Summary:** Create script to generate 18,000+ realistic Philippine retail transactions.
-
-**Files Touched:**
-- `scripts/seed_scout_demo_data.sql` (new)
-- `package.json` (add db:seed:scout script)
-
-**Dependencies:** DATA-001 through DATA-005
-
-**Acceptance Criteria:**
-- [ ] 250+ stores across 17 regions
-- [ ] 18,000+ transactions over 365 days
-- [ ] Realistic category distribution
-- [ ] Demographic variety in customers
-- [ ] Idempotent (can re-run safely)
-
----
-
-### DATA-007: Create RLS Policies
-**Summary:** Implement Row-Level Security for all scout tables.
-
-**Files Touched:**
-- `infrastructure/database/supabase/migrations/001_scout_dashboard_schema.sql`
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Executives see all data
-- [ ] Regional managers see their region only
-- [ ] Store owners see their store only
-- [ ] Analysts see all data
-
----
-
-### DATA-008: Create Performance Indexes
-**Summary:** Add indexes for common query patterns.
-
-**Files Touched:**
-- `infrastructure/database/supabase/migrations/051_scout_transactions_canonical.sql`
-
-**Dependencies:** DATA-001 through DATA-005
-
-**Indexes Required:**
-- [ ] `idx_scout_tx_timestamp` on (timestamp)
-- [ ] `idx_scout_tx_region_date` on (region_code, timestamp)
-- [ ] `idx_scout_tx_brand` on (brand_name)
-- [ ] `idx_scout_tx_category` on (product_category)
-- [ ] `idx_scout_tx_customer` on (customer_id)
-
----
-
-## API/Backend
-
-### API-001: Enhance NLQ Pattern Matching
-**Summary:** Add more query patterns to NLQ endpoint.
-
-**Files Touched:**
-- `src/app/api/nlq/route.ts`
-
-**Dependencies:** None
-
-**New Patterns:**
-- [ ] "top stores" → Store performance ranking
-- [ ] "growth rate" → Week-over-week growth
-- [ ] "customer profile" → Demographics summary
-- [ ] "market share" → Brand share analysis
-
----
-
-### API-002: Create Trends API
-**Summary:** Create dedicated trends API with filter support.
-
-**Files Touched:**
-- `src/app/api/trends/route.ts` (new)
-
-**Dependencies:** DATA-001
-
-**Endpoint Spec:**
-```
-GET /api/trends?period=daily&start=2025-01-01&end=2025-12-31&region=NCR
-Response: { success: true, data: TxTrendsRow[] }
-```
-
-**Acceptance Criteria:**
-- [ ] Supports date range filtering
-- [ ] Supports region filtering
-- [ ] Returns correctly typed data
-
----
-
-### API-003: Create Filter Options API
-**Summary:** Create API to return dynamic filter dropdown options.
-
-**Files Touched:**
-- `src/app/api/filters/options/route.ts` (new)
-
-**Dependencies:** None
-
-**Endpoint Spec:**
-```
-GET /api/filters/options
-Response: { brands: string[], categories: string[], regions: string[], stores: Store[] }
-```
-
-**Acceptance Criteria:**
-- [ ] Returns distinct values from database
-- [ ] Sorted alphabetically
-- [ ] Cached for 5 minutes
-
----
-
-### API-004: Create Insights API
-**Summary:** Create AI insights endpoint for Suqi recommendations.
-
-**Files Touched:**
-- `src/app/api/ai/insights/route.ts` (new)
-
-**Dependencies:** None
-
-**Endpoint Spec:**
-```
-POST /api/ai/insights
-Body: { context: 'dashboard', filters: {...} }
-Response: { insights: Insight[], confidence: number }
-```
-
-**Acceptance Criteria:**
-- [ ] Returns contextual insights
-- [ ] Based on current filter state
-- [ ] Rate limited
-
----
-
-### API-005: Create Export API
-**Summary:** Create data export endpoint for CSV/PDF generation.
-
-**Files Touched:**
-- `src/app/api/export/route.ts` (new)
-
-**Dependencies:** None
-
-**Endpoint Spec:**
-```
-POST /api/export
-Body: { format: 'csv' | 'pdf', view: string, filters: {...} }
-Response: Binary file or { url: string }
-```
-
-**Acceptance Criteria:**
-- [ ] CSV export with headers
-- [ ] Respects current filters
-- [ ] Filename includes date
-
----
-
-### API-006: Add API Error Handling
-**Summary:** Implement consistent error handling across all APIs.
-
-**Files Touched:**
-- `src/lib/apiUtils.ts` (new)
-- All `src/app/api/**/route.ts` files
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] All errors return `{ success: false, error: string }`
-- [ ] Appropriate HTTP status codes
-- [ ] Error logging to console
-
----
-
-## Odoo/OCA Delta
-
-### ODOO-001: Document Odoo Model Mapping
-**Summary:** Create documentation mapping Scout fields to Odoo CE models.
-
-**Files Touched:**
-- `docs/odoo/SCOUT_ODOO_MAPPING.md` (new)
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Maps all Scout tables to Odoo models
-- [ ] Lists required OCA modules
-- [ ] Identifies delta modules needed
-
----
-
-### ODOO-002: Define ipai_scout_integration Module
-**Summary:** Design Odoo delta module for Scout-specific fields.
-
-**Files Touched:**
-- `docs/odoo/ipai_scout_integration/README.md` (new)
-
-**Dependencies:** ODOO-001
-
-**Module Fields:**
-- [ ] `res.partner.x_income_band` (Selection)
-- [ ] `res.partner.x_urban_rural` (Selection)
-- [ ] `product.template.x_tbwa_client` (Boolean)
-
----
-
-### ODOO-003: ETL Pipeline Design
-**Summary:** Design Bronze→Silver→Gold ETL pipeline from Odoo.
-
-**Files Touched:**
-- `docs/odoo/ETL_PIPELINE_DESIGN.md` (new)
-
-**Dependencies:** ODOO-001
-
-**Acceptance Criteria:**
-- [ ] Bronze layer: raw Odoo replicas
-- [ ] Silver layer: cleaned, normalized
-- [ ] Gold layer: analytics-ready views
-- [ ] Incremental update strategy
-
----
-
-## AI/NLQ
-
-### NLQ-001: Improve Chart Type Detection
-**Summary:** Enhance automatic chart type selection based on query semantics.
-
-**Files Touched:**
-- `src/app/api/nlq/route.ts`
-
-**Dependencies:** None
-
-**Improvements:**
-- [ ] Multi-word keyword matching
-- [ ] Query intent classification
-- [ ] Default chart fallback logic
-
----
-
-### NLQ-002: Add Query Suggestions Engine
-**Summary:** Implement dynamic query suggestions based on available data.
-
-**Files Touched:**
-- `src/app/api/nlq/route.ts`
-- `src/components/databank/NLQChart.tsx`
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Suggestions based on available dimensions
-- [ ] Recently used queries
-- [ ] Popular queries
-
----
-
-### NLQ-003: Implement Query Validation
-**Summary:** Add input validation and sanitization for NLQ queries.
-
-**Files Touched:**
-- `src/app/api/nlq/route.ts`
-- `src/lib/nlqValidator.ts` (new)
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Reject SQL injection attempts
-- [ ] Whitelist allowed table/view names
-- [ ] Rate limit queries per user
-
----
-
-### NLQ-004: Add Query Explanation
-**Summary:** Show users what SQL was executed and why.
-
-**Files Touched:**
-- `src/components/databank/NLQChart.tsx`
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Display executed SQL (sanitized)
-- [ ] Show matched pattern
-- [ ] Explain chart type choice
-
----
-
-## Infrastructure/CI-CD
-
-### INFRA-001: Set Up GitHub Actions Workflow
-**Summary:** Create CI workflow for linting, type-checking, and testing.
-
-**Files Touched:**
-- `.github/workflows/scout-dashboard-ci.yml` (new)
-
-**Dependencies:** None
-
-**Workflow Steps:**
-- [ ] npm install
-- [ ] npm run lint
-- [ ] npm run type-check
-- [ ] npm run test (when tests exist)
-- [ ] npm run build
-
----
-
-### INFRA-002: Add Seed Verification Job
-**Summary:** Add CI job to verify seed script runs without errors.
-
-**Files Touched:**
-- `.github/workflows/scout-seed-check.yml` (new)
-
-**Dependencies:** DATA-006
-
-**Acceptance Criteria:**
-- [ ] Runs against temp database
-- [ ] Verifies row counts
-- [ ] Fails on seed errors
-
----
-
-### INFRA-003: Configure Vercel Deployment
-**Summary:** Ensure Vercel project settings are correct.
-
-**Files Touched:**
-- `apps/scout-dashboard/vercel.json`
-
-**Dependencies:** None
-
-**Settings:**
-- [ ] Root directory: `apps/scout-dashboard`
-- [ ] Build command: `npm run build:vercel`
-- [ ] Framework: Next.js
-- [ ] Region: sin1 (Singapore)
-
----
-
-### INFRA-004: Add Environment Variable Documentation
-**Summary:** Document all required environment variables.
-
-**Files Touched:**
-- `apps/scout-dashboard/.env.example` (new)
-- `apps/scout-dashboard/DEPLOYMENT_README.md` (update)
-
-**Dependencies:** None
-
-**Variables:**
-- [ ] `NEXT_PUBLIC_SUPABASE_URL`
-- [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- [ ] `NEXT_PUBLIC_MAPBOX_TOKEN`
-- [ ] `NEXT_PUBLIC_STRICT_DATASOURCE`
-
----
-
-### INFRA-005: Add Health Check Endpoint
-**Summary:** Create comprehensive health check for monitoring.
-
-**Files Touched:**
-- `src/app/api/health/route.ts` (enhance)
-
-**Dependencies:** None
-
-**Health Checks:**
-- [ ] Database connectivity
-- [ ] View accessibility
-- [ ] Response time
-- [ ] Last data update time
-
----
-
-### INFRA-006: Set Up Error Monitoring
-**Summary:** Integrate error tracking (Sentry or similar).
-
-**Files Touched:**
-- `src/lib/errorTracking.ts` (new)
-- `src/app/layout.tsx` (add provider)
-
-**Dependencies:** None
-
-**Acceptance Criteria:**
-- [ ] Errors captured with stack trace
-- [ ] User context attached
-- [ ] Environment tagged (dev/prod)
+**Current Status:** 95% Production-Ready
+**Remaining Work:** Export UI, AI Panel, Testing, Security
 
 ---
 
 ## Priority Matrix
 
-| Priority | Tasks |
-|----------|-------|
-| **P0 - Critical** | DATA-006, UI-001, UI-002, API-002, INFRA-003 |
-| **P1 - High** | DATA-001, DATA-002, UI-003, UI-004, UI-007, API-001 |
-| **P2 - Medium** | UI-005, UI-008, DATA-007, API-003, API-004, NLQ-001 |
-| **P3 - Low** | UI-006, UI-009, UI-010, ODOO-*, NLQ-002, NLQ-003 |
+| Priority | Description | Tasks |
+|----------|-------------|-------|
+| **P0 - Critical** | Blocking production | FIX-001, UI-008 |
+| **P1 - High** | Core functionality | UI-001 through UI-007, API-001 through API-004 |
+| **P2 - Medium** | Important features | TEST-001 through TEST-003, SEC-001 through SEC-003 |
+| **P3 - Low** | Nice-to-have | PERF-001 through PERF-003, DOC-001 |
+
+---
+
+## P0 - Critical Tasks
+
+### FIX-001: Verify Vercel Production Deployment
+**Summary:** Ensure production deployment at scout-dashboard-xi.vercel.app is stable with no 500 errors
+
+**Files Touched:**
+- `apps/scout-dashboard/vercel.json`
+- Vercel project settings
+
+**Acceptance Criteria:**
+- [ ] All 6 pages load without 500 errors
+- [ ] Supabase connection works (no "Supabase not configured" errors)
+- [ ] Mapbox map renders with 17 regions
+- [ ] KPI cards show real data (not placeholders)
+- [ ] Console has no critical errors
+
+**Dependencies:** None
+**Estimated Effort:** 2 hours
+
+---
+
+## P1 - High Priority Tasks
+
+### Frontend/UI
+
+#### UI-001: Wire Export Button to Trends Page
+**Summary:** Add visible Export button to /trends page that triggers CSV download
+
+**Files Touched:**
+- `src/app/trends/page.tsx`
+- `src/components/ExportButton.tsx` (new)
+
+**Acceptance Criteria:**
+- [ ] Export button visible in page header
+- [ ] Click triggers POST to `/api/export/trends`
+- [ ] File downloads with name `scout-trends-YYYY-MM-DD.csv`
+- [ ] Includes current filter state in request
+- [ ] Loading spinner during export
+
+**Dependencies:** API-001
+
+---
+
+#### UI-002: Wire Export Button to Product Mix Page
+**Summary:** Add Export button to /product-mix page
+
+**Files Touched:**
+- `src/app/product-mix/page.tsx`
+- `src/components/ExportButton.tsx`
+
+**Acceptance Criteria:**
+- [ ] Export button visible in page header
+- [ ] Downloads `scout-product-mix-YYYY-MM-DD.csv`
+- [ ] Includes filtered category/brand data
+
+**Dependencies:** API-002
+
+---
+
+#### UI-003: Wire Export Button to Geography Page
+**Summary:** Add Export button to /geography page
+
+**Files Touched:**
+- `src/app/geography/page.tsx`
+- `src/components/ExportButton.tsx`
+
+**Acceptance Criteria:**
+- [ ] Export button visible in page header
+- [ ] Downloads `scout-geography-YYYY-MM-DD.csv`
+- [ ] Includes regional metrics
+
+**Dependencies:** API-003
+
+---
+
+#### UI-004: Add "Ask Suqi" Button to All Pages
+**Summary:** Add AI query CTA button to page headers that opens NLQ modal
+
+**Files Touched:**
+- `src/app/trends/page.tsx`
+- `src/app/product-mix/page.tsx`
+- `src/app/geography/page.tsx`
+- `src/components/AskSuqiButton.tsx` (new)
+- `src/components/NLQModal.tsx` (new)
+
+**Acceptance Criteria:**
+- [ ] "Ask Suqi" button visible on all dashboard pages
+- [ ] Click opens modal overlay
+- [ ] Modal contains NLQ input + suggestions
+- [ ] Pre-fills context from current page
+- [ ] Close button works
+
+**Dependencies:** None
+
+---
+
+#### UI-005: Implement Dynamic Insights Panel
+**Summary:** Generate insights dynamically from current page data
+
+**Files Touched:**
+- `src/components/InsightsPanel.tsx` (new)
+- `src/hooks/useInsights.ts` (new)
+- `src/app/trends/page.tsx`
+- `src/app/product-mix/page.tsx`
+- `src/app/geography/page.tsx`
+
+**Acceptance Criteria:**
+- [ ] Insights panel visible on each dashboard
+- [ ] 3-5 bullet points generated from data
+- [ ] Updates when filters change
+- [ ] Shows loading state during generation
+- [ ] Empty state when no insights available
+
+**Dependencies:** None
+
+---
+
+#### UI-006: Add Consumer Behavior Page
+**Summary:** Create /consumer-behavior page with funnel chart
+
+**Files Touched:**
+- `src/app/consumer-behavior/page.tsx` (new)
+- `src/components/FunnelChart.tsx` (new)
+- `src/components/Navigation.tsx`
+
+**Acceptance Criteria:**
+- [ ] Route `/consumer-behavior` accessible
+- [ ] Sidebar nav item added
+- [ ] Funnel chart renders with stages
+- [ ] 4 KPI cards (Conversion, Acceptance, Loyalty, Discovery)
+- [ ] Filters work
+
+**Dependencies:** DATA-001
+
+---
+
+#### UI-007: Add Consumer Profiling Page
+**Summary:** Create /consumer-profiling page with demographic charts
+
+**Files Touched:**
+- `src/app/consumer-profiling/page.tsx` (new)
+- `src/components/DemographicsChart.tsx` (new)
+- `src/components/Navigation.tsx`
+
+**Acceptance Criteria:**
+- [ ] Route `/consumer-profiling` accessible
+- [ ] Age distribution bar chart
+- [ ] Gender pie chart
+- [ ] Income breakdown
+- [ ] Urban/Rural split
+
+**Dependencies:** DATA-002
+
+---
+
+#### UI-008: Add Data Freshness Indicator
+**Summary:** Show last-updated timestamp on all dashboard pages
+
+**Files Touched:**
+- `src/components/DataFreshnessIndicator.tsx` (new)
+- All page components
+
+**Acceptance Criteria:**
+- [ ] Shows "Last updated: X minutes ago"
+- [ ] Refreshes on data fetch
+- [ ] Yellow warning if > 30 min stale
+- [ ] Red warning if > 2 hours stale
+
+**Dependencies:** None
+
+---
+
+### API/Backend
+
+#### API-001: Implement CSV Export for Trends
+**Summary:** POST `/api/export/trends` returns CSV file
+
+**Files Touched:**
+- `src/app/api/export/trends/route.ts`
+
+**Acceptance Criteria:**
+- [ ] Accepts `{ filters, format }` body
+- [ ] Returns CSV with headers
+- [ ] Includes all TxTrendsRow fields
+- [ ] Respects filter parameters
+- [ ] Filename includes date
+
+**Implementation:**
+```typescript
+export async function POST(request: Request) {
+  const { filters, format } = await request.json();
+  const supabase = getSupabaseSchema('scout');
+
+  let query = supabase.from('v_tx_trends').select('*');
+  if (filters?.dateRange) {
+    query = query.gte('tx_date', filters.dateRange.start)
+                 .lte('tx_date', filters.dateRange.end);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const csv = convertToCSV(data);
+  const date = new Date().toISOString().split('T')[0];
+
+  return new Response(csv, {
+    headers: {
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename="scout-trends-${date}.csv"`
+    }
+  });
+}
+```
+
+---
+
+#### API-002: Implement CSV Export for Product Mix
+**Summary:** POST `/api/export/product-mix` returns CSV file
+
+**Files Touched:**
+- `src/app/api/export/product-mix/route.ts`
+
+**Acceptance Criteria:**
+- [ ] Returns category + brand data as CSV
+- [ ] Includes revenue, tx_count, market_share
+- [ ] Respects brand/category filters
+
+---
+
+#### API-003: Implement CSV Export for Geography
+**Summary:** POST `/api/export/geography` returns CSV file
+
+**Files Touched:**
+- `src/app/api/export/geography/route.ts`
+
+**Acceptance Criteria:**
+- [ ] Returns all 17 regions
+- [ ] Includes revenue, tx_count, active_stores, growth_rate
+- [ ] Sorted by revenue descending
+
+---
+
+#### API-004: Add Audit Logging for Exports
+**Summary:** Log export events to audit_logs table
+
+**Files Touched:**
+- `src/app/api/export/trends/route.ts`
+- `src/app/api/export/product-mix/route.ts`
+- `src/app/api/export/geography/route.ts`
+- `src/lib/auditLog.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] Each export creates audit log entry
+- [ ] Includes: user_id, action, filters, row_count, timestamp
+- [ ] Works asynchronously (doesn't block response)
+
+---
+
+### Data/ETL
+
+#### DATA-001: Verify v_funnel_metrics View
+**Summary:** Confirm funnel analysis view exists and returns data
+
+**Files Touched:**
+- SQL migrations (if view missing)
+
+**Acceptance Criteria:**
+- [ ] View exists in scout schema
+- [ ] Returns stages: visit, browse, request, accept, purchase
+- [ ] Includes count and conversion_rate per stage
+
+---
+
+#### DATA-002: Verify Consumer Profile Views
+**Summary:** Confirm consumer profile views exist and return data
+
+**Files Touched:**
+- SQL migrations (if views missing)
+
+**Acceptance Criteria:**
+- [ ] `v_consumer_profile` exists with income/urban-rural breakdown
+- [ ] `v_consumer_age_distribution` exists with age_group, gender, count
+
+---
+
+## P2 - Medium Priority Tasks
+
+### Testing
+
+#### TEST-001: Create Playwright Smoke Tests
+**Summary:** E2E tests for all 6 dashboard pages
+
+**Files Touched:**
+- `tests/e2e/smoke.spec.ts` (new)
+- `playwright.config.ts` (new)
+- `package.json` (add scripts)
+
+**Test Scenarios:**
+```typescript
+test.describe('Smoke Tests', () => {
+  test('Home dashboard loads with KPIs', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('[data-testid="kpi-transactions"]')).toBeVisible();
+    await expect(page.locator('[data-testid="kpi-revenue"]')).toBeVisible();
+    await expect(page.locator('[data-testid="kpi-stores"]')).toBeVisible();
+    await expect(page.locator('[data-testid="kpi-customers"]')).toBeVisible();
+  });
+
+  test('Trends page loads chart', async ({ page }) => {
+    await page.goto('/trends');
+    await expect(page.locator('[data-testid="trends-chart"]')).toBeVisible();
+    await expect(page.locator('text=Daily Volume')).toBeVisible();
+  });
+
+  test('Geography page loads map', async ({ page }) => {
+    await page.goto('/geography');
+    await expect(page.locator('.mapboxgl-canvas')).toBeVisible();
+  });
+
+  test('Filters persist across navigation', async ({ page }) => {
+    await page.goto('/trends?brands=coca-cola');
+    await page.goto('/product-mix');
+    await expect(page).toHaveURL(/brands=coca-cola/);
+  });
+
+  test('NLQ query returns chart', async ({ page }) => {
+    await page.goto('/nlq');
+    await page.fill('[data-testid="nlq-input"]', 'sales by day');
+    await page.click('[data-testid="nlq-submit"]');
+    await expect(page.locator('[data-testid="nlq-chart"]')).toBeVisible();
+  });
+
+  test('Export downloads file', async ({ page }) => {
+    await page.goto('/trends');
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.click('[data-testid="export-csv"]')
+    ]);
+    expect(download.suggestedFilename()).toMatch(/scout-trends.*\.csv/);
+  });
+});
+```
+
+**Acceptance Criteria:**
+- [ ] 24 test scenarios (6 pages × 4 combos)
+- [ ] All tests pass in CI
+- [ ] < 2 minute total run time
+
+---
+
+#### TEST-002: Add Component Unit Tests
+**Summary:** Jest tests for hooks and utility functions
+
+**Files Touched:**
+- `src/data/hooks/__tests__/useScoutData.test.ts` (new)
+- `src/contexts/__tests__/FilterContext.test.ts` (new)
+- `src/lib/__tests__/utils.test.ts` (new)
+- `jest.config.js` (new)
+
+**Acceptance Criteria:**
+- [ ] >80% coverage on hooks
+- [ ] Filter context state management tested
+- [ ] Date range preset calculation tested
+- [ ] CSV conversion tested
+
+---
+
+#### TEST-003: Test Error States
+**Summary:** Verify graceful degradation on network failures
+
+**Files Touched:**
+- Test files
+
+**Acceptance Criteria:**
+- [ ] "Failed to load" message appears on API error
+- [ ] Retry button functional
+- [ ] No blank screens
+- [ ] Console logs helpful error info
+
+---
+
+### Security
+
+#### SEC-001: Enable RLS on Transactions Table
+**Summary:** Add row-level security policies
+
+**Files Touched:**
+- SQL migration file
+
+**Implementation:**
+```sql
+-- Enable RLS
+ALTER TABLE scout.scout_silver_transactions ENABLE ROW LEVEL SECURITY;
+
+-- Anon can read all (for demo)
+CREATE POLICY "anon_read_all" ON scout.scout_silver_transactions
+  FOR SELECT TO anon USING (true);
+
+-- Authenticated users by workspace
+CREATE POLICY "workspace_isolation" ON scout.scout_silver_transactions
+  FOR SELECT TO authenticated
+  USING (
+    workspace_id IN (
+      SELECT workspace_id FROM public.workspace_members
+      WHERE user_id = auth.uid()
+    )
+  );
+```
+
+**Acceptance Criteria:**
+- [ ] RLS enabled on table
+- [ ] Anon role can read (for demo)
+- [ ] Authenticated users scoped by workspace (future)
+
+---
+
+#### SEC-002: Create Audit Logs Table
+**Summary:** Table for tracking user actions
+
+**Files Touched:**
+- SQL migration file
+
+**Implementation:**
+```sql
+CREATE TABLE public.audit_logs (
+  id SERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  action TEXT NOT NULL,
+  details JSONB,
+  created_at TIMESTAMP DEFAULT NOW(),
+  workspace_id TEXT
+);
+
+CREATE INDEX idx_audit_logs_user ON audit_logs(user_id);
+CREATE INDEX idx_audit_logs_action ON audit_logs(action);
+CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
+```
+
+**Acceptance Criteria:**
+- [ ] Table exists in public schema
+- [ ] Indexes for query performance
+- [ ] RLS enabled (users see own logs only)
+
+---
+
+#### SEC-003: Implement API Rate Limiting
+**Summary:** Prevent abuse of NLQ and export endpoints
+
+**Files Touched:**
+- `src/middleware.ts` (new or update)
+- `src/lib/rateLimit.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] NLQ: max 30 requests/minute per IP
+- [ ] Export: max 10 requests/minute per IP
+- [ ] 429 response on limit exceeded
+- [ ] Headers include rate limit info
+
+---
+
+## P3 - Low Priority Tasks
+
+### Performance
+
+#### PERF-001: Add SWR Cache Tuning
+**Summary:** Optimize stale-while-revalidate settings
+
+**Files Touched:**
+- `src/data/hooks/useScoutData.ts`
+
+**Acceptance Criteria:**
+- [ ] KPI summary: 5 min revalidate
+- [ ] Trends: 2 min revalidate
+- [ ] Geography: 5 min revalidate
+- [ ] Reduce unnecessary refetches
+
+---
+
+#### PERF-002: Implement Request Deduplication
+**Summary:** Prevent duplicate API calls on rapid clicks
+
+**Files Touched:**
+- `src/data/hooks/useScoutData.ts`
+
+**Acceptance Criteria:**
+- [ ] Pending request prevents new request
+- [ ] Works with filter changes
+- [ ] No race conditions
+
+---
+
+#### PERF-003: Add Bundle Size Monitoring
+**Summary:** Track JS bundle size in CI
+
+**Files Touched:**
+- `.github/workflows/scout-dashboard-ci.yml`
+- `package.json`
+
+**Acceptance Criteria:**
+- [ ] Bundle size reported in PR comments
+- [ ] Alert if > 10% increase
+- [ ] Target: < 500KB gzipped
+
+---
+
+### Documentation
+
+#### DOC-001: Update README with Setup Instructions
+**Summary:** Document local development setup
+
+**Files Touched:**
+- `apps/scout-dashboard/README.md`
+
+**Acceptance Criteria:**
+- [ ] Environment variables documented
+- [ ] Local setup steps
+- [ ] Database seeding instructions
+- [ ] Deployment process
 
 ---
 
 ## Go-Live Checklist
 
 ### Database
-- [ ] All migrations applied to production
-- [ ] Seed data loaded (or production data connected)
+- [x] All migrations applied to production
+- [x] Seed data loaded (18,000+ transactions)
+- [x] 11 Gold views exist and return data
 - [ ] RLS policies active and verified
 - [ ] Indexes created and analyzed
 
 ### Application
-- [ ] All routes accessible without errors
-- [ ] All charts render with data
-- [ ] Filters work correctly
-- [ ] Mobile responsive
-- [ ] Error boundaries in place
+- [x] All 6 routes accessible without errors
+- [x] All charts render with data
+- [x] Filters work correctly
+- [x] Mobile responsive
+- [x] Error boundaries in place
+- [ ] Export buttons functional
+- [ ] AI panel wired
 
 ### Infrastructure
-- [ ] Vercel deployment successful
-- [ ] Environment variables configured
-- [ ] Domain/SSL configured
-- [ ] Health check passing
+- [x] Vercel deployment successful
+- [x] Environment variables configured
+- [ ] Domain/SSL configured (if custom domain)
+- [x] Health check passing
+- [ ] Sentry error tracking enabled
 
 ### Security
 - [ ] RLS policies tested
 - [ ] API rate limiting enabled
-- [ ] No secrets in client bundle
-- [ ] NLQ query sanitization active
+- [x] No secrets in client bundle
+- [x] NLQ query sanitization active
 
 ### Monitoring
-- [ ] Error tracking active
-- [ ] Performance monitoring enabled
+- [ ] Error tracking active (Sentry)
+- [ ] Performance monitoring enabled (Vercel Analytics)
 - [ ] Alerting configured
 
 ---
 
+## Task Status Summary
+
+| Domain | Total | Completed | In Progress | Pending |
+|--------|-------|-----------|-------------|---------|
+| Frontend/UI | 8 | 0 | 0 | 8 |
+| API/Backend | 4 | 0 | 0 | 4 |
+| Data/ETL | 2 | 0 | 0 | 2 |
+| Testing | 3 | 0 | 0 | 3 |
+| Security | 3 | 0 | 0 | 3 |
+| Performance | 3 | 0 | 0 | 3 |
+| Documentation | 1 | 0 | 0 | 1 |
+| **Total** | **24** | **0** | **0** | **24** |
+
+---
+
+## Quick Reference: Remaining Work
+
+### Week 1 (Verification)
+1. FIX-001: Verify production deployment
+
+### Week 2 (Export + AI)
+1. API-001, API-002, API-003: Export endpoints
+2. UI-001, UI-002, UI-003: Export buttons
+3. UI-004, UI-005: AI panel
+
+### Week 3 (Testing + Security)
+1. TEST-001, TEST-002, TEST-003: Playwright + Jest
+2. SEC-001, SEC-002: RLS + Audit logs
+3. UI-006, UI-007: Consumer pages
+
+### Week 4 (Polish + Deploy)
+1. PERF-001, PERF-002: Performance tuning
+2. SEC-003, API-004: Rate limiting + Audit logging
+3. DOC-001: Documentation
+4. Final QA + production deploy
+
+---
+
 *Task List Version: 1.0.0*
-*Last Updated: 2025-12-07*
+*Last Updated: 2025-12-18*
