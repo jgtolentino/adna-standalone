@@ -3,6 +3,5 @@
   "buildCommand": "cd apps/scout-dashboard && npm run build",
   "devCommand": "cd apps/scout-dashboard && npm run dev",
   "installCommand": "npm install",
-  "framework": "nextjs",
-  "outputDirectory": "apps/scout-dashboard/.next"
+  "outputDirectory": "apps/scout-dashboardd/distt"
 }
