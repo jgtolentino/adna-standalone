@@ -1,0 +1,37 @@
+{
+  "request": {
+    "analysis_mode": "single",
+    "group_by": "none",
+    "brand_ids": null,
+    "category_ids": null,
+    "region_ids": null,
+    "store_ids": null,
+    "time_period": "daily",
+    "date_from": "2025-08-21",
+    "date_to": "2025-09-15",
+    "refresh": false
+  },
+  "response": {
+    "daily_volume": {
+      "value": 649,
+      "percent_change": 12.3,
+      "trend": "up"
+    },
+    "daily_revenue": {
+      "value": 135785.0,
+      "currency": "PHP",
+      "percent_change": -13.1,
+      "trend": "down"
+    },
+    "avg_basket_size": {
+      "value": 2.4,
+      "percent_change": 5.7,
+      "trend": "up"
+    },
+    "avg_duration": {
+      "value": 42,
+      "percent_change": -8.2,
+      "trend": "down"
+    }
+  }
+}

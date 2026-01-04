@@ -1,0 +1,340 @@
+openapi: 3.1.0
+info:
+  title: Scout Dashboard Transaction Trends API
+  version: 1.0.0
+  description: Backend contract for the Transaction Trends screen (KPIs, trends, filters, insights, export).
+servers:
+  - url: https://{project}.supabase.co
+    variables:
+      project:
+        default: your-project-ref
+tags:
+  - name: Dashboard
+  - name: Filters
+  - name: Insights
+  - name: Export
+
+paths:
+  /rest/v1/rpc/get_dashboard_summary:
+    post:
+      tags: [Dashboard]
+      summary: KPI tiles for current filters + baseline comparison
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DashboardSummaryRequest" }
+      responses:
+        "200":
+          description: KPI summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DashboardSummaryResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /rest/v1/rpc/get_transaction_trends:
+    post:
+      tags: [Dashboard]
+      summary: Trend series for selected metric + time bucket + analysis mode
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TransactionTrendsRequest" }
+      responses:
+        "200":
+          description: Trend series
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  series:
+                    type: array
+                    items: { $ref: "#/components/schemas/TrendPoint" }
+                  meta:
+                    $ref: "#/components/schemas/TrendsMeta"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /rest/v1/rpc/get_filter_options:
+    post:
+      tags: [Filters]
+      summary: Options for brands/categories/regions/stores (scoped by org)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FilterOptionsRequest" }
+      responses:
+        "200":
+          description: Filter options
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FilterOptionsResponse" }
+
+  /rest/v1/rpc/get_insights:
+    post:
+      tags: [Insights]
+      summary: Key Insights + Recommendations (cached by filters)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InsightsRequest" }
+      responses:
+        "200":
+          description: Insights payload
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InsightsResponse" }
+
+  /rest/v1/rpc/export_dashboard_data:
+    post:
+      tags: [Export]
+      summary: Create export job; returns signed URL when ready
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExportRequest" }
+      responses:
+        "200":
+          description: Export job created/returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExportResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CommonFilters:
+      type: object
+      properties:
+        analysis_mode:
+          type: string
+          enum: [single, between, among]
+        group_by:
+          type: string
+          enum: [none, brand, category, region, store]
+          default: none
+        brand_ids:
+          type: array
+          items: { type: string, format: uuid }
+          nullable: true
+        category_ids:
+          type: array
+          items: { type: string, format: uuid }
+          nullable: true
+        region_ids:
+          type: array
+          items: { type: string, format: uuid }
+          nullable: true
+        store_ids:
+          type: array
+          items: { type: string, format: uuid }
+          nullable: true
+        time_period:
+          type: string
+          enum: [realtime, hourly, daily, weekly, monthly, quarterly]
+          default: daily
+        date_from:
+          type: string
+          format: date
+          nullable: true
+        date_to:
+          type: string
+          format: date
+          nullable: true
+        refresh:
+          type: boolean
+          default: false
+
+    DashboardSummaryRequest:
+      allOf:
+        - $ref: "#/components/schemas/CommonFilters"
+
+    KPIBlock:
+      type: object
+      properties:
+        value: {}
+        percent_change:
+          type: number
+          nullable: true
+        trend:
+          type: string
+          enum: [up, down, flat]
+          nullable: true
+
+    DashboardSummaryResponse:
+      type: object
+      properties:
+        daily_volume:
+          allOf:
+            - $ref: "#/components/schemas/KPIBlock"
+            - properties:
+                value: { type: integer }
+        daily_revenue:
+          allOf:
+            - $ref: "#/components/schemas/KPIBlock"
+            - properties:
+                value: { type: number }
+                currency: { type: string, default: PHP }
+        avg_basket_size:
+          allOf:
+            - $ref: "#/components/schemas/KPIBlock"
+            - properties:
+                value: { type: number }
+        avg_duration:
+          allOf:
+            - $ref: "#/components/schemas/KPIBlock"
+            - properties:
+                value: { type: integer, description: seconds }
+
+    TransactionTrendsRequest:
+      allOf:
+        - $ref: "#/components/schemas/CommonFilters"
+        - type: object
+          required: [metric]
+          properties:
+            metric:
+              type: string
+              enum: [volume, revenue, basket_size, duration]
+
+    TrendPoint:
+      type: object
+      properties:
+        bucket:
+          type: string
+          description: ISO date or timestamp string depending on time_period
+        value:
+          type: number
+        entity_id:
+          type: string
+          format: uuid
+          nullable: true
+        entity_name:
+          type: string
+          nullable: true
+
+    TrendsMeta:
+      type: object
+      properties:
+        metric: { type: string }
+        time_period: { type: string }
+        group_by: { type: string }
+        date_from: { type: string }
+        date_to: { type: string }
+
+    FilterOptionsRequest:
+      type: object
+      required: [filter_type]
+      properties:
+        filter_type:
+          type: string
+          enum: [brands, categories, regions, stores]
+
+    FilterItem:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        parent_id: { type: string, format: uuid, nullable: true }
+        region_id: { type: string, format: uuid, nullable: true }
+
+    FilterOptionsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/FilterItem" }
+
+    InsightsRequest:
+      allOf:
+        - $ref: "#/components/schemas/CommonFilters"
+
+    Insight:
+      type: object
+      properties:
+        key: { type: string }
+        text: { type: string }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+
+    Recommendation:
+      type: object
+      properties:
+        text: { type: string }
+        category: { type: string }
+        priority: { type: integer, minimum: 1, maximum: 5 }
+        source: { type: string, enum: [rules, llm, model] }
+
+    InsightsResponse:
+      type: object
+      properties:
+        key_insights:
+          type: array
+          items: { $ref: "#/components/schemas/Insight" }
+        recommendations:
+          type: array
+          items: { $ref: "#/components/schemas/Recommendation" }
+        cache:
+          type: object
+          properties:
+            hit: { type: boolean }
+            expires_at: { type: string }
+
+    ExportRequest:
+      allOf:
+        - $ref: "#/components/schemas/CommonFilters"
+        - type: object
+          required: [format]
+          properties:
+            format:
+              type: string
+              enum: [csv, xlsx, pdf]
+            metric:
+              type: string
+              enum: [volume, revenue, basket_size, duration, all]
+              default: all
+
+    ExportResponse:
+      type: object
+      properties:
+        export_id: { type: string, format: uuid }
+        status: { type: string, enum: [queued, running, ready, error] }
+        signed_url: { type: string, nullable: true }
+        storage_path: { type: string, nullable: true }
+        row_count: { type: integer, nullable: true }
+        error_message: { type: string, nullable: true }
+
+    ErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+        code: { type: string }
+        details: { type: object, nullable: true }
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }

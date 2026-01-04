@@ -1,0 +1,310 @@
+// Scout Dashboard Data Model (DBML) — Supabase/Postgres friendly
+// Generated: January 2026
+// Notes:
+// - Core fact: transactions + transaction_line_items
+// - Dimensions: brands, categories, regions, stores, products
+// - Aggregate tables: transaction_*_summary (precomputed for UI speed)
+
+Enum user_role {
+  admin
+  analyst
+  viewer
+}
+
+Enum analysis_mode {
+  single
+  between
+  among
+}
+
+Enum time_period {
+  realtime
+  hourly
+  daily
+  weekly
+  monthly
+  quarterly
+}
+
+Enum export_format {
+  csv
+  xlsx
+  pdf
+}
+
+Table organizations {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar(255) [not null]
+  slug varchar(100) [not null, unique]
+  timezone varchar(50) [default: 'Asia/Manila']
+  features jsonb [default: `jsonb_build_object('export_formats', jsonb_build_array('csv','xlsx','pdf'), 'ai_insights', true)`]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+}
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  auth_id uuid [not null, unique] // maps to auth.users.id
+  email varchar(255) [not null]
+  role user_role [not null, default: 'viewer']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, email) [unique]
+    (org_id, role)
+  }
+}
+
+Table brands {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  name varchar(255) [not null]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, name) [unique]
+    org_id
+  }
+}
+
+Table categories {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  name varchar(255) [not null]
+  parent_category_id uuid [ref: > categories.id]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, name) [unique]
+    parent_category_id
+    org_id
+  }
+}
+
+Table regions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  name varchar(255) [not null]
+  country varchar(100) [default: 'Philippines']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, name) [unique]
+    org_id
+  }
+}
+
+Table stores {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  region_id uuid [not null, ref: > regions.id]
+  code varchar(50) [not null]
+  name varchar(255) [not null]
+  address text
+  latitude numeric(10, 8)
+  longitude numeric(11, 8)
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, code) [unique]
+    (org_id, region_id)
+    org_id
+  }
+}
+
+Table products {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  brand_id uuid [not null, ref: > brands.id]
+  category_id uuid [not null, ref: > categories.id]
+  sku varchar(100) [not null]
+  name varchar(255) [not null]
+  price numeric(12, 2)
+  is_active bool [default: true]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, sku) [unique]
+    (org_id, brand_id)
+    (org_id, category_id)
+    (org_id, is_active)
+  }
+}
+
+Table transactions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  store_id uuid [not null, ref: > stores.id]
+
+  // time
+  started_at timestamptz [not null]
+  completed_at timestamptz [not null]
+  transaction_date date [not null] // denorm for partitioning / filtering
+  duration_seconds int [not null]
+
+  // amounts
+  total_amount numeric(12, 2) [not null]
+  line_item_count int [not null]
+  total_quantity int
+
+  // optional metadata
+  customer_id uuid
+  metadata jsonb [default: '{}']
+
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, transaction_date)
+    (org_id, store_id, transaction_date)
+    (org_id, started_at)
+    store_id
+    transaction_date
+  }
+}
+
+Table transaction_line_items {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  transaction_id uuid [not null, ref: > transactions.id]
+  product_id uuid [not null, ref: > products.id]
+  quantity int [not null]
+  unit_price numeric(12, 2) [not null]
+  line_total numeric(12, 2) [not null]
+  created_at timestamptz [default: `now()`]
+
+  Indexes {
+    transaction_id
+    (org_id, product_id)
+    (org_id, transaction_id)
+  }
+}
+
+// Pre-aggregates (tables, not true materialized views) so RLS can apply cleanly.
+
+Table transaction_daily_summary {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  transaction_date date [not null]
+  store_id uuid [ref: > stores.id]
+  region_id uuid [ref: > regions.id]
+  brand_id uuid [ref: > brands.id]
+  category_id uuid [ref: > categories.id]
+  day_of_week int [not null] // 0..6
+
+  transaction_count int [not null]
+  total_revenue numeric(15,2) [not null]
+  avg_basket_size numeric(10,2)
+  avg_duration_seconds int
+  total_line_items int
+  total_quantity int
+
+  refreshed_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, transaction_date)
+    (org_id, store_id, transaction_date)
+    (org_id, brand_id, transaction_date)
+    (org_id, category_id, transaction_date)
+  }
+}
+
+Table transaction_hourly_summary {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  transaction_date date [not null]
+  hour_of_day int [not null] // 0..23
+  store_id uuid [ref: > stores.id]
+  region_id uuid [ref: > regions.id]
+  brand_id uuid [ref: > brands.id]
+  category_id uuid [ref: > categories.id]
+
+  transaction_count int [not null]
+  total_revenue numeric(15,2) [not null]
+  avg_basket_size numeric(10,2)
+  avg_duration_seconds int
+
+  refreshed_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, transaction_date, hour_of_day)
+    (org_id, store_id, transaction_date)
+  }
+}
+
+Table transaction_weekly_summary {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  week_start_date date [not null]
+  store_id uuid [ref: > stores.id]
+  region_id uuid [ref: > regions.id]
+  brand_id uuid [ref: > brands.id]
+  category_id uuid [ref: > categories.id]
+
+  transaction_count int [not null]
+  total_revenue numeric(15,2) [not null]
+  avg_basket_size numeric(10,2)
+  avg_duration_seconds int
+
+  refreshed_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, week_start_date)
+    (org_id, brand_id, week_start_date)
+  }
+}
+
+Table dashboard_insights_cache {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  cache_key text [not null] // hash(filters + period + date range)
+  payload jsonb [not null]  // { key_insights:[], recommendations:[] }
+  generated_at timestamptz [default: `now()`]
+  expires_at timestamptz [not null]
+
+  Indexes {
+    (org_id, cache_key) [unique]
+    (org_id, expires_at)
+  }
+}
+
+Table dashboard_exports {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  user_id uuid [ref: > users.id]
+  format export_format [not null]
+  request jsonb [not null] // filters + active tab + columns
+  storage_path text
+  signed_url text
+  status varchar(20) [not null, default: 'queued'] // queued|running|ready|error
+  row_count int
+  error_message text
+  created_at timestamptz [default: `now()`]
+  finished_at timestamptz
+
+  Indexes {
+    (org_id, created_at)
+    (org_id, status)
+  }
+}
+
+Table audit_logs {
+  id uuid [pk, default: `gen_random_uuid()`]
+  org_id uuid [not null, ref: > organizations.id]
+  user_id uuid [ref: > users.id]
+  action varchar(100) [not null] // view_dashboard|apply_filter|refresh|export
+  payload jsonb
+  created_at timestamptz [default: `now()`]
+
+  Indexes {
+    (org_id, created_at)
+    (user_id, created_at)
+  }
+}

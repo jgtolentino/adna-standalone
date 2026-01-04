@@ -1,0 +1,62 @@
+{
+  "request": {
+    "analysis_mode": "single",
+    "group_by": "none",
+    "brand_ids": null,
+    "category_ids": null,
+    "region_ids": null,
+    "store_ids": null,
+    "time_period": "daily",
+    "date_from": "2025-08-21",
+    "date_to": "2025-09-15",
+    "refresh": false
+  },
+  "response": {
+    "key_insights": [
+      {
+        "key": "peak_hours",
+        "text": "Peak hours: 7-9 AM and 5-7 PM drive 60% of daily volume.",
+        "confidence": 0.9
+      },
+      {
+        "key": "weekend_value",
+        "text": "Weekend transactions average 15% higher value than weekdays.",
+        "confidence": 0.85
+      },
+      {
+        "key": "location_velocity",
+        "text": "Metro Manila locations show 2x transaction velocity.",
+        "confidence": 0.92
+      },
+      {
+        "key": "duration",
+        "text": "Average transaction duration: 45 seconds.",
+        "confidence": 1.0
+      }
+    ],
+    "recommendations": [
+      {
+        "text": "Staff high-traffic locations during peak hours.",
+        "category": "staffing",
+        "priority": 5,
+        "source": "rules"
+      },
+      {
+        "text": "Promote premium products during weekend rushes.",
+        "category": "marketing",
+        "priority": 4,
+        "source": "rules"
+      },
+      {
+        "text": "Optimize checkout process to reduce wait times.",
+        "category": "operations",
+        "priority": 4,
+        "source": "rules"
+      }
+    ],
+    "cache": {
+      "hit": true,
+      "expires_at": "2025-09-15T10:00:00Z"
+    }
+  }
+}

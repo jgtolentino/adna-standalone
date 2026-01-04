@@ -1,0 +1,24 @@
+{
+  "request": {
+    "format": "csv",
+    "metric": "revenue",
+    "analysis_mode": "single",
+    "group_by": "none",
+    "brand_ids": null,
+    "category_ids": null,
+    "region_ids": null,
+    "store_ids": null,
+    "time_period": "daily",
+    "date_from": "2025-08-21",
+    "date_to": "2025-09-15",
+    "refresh": false
+  },
+  "response": {
+    "export_id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    "status": "ready",
+    "storage_path": "exports/org/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/cccccccc-cccc-cccc-cccc-cccccccccccc.csv",
+    "signed_url": "https://your-project-ref.supabase.co/storage/v1/object/sign/exports/...",
+    "row_count": 26,
+    "error_message": null
+  }
+}

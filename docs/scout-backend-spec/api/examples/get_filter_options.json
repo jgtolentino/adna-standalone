@@ -1,0 +1,54 @@
+{
+  "brands": {
+    "request": { "filter_type": "brands" },
+    "response": {
+      "items": [
+        { "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "name": "Coca-Cola", "parent_id": null, "region_id": null },
+        { "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "name": "Pepsi", "parent_id": null, "region_id": null },
+        { "id": "cccccccc-cccc-cccc-cccc-cccccccccccc", "name": "Sprite", "parent_id": null, "region_id": null },
+        { "id": "dddddddd-dddd-dddd-dddd-dddddddddddd", "name": "Fanta", "parent_id": null, "region_id": null },
+        { "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", "name": "Mountain Dew", "parent_id": null, "region_id": null },
+        { "id": "ffffffff-ffff-ffff-ffff-ffffffffffff", "name": "Dr Pepper", "parent_id": null, "region_id": null },
+        { "id": "11111111-1111-1111-1111-111111111111", "name": "Red Bull", "parent_id": null, "region_id": null },
+        { "id": "22222222-2222-2222-2222-222222222222", "name": "Monster", "parent_id": null, "region_id": null }
+      ]
+    }
+  },
+  "categories": {
+    "request": { "filter_type": "categories" },
+    "response": {
+      "items": [
+        { "id": "33333333-3333-3333-3333-333333333333", "name": "Beverages", "parent_id": null, "region_id": null },
+        { "id": "44444444-4444-4444-4444-444444444444", "name": "Snacks", "parent_id": null, "region_id": null },
+        { "id": "55555555-5555-5555-5555-555555555555", "name": "Dairy", "parent_id": null, "region_id": null },
+        { "id": "66666666-6666-6666-6666-666666666666", "name": "Bakery", "parent_id": null, "region_id": null }
+      ]
+    }
+  },
+  "regions": {
+    "request": { "filter_type": "regions" },
+    "response": {
+      "items": [
+        { "id": "77777777-7777-7777-7777-777777777777", "name": "Metro Manila", "parent_id": null, "region_id": null },
+        { "id": "88888888-8888-8888-8888-888888888888", "name": "Cebu", "parent_id": null, "region_id": null },
+        { "id": "99999999-9999-9999-9999-999999999999", "name": "Davao", "parent_id": null, "region_id": null },
+        { "id": "aaaaaaaa-1111-2222-3333-444444444444", "name": "Baguio", "parent_id": null, "region_id": null },
+        { "id": "bbbbbbbb-1111-2222-3333-444444444444", "name": "Iloilo", "parent_id": null, "region_id": null },
+        { "id": "cccccccc-1111-2222-3333-444444444444", "name": "Cagayan de Oro", "parent_id": null, "region_id": null },
+        { "id": "dddddddd-1111-2222-3333-444444444444", "name": "Bacolod", "parent_id": null, "region_id": null },
+        { "id": "eeeeeeee-1111-2222-3333-444444444444", "name": "General Santos", "parent_id": null, "region_id": null }
+      ]
+    }
+  },
+  "stores": {
+    "request": { "filter_type": "stores" },
+    "response": {
+      "items": [
+        { "id": "ffffffff-1111-2222-3333-444444444444", "name": "Store 001 - BGC", "parent_id": null, "region_id": "77777777-7777-7777-7777-777777777777" },
+        { "id": "11111111-2222-3333-4444-555555555555", "name": "Store 002 - Makati", "parent_id": null, "region_id": "77777777-7777-7777-7777-777777777777" },
+        { "id": "22222222-3333-4444-5555-666666666666", "name": "Store 003 - Ortigas", "parent_id": null, "region_id": "77777777-7777-7777-7777-777777777777" },
+        { "id": "33333333-4444-5555-6666-777777777777", "name": "Store 004 - QC", "parent_id": null, "region_id": "77777777-7777-7777-7777-777777777777" }
+      ]
+    }
+  }
+}
