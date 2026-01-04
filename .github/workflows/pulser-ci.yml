@@ -88,11 +88,7 @@ jobs:
           else
             echo "::warning::Pulser install script unavailable, creating mock pulser command"
             mkdir -p "$HOME/.pulser/bin"
-            cat > "$HOME/.pulser/bin/pulser" << 'MOCKEOF'
-#!/bin/bash
-echo "Mock pulser: $*"
-exit 0
-MOCKEOF
+            printf '%s\n' '#!/bin/bash' 'echo "Mock pulser: $*"' 'exit 0' > "$HOME/.pulser/bin/pulser"
             chmod +x "$HOME/.pulser/bin/pulser"
             echo "$HOME/.pulser/bin" >> $GITHUB_PATH
           fi
