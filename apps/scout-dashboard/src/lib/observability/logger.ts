@@ -33,14 +33,14 @@ export function logStructured(
   context: Omit<LogContext, 'action'>,
   level: LogLevel = 'info'
 ): void {
-  const entry: LogEntry = {
+  const entry = {
+    ...context,
     timestamp: new Date().toISOString(),
     level,
     action,
-    ...context,
     environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'development',
     version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'dev',
-  };
+  } as LogEntry;
 
   // Console output as structured JSON for log aggregation
   const consoleMethod = level === 'critical' ? 'error' : level;

@@ -34,6 +34,7 @@ export interface NLQResponse {
     queryType?: string;
     dataRange?: string;
     cached?: boolean;
+    error?: string;
   };
 }
 

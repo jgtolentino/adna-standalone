@@ -32,7 +32,6 @@ export async function POST(req: Request) {
 
     // Add client context
     const clientContext = {
-      component: entry.component,
       ...entry,
       source: 'client',
       userAgent: req.headers.get('user-agent') || undefined,

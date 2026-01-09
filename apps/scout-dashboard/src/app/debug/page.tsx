@@ -4,22 +4,19 @@ import { useEffect, useState } from 'react';
 import { getSupabase } from '@/lib/supabaseClient';
 
 export default function DebugPage() {
-  // Production safety: only show debug in development
-  if (process.env.NODE_ENV === 'production') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Debug Not Available</h1>
-          <p className="text-gray-600 mt-2">Debug information is only available in development mode.</p>
-        </div>
-      </div>
-    );
-  }
-  const [envCheck, setEnvCheck] = useState<any>(null);
-  const [apiTest, setApiTest] = useState<any>(null);
-  const [dbTest, setDbTest] = useState<any>(null);
+  const [envCheck, setEnvCheck] = useState<Record<string, unknown> | null>(null);
+  const [apiTest, setApiTest] = useState<Record<string, unknown> | null>(null);
+  const [dbTest, setDbTest] = useState<Record<string, unknown> | null>(null);
+  const [isProduction, setIsProduction] = useState(false);
 
   useEffect(() => {
+    // Check if production
+    setIsProduction(process.env.NODE_ENV === 'production');
+
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+
     // Check environment variables
     setEnvCheck({
       url: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -54,6 +51,18 @@ export default function DebugPage() {
         });
       });
   }, []);
+
+  // Production safety: only show debug in development
+  if (isProduction) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900">Debug Not Available</h1>
+          <p className="text-gray-600 mt-2">Debug information is only available in development mode.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">

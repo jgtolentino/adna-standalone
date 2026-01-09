@@ -83,7 +83,8 @@ async function checkViewFreshness(config: FreshnessConfig): Promise<FreshnessChe
       };
     }
 
-    if (!data || !data[config.timestampColumn]) {
+    const record = data as unknown as Record<string, unknown>;
+    if (!record || !record[config.timestampColumn]) {
       return {
         view: config.view,
         status: 'error',
@@ -94,7 +95,7 @@ async function checkViewFreshness(config: FreshnessConfig): Promise<FreshnessChe
       };
     }
 
-    const lastUpdate = new Date(data[config.timestampColumn]);
+    const lastUpdate = new Date(record[config.timestampColumn] as string);
     const ageMinutes = (Date.now() - lastUpdate.getTime()) / 60000;
     const isStale = ageMinutes > config.maxAgeMinutes;
 
