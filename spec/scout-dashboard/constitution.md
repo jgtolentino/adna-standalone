@@ -16,19 +16,18 @@
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| Schema | ✅ Complete | scout.* schema with transactions, stores, regions, views |
-| Data | 🟡 **READY TO SEED** | Migration 056_scout_complete_seed.sql created |
-| Views | ✅ Exist | 14 views for dashboard pages |
+| Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
+| Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
+| Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
 | Functions | ✅ Ready | 26 edge functions in Supabase |
 | Frontend | ✅ Live | Running on Vercel (displays mock data until seeded) |
+| ETL Pipeline | ✅ Ready | Odoo → Supabase sync scripts in `infrastructure/etl/odoo-sync/` |
 
 **BLOCKER:** Dashboard displays hardcoded mock data because database is unpopulated.
-**ACTION REQUIRED:** Run `056_scout_complete_seed.sql` to seed the database.
 
-**Seed Migration:** `infrastructure/database/supabase/migrations/056_scout_complete_seed.sql`
-- Comprehensive, idempotent seed script
-- Creates schema, tables, 130 stores, ~18,000 transactions, 14 views
-- Includes built-in verification
+**DATA SOURCE OPTIONS:**
+1. **Option A - Seed Script:** Run `053_scout_full_seed_18k.sql` for demo/testing (18K synthetic transactions)
+2. **Option B - Odoo Sync:** Configure ETL pipeline to sync from `jgtolentino/odoo-ce` backend (production)
 
 ---
 
@@ -41,11 +40,16 @@ Scout Dashboard is a real-time retail intelligence platform that transforms poin
 ## Non-Negotiables
 
 ### 1. Data Sovereignty
-- **Odoo CE/OCA 18 is the system of record** for finance, jobs, clients, and brands
+- **Odoo CE/OCA 18 (`jgtolentino/odoo-ce`) is the system of record** for finance, jobs, clients, and brands
 - Supabase `scout.*` schema serves as the **read-only analytics layer** (Bronze/Silver/Gold medallion architecture)
-- All transaction data originates from Odoo and flows through ETL pipelines
+- All transaction data originates from Odoo and flows through ETL pipeline (`infrastructure/etl/odoo-sync/`)
 - No direct writes to production data from the dashboard
 - **Zero mock data in production** - Every metric must fetch from Supabase views
+
+**Backend Repository:** [`jgtolentino/odoo-ce`](https://github.com/jgtolentino/odoo-ce)
+- Odoo CE 18 runtime
+- OCA addons (managed via lockfile)
+- IPAI custom addons (tracked, shipped)
 
 ### 2. Data Integrity
 - **Zero Mock Data in Prod:** Every metric fetches from Supabase views. No hard-coded arrays in shipped code.
@@ -222,13 +226,21 @@ Scout Dashboard is a real-time retail intelligence platform that transforms poin
 - Chart type auto-detected from query keywords
 - Response includes `executedSql` for transparency
 
-### Odoo Source Mapping
+### Odoo Source Mapping (jgtolentino/odoo-ce)
 Every Scout fact/dimension maps back to Odoo CE/OCA 18:
-- `scout.transactions` ← `account.move.line`, `pos.order`, `pos.order.line`
-- `scout.stores` ← `res.partner` (type=store)
-- `scout.products` ← `product.template`, `product.product`
-- `scout.brands` ← `product.brand` (OCA module)
-- `scout.customers` ← `res.partner` (type=customer)
+
+| Scout Table | Odoo Model | ETL Transform |
+|-------------|-----------|---------------|
+| `scout.bronze_transactions` | `pos.order` + `pos.order.line` | `infrastructure/etl/odoo-sync/transformers.py` |
+| `scout.stores` | `res.partner` (type=store) | Direct mapping |
+| `scout.products` | `product.product` | Category + brand extraction |
+| `scout.brands` | `product.brand` (OCA module) | Lookup from product |
+| `scout.customers` | `res.partner` (type=customer) | Direct mapping |
+
+**ETL Pipeline:** `infrastructure/etl/odoo-sync/sync.py`
+- Scheduled sync via GitHub Actions or Supabase Edge Function
+- Incremental sync using checkpoints
+- Bronze → Silver → Gold medallion flow
 
 ---
 

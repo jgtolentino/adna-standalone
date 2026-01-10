@@ -16,8 +16,11 @@ This document contains all actionable tasks for Scout Dashboard production readi
 | Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
 | Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
 | Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
+| ETL Pipeline | ✅ Ready | `infrastructure/etl/odoo-sync/` scripts available |
 
-**ALL TASKS BLOCKED** until database is seeded.
+**ALL TASKS BLOCKED** until database is populated via:
+1. **Demo/Testing:** Run `053_scout_full_seed_18k.sql`
+2. **Production:** Configure Odoo sync from `jgtolentino/odoo-ce`
 
 ---
 
@@ -36,53 +39,87 @@ This document contains all actionable tasks for Scout Dashboard production readi
 ## P-1 - BLOCKING (Must Complete First)
 
 ### SEED-001: Populate Empty Database
-**Summary:** Database is currently empty. Must seed with transaction data before any other work.
-
-**Status:** ✅ READY TO RUN - Migration file created (056_scout_complete_seed.sql)
+**Summary:** Database is currently empty. Must populate with transaction data before any other work.
 
 **CRITICAL:** Dashboard displays hardcoded mock data because database is unpopulated.
 
+#### Option A: Seed Script (Demo/Testing)
+
 **Files Touched:**
-- `infrastructure/database/supabase/migrations/056_scout_complete_seed.sql` (NEW - comprehensive seed)
-- `infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql` (legacy)
+- `infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql`
 - Supabase project: `spdtwktxdalcfigzeqrz` (superset)
 
-**Commands to Run:**
+**Commands:**
 ```bash
 # Set connection string
 export SUPABASE_DATABASE_URL="postgresql://postgres:PASSWORD@db.spdtwktxdalcfigzeqrz.supabase.co:5432/postgres"
 
-# Run the comprehensive seeding script (includes schema setup)
-psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/056_scout_complete_seed.sql
+# Run seeding script
+psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql
 
 # Verify data loaded
-psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.transactions;"
-# Expected output: 15000-20000 transactions
+psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.scout_bronze_transactions;"
+# Expected output: 18000+
 ```
 
-**What the seed script does:**
-1. Creates `scout` schema and all required enums
-2. Creates `scout.regions` table with 17 Philippine regions
-3. Creates `scout.stores` table with 130 stores across all regions
-4. Creates `scout.transactions` table with proper constraints
-5. Seeds ~18,000 transactions over 365 days
-6. Creates all 14 views required by the dashboard
-7. Grants permissions to `anon` and `authenticated` roles
-8. Runs verification to confirm seed success
+#### Option B: Odoo ETL Sync (Production)
+
+**Files Touched:**
+- `infrastructure/etl/odoo-sync/sync.py`
+- `infrastructure/etl/odoo-sync/odoo_client.py`
+- `infrastructure/etl/odoo-sync/transformers.py`
+
+**Backend Repository:** `jgtolentino/odoo-ce`
+
+**Commands:**
+```bash
+# Set Odoo credentials
+export ODOO_BASE_URL="https://your-odoo-instance.com"
+export ODOO_DB="your-database"
+export ODOO_USERNAME="api-user"
+export ODOO_PASSWORD="***"
+export SUPABASE_URL="https://spdtwktxdalcfigzeqrz.supabase.co"
+export SUPABASE_SERVICE_ROLE_KEY="***"
+
+# Run full sync
+cd infrastructure/etl/odoo-sync
+pip install -r requirements.txt
+python sync.py --full
+
+# Or dry-run first
+python sync.py --full --dry-run
+```
 
 **Acceptance Criteria:**
-- [ ] scout.transactions: ≥15,000 rows
-- [ ] scout.stores: 130 stores
-- [ ] scout.regions: 17 Philippines regions
-- [ ] v_tx_trends: ~365 rows (last 365 days)
-- [ ] v_product_mix: 6 categories
-- [ ] v_brand_performance: ~49 brands
+- [ ] scout_bronze_transactions: ≥18,000 rows
+- [ ] scout_silver_transactions: ≥17,000 rows (after dedup)
+- [ ] v_tx_trends: ~90 rows (last 90 days)
+- [ ] v_product_mix: ~12 categories
+- [ ] v_brand_performance: ≥8 brands
 - [ ] v_geo_regions: 17 Philippines regions
 - [ ] Each dashboard page shows real data (not mock)
 
 **Dependencies:** None (this is the first task)
-**Estimated Effort:** 15-30 minutes (run script + verify)
+**Estimated Effort:** 1-2 hours (depending on data source)
 **Blocks:** ALL OTHER TASKS
+
+---
+
+### ETL-001: Configure Scheduled Odoo Sync
+**Summary:** Set up automated sync from Odoo to Supabase
+
+**Files Touched:**
+- `.github/workflows/odoo-sync.yml` (new)
+- Or Supabase Edge Function configuration
+
+**Acceptance Criteria:**
+- [ ] Sync runs every 15 minutes (or configured schedule)
+- [ ] Incremental sync using checkpoints
+- [ ] Error alerts on sync failures
+- [ ] Sync logs visible in `scout.sync_logs`
+
+**Dependencies:** SEED-001 (Option B)
+**Estimated Effort:** 2-4 hours
 
 ---
 

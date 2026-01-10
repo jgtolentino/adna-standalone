@@ -18,9 +18,13 @@ This document provides the complete architecture overview and phased implementat
 | Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
 | Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
 | Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
+| ETL Pipeline | ✅ Ready | `infrastructure/etl/odoo-sync/` scripts available |
 
 **BLOCKER:** Dashboard displays hardcoded mock data because database is unpopulated.
-**ACTION REQUIRED:** Run seed script before any other work.
+
+**DATA SOURCE OPTIONS:**
+1. **Demo/Testing:** Run `053_scout_full_seed_18k.sql` (18K synthetic transactions)
+2. **Production:** Configure Odoo sync from `jgtolentino/odoo-ce` backend
 
 ---
 
@@ -234,53 +238,66 @@ apps/scout-dashboard/
 
 ## Implementation Phases
 
-### Phase 0: DATABASE SEEDING (BLOCKING - Week 0)
+### Phase 0: DATABASE POPULATION (BLOCKING - Week 0)
 
 **Objective:** Populate empty database before any other work
 
-**Status:** ✅ READY TO RUN - Comprehensive seed migration created (056_scout_complete_seed.sql)
-
 **CRITICAL:** Database is currently empty. All views return 0 rows.
+
+#### Option A: Seed Script (Demo/Testing)
 
 **Tasks:**
 1. ⬜ Connect to Supabase PostgreSQL (`spdtwktxdalcfigzeqrz`)
-2. ⬜ Run seed script: `056_scout_complete_seed.sql` (comprehensive, idempotent)
+2. ⬜ Run seed script: `053_scout_full_seed_18k.sql`
 3. ⬜ Verify row counts after seeding
 4. ⬜ Test each view returns non-empty results
 
-**Seeding Commands:**
+**Commands:**
 ```bash
 # Set connection string
 export SUPABASE_DATABASE_URL="postgresql://postgres:PASSWORD@db.spdtwktxdalcfigzeqrz.supabase.co:5432/postgres"
 
-# Run the comprehensive seeding script (includes full schema setup)
-psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/056_scout_complete_seed.sql
+# Run seeding script
+psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql
 
 # Verify data loaded
-psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.transactions;"
-# Expected output: 15000-20000 transactions
-
-# Verify views work
-psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.v_tx_trends;"
-# Expected: 365 rows (one per day)
+psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.scout_bronze_transactions;"
+# Expected output: 18000+
 ```
 
-**The comprehensive seed script (056) includes:**
-1. Schema and enum creation
-2. 17 Philippine regions
-3. 130 stores across all regions
-4. ~18,000 transactions over 365 days
-5. All 14 dashboard views
-6. Proper permissions for anon/authenticated
-7. Built-in verification
+#### Option B: Odoo ETL Sync (Production)
+
+**Tasks:**
+1. ⬜ Configure Odoo credentials in environment
+2. ⬜ Run initial full sync from `jgtolentino/odoo-ce`
+3. ⬜ Configure scheduled sync (GitHub Actions or Edge Function)
+4. ⬜ Verify bronze → silver → gold flow
+
+**Commands:**
+```bash
+# Set Odoo credentials
+export ODOO_BASE_URL="https://your-odoo-instance.com"
+export ODOO_DB="your-database"
+export ODOO_USERNAME="api-user"
+export ODOO_PASSWORD="***"
+
+# Run full sync
+cd infrastructure/etl/odoo-sync
+pip install -r requirements.txt
+python sync.py --full
+
+# Or dry-run first
+python sync.py --full --dry-run
+```
+
+**ETL Documentation:** `infrastructure/etl/odoo-sync/README.md`
 
 **Expected Post-Seed State:**
-- scout.transactions: 15,000-20,000 rows
-- scout.stores: 130 stores
-- scout.regions: 17 regions
-- v_tx_trends: ~365 rows (last 365 days)
-- v_product_mix: 6 categories
-- v_brand_performance: ~49 brands
+- scout_bronze_transactions: 18,000+ rows
+- scout_silver_transactions: 17,000+ rows (after dedup)
+- v_tx_trends: 90 rows (last 90 days)
+- v_product_mix: 12 categories
+- v_brand_performance: 8+ brands
 - v_geo_regions: 17 Philippines regions
 
 **Exit Criteria:** All views return non-empty results
