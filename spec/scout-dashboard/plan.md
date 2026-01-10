@@ -238,11 +238,13 @@ apps/scout-dashboard/
 
 **Objective:** Populate empty database before any other work
 
+**Status:** ✅ READY TO RUN - Comprehensive seed migration created (056_scout_complete_seed.sql)
+
 **CRITICAL:** Database is currently empty. All views return 0 rows.
 
 **Tasks:**
 1. ⬜ Connect to Supabase PostgreSQL (`spdtwktxdalcfigzeqrz`)
-2. ⬜ Run seed script: `053_scout_full_seed_18k.sql`
+2. ⬜ Run seed script: `056_scout_complete_seed.sql` (comprehensive, idempotent)
 3. ⬜ Verify row counts after seeding
 4. ⬜ Test each view returns non-empty results
 
@@ -251,20 +253,34 @@ apps/scout-dashboard/
 # Set connection string
 export SUPABASE_DATABASE_URL="postgresql://postgres:PASSWORD@db.spdtwktxdalcfigzeqrz.supabase.co:5432/postgres"
 
-# Run seeding script
-psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql
+# Run the comprehensive seeding script (includes full schema setup)
+psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/056_scout_complete_seed.sql
 
 # Verify data loaded
-psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.scout_bronze_transactions;"
-# Expected output: 18000+
+psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.transactions;"
+# Expected output: 15000-20000 transactions
+
+# Verify views work
+psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.v_tx_trends;"
+# Expected: 365 rows (one per day)
 ```
 
+**The comprehensive seed script (056) includes:**
+1. Schema and enum creation
+2. 17 Philippine regions
+3. 130 stores across all regions
+4. ~18,000 transactions over 365 days
+5. All 14 dashboard views
+6. Proper permissions for anon/authenticated
+7. Built-in verification
+
 **Expected Post-Seed State:**
-- scout_bronze_transactions: 18,000+ rows
-- scout_silver_transactions: 17,000+ rows (after dedup)
-- v_tx_trends: 90 rows (last 90 days)
-- v_product_mix: 12 categories
-- v_brand_performance: 8+ brands
+- scout.transactions: 15,000-20,000 rows
+- scout.stores: 130 stores
+- scout.regions: 17 regions
+- v_tx_trends: ~365 rows (last 365 days)
+- v_product_mix: 6 categories
+- v_brand_performance: ~49 brands
 - v_geo_regions: 17 Philippines regions
 
 **Exit Criteria:** All views return non-empty results

@@ -38,10 +38,13 @@ This document contains all actionable tasks for Scout Dashboard production readi
 ### SEED-001: Populate Empty Database
 **Summary:** Database is currently empty. Must seed with transaction data before any other work.
 
+**Status:** ✅ READY TO RUN - Migration file created (056_scout_complete_seed.sql)
+
 **CRITICAL:** Dashboard displays hardcoded mock data because database is unpopulated.
 
 **Files Touched:**
-- `infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql`
+- `infrastructure/database/supabase/migrations/056_scout_complete_seed.sql` (NEW - comprehensive seed)
+- `infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql` (legacy)
 - Supabase project: `spdtwktxdalcfigzeqrz` (superset)
 
 **Commands to Run:**
@@ -49,25 +52,36 @@ This document contains all actionable tasks for Scout Dashboard production readi
 # Set connection string
 export SUPABASE_DATABASE_URL="postgresql://postgres:PASSWORD@db.spdtwktxdalcfigzeqrz.supabase.co:5432/postgres"
 
-# Run seeding script
-psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql
+# Run the comprehensive seeding script (includes schema setup)
+psql "$SUPABASE_DATABASE_URL" -f infrastructure/database/supabase/migrations/056_scout_complete_seed.sql
 
 # Verify data loaded
-psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.scout_bronze_transactions;"
-# Expected output: 18000+
+psql "$SUPABASE_DATABASE_URL" -c "SELECT COUNT(*) FROM scout.transactions;"
+# Expected output: 15000-20000 transactions
 ```
 
+**What the seed script does:**
+1. Creates `scout` schema and all required enums
+2. Creates `scout.regions` table with 17 Philippine regions
+3. Creates `scout.stores` table with 130 stores across all regions
+4. Creates `scout.transactions` table with proper constraints
+5. Seeds ~18,000 transactions over 365 days
+6. Creates all 14 views required by the dashboard
+7. Grants permissions to `anon` and `authenticated` roles
+8. Runs verification to confirm seed success
+
 **Acceptance Criteria:**
-- [ ] scout_bronze_transactions: ≥18,000 rows
-- [ ] scout_silver_transactions: ≥17,000 rows (after dedup)
-- [ ] v_tx_trends: ~90 rows (last 90 days)
-- [ ] v_product_mix: ~12 categories
-- [ ] v_brand_performance: ≥8 brands
+- [ ] scout.transactions: ≥15,000 rows
+- [ ] scout.stores: 130 stores
+- [ ] scout.regions: 17 Philippines regions
+- [ ] v_tx_trends: ~365 rows (last 365 days)
+- [ ] v_product_mix: 6 categories
+- [ ] v_brand_performance: ~49 brands
 - [ ] v_geo_regions: 17 Philippines regions
 - [ ] Each dashboard page shows real data (not mock)
 
 **Dependencies:** None (this is the first task)
-**Estimated Effort:** 1 hour
+**Estimated Effort:** 15-30 minutes (run script + verify)
 **Blocks:** ALL OTHER TASKS
 
 ---

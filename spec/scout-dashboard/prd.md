@@ -17,19 +17,27 @@ Scout Dashboard is a comprehensive retail intelligence platform for the Philippi
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
-| Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
-| Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
+| Schema | ✅ Complete | scout.* schema with transactions, stores, regions tables |
+| Data | 🟡 **READY TO SEED** | Comprehensive seed migration created (056_scout_complete_seed.sql) |
+| Views | ✅ Exist | 14 views prepared for all dashboard pages |
 | Functions | ✅ Ready | 26 edge functions in Supabase |
 | Frontend | ✅ Live | Running on Vercel (displays mock data until seeded) |
 
 **BLOCKER:** Dashboard displays hardcoded mock data because database is unpopulated.
 
 **GO-LIVE REQUIREMENT:**
-1. Seed database with ≥18,000 transaction records (`infrastructure/database/supabase/migrations/053_scout_full_seed_18k.sql`)
-2. Verify views return non-empty result sets
-3. Test end-to-end: Each page should display real data from Supabase
-4. Deploy to production once data is verified
+1. Run seed migration: `psql $DATABASE_URL -f infrastructure/database/supabase/migrations/056_scout_complete_seed.sql`
+2. Verify ~18,000 transactions in `scout.transactions`
+3. Verify all 14 views return non-empty result sets
+4. Test end-to-end: Each page should display real data from Supabase
+5. Deploy to production once data is verified
+
+**Seed Migration Features:**
+- Comprehensive, idempotent script (safe to run multiple times)
+- Creates all required schema, tables, and views
+- Seeds 130 stores across 17 Philippine regions
+- Generates ~18,000 realistic retail transactions over 365 days
+- Includes built-in verification reporting
 
 ---
 

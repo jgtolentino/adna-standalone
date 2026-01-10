@@ -16,14 +16,19 @@
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| Schema | ✅ Complete | 29 scout.* tables exist (bronze, silver, gold, views) |
-| Data | 🔴 **EMPTY** | scout_bronze_transactions: 0 rows; scout_silver_transactions: 0 rows |
-| Views | ✅ Exist | Prepared but returning empty result sets (no source data) |
+| Schema | ✅ Complete | scout.* schema with transactions, stores, regions, views |
+| Data | 🟡 **READY TO SEED** | Migration 056_scout_complete_seed.sql created |
+| Views | ✅ Exist | 14 views for dashboard pages |
 | Functions | ✅ Ready | 26 edge functions in Supabase |
 | Frontend | ✅ Live | Running on Vercel (displays mock data until seeded) |
 
 **BLOCKER:** Dashboard displays hardcoded mock data because database is unpopulated.
-**ACTION REQUIRED:** Run `053_scout_full_seed_18k.sql` before production launch.
+**ACTION REQUIRED:** Run `056_scout_complete_seed.sql` to seed the database.
+
+**Seed Migration:** `infrastructure/database/supabase/migrations/056_scout_complete_seed.sql`
+- Comprehensive, idempotent seed script
+- Creates schema, tables, 130 stores, ~18,000 transactions, 14 views
+- Includes built-in verification
 
 ---
 
