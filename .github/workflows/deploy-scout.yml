@@ -36,7 +36,7 @@ on:
 
 env:
   NODE_VERSION: "20"
-  SUPABASE_PROJECT_REF: "cxzllzyxwpyptfretryc"
+  SUPABASE_PROJECT_REF: "spdtwktxdalcfigzeqrz"
 
 jobs:
   # =====================
@@ -54,11 +54,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
 
-      - name: Install dependencies
-        run: npm --prefix apps/scout-dashboard ci
+      - name: Install dependencies (root)
+        run: npm ci
 
       - name: Run ESLint
-        run: npm --prefix apps/scout-dashboard run lint
+        run: npm run lint --workspace=apps/scout-dashboard
         continue-on-error: true
 
   # =====================
@@ -130,11 +130,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
 
-      - name: Install dependencies
-        run: npm --prefix apps/scout-dashboard ci
+      - name: Install dependencies (root)
+        run: npm ci
 
       - name: Build
-        run: npm --prefix apps/scout-dashboard run build:vercel
+        run: npm run build --workspace=apps/scout-dashboard
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://${{ env.SUPABASE_PROJECT_REF }}.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
