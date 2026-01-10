@@ -1,0 +1,542 @@
+// =============================================================================
+// TBWA Theme - Dark Mode Styles
+// =============================================================================
+// Dark mode overrides for the Odoo backend.
+// Activated by adding the 'dark' class to the root element.
+// =============================================================================
+
+@import 'variables';
+
+// -----------------------------------------------------------------------------
+// Dark Mode CSS Variables
+// -----------------------------------------------------------------------------
+
+.dark,
+[data-theme="dark"],
+.o_dark_mode {
+  // Background & Foreground
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+
+  // Card
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+
+  // Popover
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+
+  // Primary (adjusted for dark mode visibility)
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  // Secondary
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+
+  // Muted
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  // Accent
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+
+  // Destructive
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  // Border & Input
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+
+  // Sidebar
+  --sidebar-background: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+
+  // Navigation (keep dark)
+  --nav-bg: 0 0% 0%;
+  --nav-text: 0 0% 100%;
+  --nav-hover: 51 100% 50%;
+
+  // Shadows (softer in dark mode)
+  --shadow-elegant: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px hsla(160, 100%, 50%, 0.2);
+}
+
+// -----------------------------------------------------------------------------
+// Dark Mode Specific Styles
+// -----------------------------------------------------------------------------
+
+.dark,
+[data-theme="dark"],
+.o_dark_mode {
+
+  // Body
+  body,
+  .o_web_client {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  // Main Navbar
+  .o_main_navbar {
+    background: hsl(222.2, 84%, 6%) !important;
+    border-bottom-color: hsl(var(--border));
+  }
+
+  // Action Manager / Content Area
+  .o_action_manager {
+    background-color: hsl(var(--background));
+  }
+
+  // Control Panel
+  .o_control_panel {
+    background-color: hsl(var(--background));
+    border-bottom-color: hsl(var(--border));
+
+    .o_searchview {
+      background-color: hsl(var(--input));
+      border-color: hsl(var(--border));
+    }
+  }
+
+  // Home Menu
+  .o_home_menu {
+    background: hsl(var(--background));
+
+    .o_app {
+      &:hover {
+        background-color: hsl(var(--muted));
+      }
+
+      .o_app_name {
+        color: hsl(var(--foreground));
+      }
+    }
+
+    .o_home_menu_search input {
+      background-color: hsl(var(--input));
+      border-color: hsl(var(--border));
+      color: hsl(var(--foreground));
+    }
+  }
+
+  // Form View
+  .o_form_view {
+    background-color: hsl(var(--background));
+
+    .o_form_sheet_bg {
+      background-color: hsl(217.2, 32.6%, 12%);
+    }
+
+    .o_form_sheet {
+      background-color: hsl(var(--card));
+      border-color: hsl(var(--border));
+    }
+
+    .o_input,
+    .o_field_widget input,
+    .o_field_widget textarea,
+    .o_field_widget select {
+      background-color: hsl(var(--input));
+      border-color: hsl(var(--border));
+      color: hsl(var(--foreground));
+
+      &::placeholder {
+        color: hsl(var(--muted-foreground));
+      }
+    }
+
+    .o_notebook .nav-tabs {
+      border-bottom-color: hsl(var(--border));
+
+      .nav-link {
+        color: hsl(var(--muted-foreground));
+
+        &:hover {
+          color: hsl(var(--foreground));
+        }
+
+        &.active {
+          color: hsl(var(--tbwa-yellow));
+          border-bottom-color: hsl(var(--tbwa-yellow));
+        }
+      }
+    }
+
+    .o_form_statusbar {
+      background-color: hsl(var(--muted));
+      border-bottom-color: hsl(var(--border));
+    }
+  }
+
+  // List View
+  .o_list_view {
+    background-color: hsl(var(--background));
+
+    .o_list_table {
+      thead {
+        background-color: hsl(var(--muted));
+
+        th {
+          color: hsl(var(--foreground));
+          border-bottom-color: hsl(var(--border));
+        }
+      }
+
+      tbody tr {
+        &:hover {
+          background-color: hsl(var(--muted));
+        }
+
+        &.o_data_row_selected {
+          background-color: hsla(51, 100%, 50%, 0.05);
+        }
+
+        td {
+          border-bottom-color: hsl(var(--border));
+          color: hsl(var(--foreground));
+        }
+      }
+    }
+  }
+
+  // Kanban View
+  .o_kanban_view {
+    background-color: hsl(var(--background));
+
+    .o_kanban_group {
+      .o_kanban_header {
+        background-color: hsl(var(--muted));
+      }
+
+      .o_kanban_record {
+        background-color: hsl(var(--card));
+        border-color: hsl(var(--border));
+
+        &:hover {
+          border-color: hsl(var(--tbwa-yellow));
+        }
+
+        .o_kanban_record_title {
+          color: hsl(var(--card-foreground));
+        }
+
+        .o_kanban_record_bottom {
+          border-top-color: hsl(var(--border));
+        }
+      }
+    }
+  }
+
+  // Buttons (use TBWA Yellow for primary in dark mode)
+  .btn-primary,
+  .o_form_button_save,
+  .o_form_button_create {
+    background-color: hsl(var(--tbwa-yellow)) !important;
+    border-color: hsl(var(--tbwa-yellow)) !important;
+    color: hsl(var(--tbwa-black)) !important;
+
+    &:hover,
+    &:focus {
+      background-color: hsl(51, 100%, 45%) !important;
+      border-color: hsl(51, 100%, 45%) !important;
+    }
+  }
+
+  .btn-secondary {
+    background-color: hsl(var(--muted));
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
+
+    &:hover {
+      background-color: hsl(217.2, 32.6%, 22%);
+      border-color: hsl(var(--tbwa-yellow));
+    }
+  }
+
+  // Modal
+  .modal {
+    .modal-content {
+      background-color: hsl(var(--card));
+      border-color: hsl(var(--border));
+    }
+
+    .modal-header {
+      border-bottom-color: hsl(var(--border));
+
+      .modal-title {
+        color: hsl(var(--foreground));
+      }
+    }
+
+    .modal-body {
+      color: hsl(var(--foreground));
+    }
+
+    .modal-footer {
+      border-top-color: hsl(var(--border));
+    }
+  }
+
+  // Dropdown
+  .dropdown-menu {
+    background-color: hsl(var(--popover));
+    border-color: hsl(var(--border));
+
+    .dropdown-item {
+      color: hsl(var(--popover-foreground));
+
+      &:hover,
+      &:focus {
+        background-color: hsl(var(--muted));
+      }
+
+      &.active,
+      &:active {
+        background-color: hsl(var(--tbwa-yellow));
+        color: hsl(var(--tbwa-black));
+      }
+    }
+  }
+
+  // Cards
+  .card {
+    background-color: hsl(var(--card));
+    border-color: hsl(var(--border));
+    color: hsl(var(--card-foreground));
+
+    .card-header,
+    .card-footer {
+      background-color: hsl(var(--muted));
+      border-color: hsl(var(--border));
+    }
+  }
+
+  // Alerts
+  .alert {
+    &.alert-success {
+      background-color: hsla(160, 100%, 50%, 0.15);
+      color: hsl(160, 100%, 60%);
+    }
+
+    &.alert-warning {
+      background-color: hsla(51, 100%, 50%, 0.15);
+      color: hsl(51, 100%, 60%);
+    }
+
+    &.alert-danger {
+      background-color: hsla(348, 100%, 50%, 0.15);
+      color: hsl(348, 100%, 65%);
+    }
+
+    &.alert-info {
+      background-color: hsla(200, 80%, 50%, 0.15);
+      color: hsl(200, 80%, 65%);
+    }
+  }
+
+  // Badges
+  .badge,
+  .o_tag {
+    &.badge-primary,
+    &.bg-primary {
+      background-color: hsl(var(--tbwa-yellow)) !important;
+      color: hsl(var(--tbwa-black)) !important;
+    }
+  }
+
+  // Chatter
+  .o_Chatter {
+    background-color: hsl(var(--background));
+    border-left-color: hsl(var(--border));
+
+    .o_ChatterTopbar {
+      border-bottom-color: hsl(var(--border));
+    }
+
+    .o_Message {
+      &:hover {
+        background-color: hsl(var(--muted));
+      }
+    }
+
+    .o_Composer {
+      background-color: hsl(var(--card));
+      border-color: hsl(var(--border));
+    }
+  }
+
+  // Discuss
+  .o_Discuss {
+    .o_DiscussSidebar {
+      background-color: hsl(var(--sidebar-background));
+      border-right-color: hsl(var(--sidebar-border));
+
+      .o_DiscussSidebarCategoryItem {
+        &:hover {
+          background-color: hsl(var(--sidebar-accent));
+        }
+
+        &.o-active {
+          background-color: hsl(var(--tbwa-yellow));
+          color: hsl(var(--tbwa-black));
+        }
+      }
+    }
+  }
+
+  // Settings
+  .o_base_settings {
+    .o_setting_container {
+      background-color: hsl(var(--background));
+    }
+
+    .o_setting_box {
+      background-color: hsl(var(--card));
+      border-color: hsl(var(--border));
+
+      .o_setting_left_pane {
+        border-right-color: hsl(var(--border));
+      }
+    }
+  }
+
+  // Calendar
+  .o_calendar_view {
+    .fc {
+      .fc-day-today {
+        background-color: hsla(51, 100%, 50%, 0.1) !important;
+      }
+    }
+  }
+
+  // Dashboard
+  .o_dashboard {
+    .o_dashboard_action {
+      background-color: hsl(var(--card));
+      border-color: hsl(var(--border));
+
+      &:hover {
+        border-color: hsl(var(--tbwa-yellow));
+      }
+    }
+
+    .o_aggregate {
+      .o_aggregate_value {
+        color: hsl(var(--tbwa-yellow));
+      }
+
+      .o_aggregate_label {
+        color: hsl(var(--muted-foreground));
+      }
+    }
+  }
+
+  // Tables
+  table {
+    color: hsl(var(--foreground));
+
+    thead {
+      background-color: hsl(var(--muted));
+    }
+
+    tbody tr:hover {
+      background-color: hsl(var(--muted));
+    }
+
+    th,
+    td {
+      border-color: hsl(var(--border));
+    }
+  }
+
+  // Progress
+  .progress {
+    background-color: hsl(var(--muted));
+  }
+
+  // Tooltip
+  .tooltip {
+    .tooltip-inner {
+      background-color: hsl(var(--card));
+      color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--border));
+    }
+  }
+
+  // Scrollbars
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+
+    &:hover {
+      background: hsl(var(--muted-foreground));
+    }
+  }
+
+  // Selection
+  ::selection {
+    background-color: hsla(51, 100%, 50%, 0.4);
+    color: hsl(var(--foreground));
+  }
+
+  // Links
+  a {
+    color: hsl(var(--tbwa-turquoise));
+
+    &:hover {
+      color: hsl(160, 100%, 60%);
+    }
+  }
+
+  // Code blocks
+  code,
+  pre {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--tbwa-turquoise));
+  }
+
+  // Loading
+  .o_loading {
+    background-color: hsl(var(--tbwa-yellow));
+
+    .o_loading_indicator {
+      color: hsl(var(--tbwa-black));
+    }
+  }
+
+  .o_blockUI .o_spinner {
+    border-color: hsl(var(--muted));
+    border-top-color: hsl(var(--tbwa-yellow));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Dark Mode Toggle Animation
+// -----------------------------------------------------------------------------
+
+.o_web_client {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// -----------------------------------------------------------------------------
+// System Dark Mode (prefers-color-scheme)
+// -----------------------------------------------------------------------------
+
+@media (prefers-color-scheme: dark) {
+  .o_auto_dark_mode {
+    @extend .dark;
+  }
+}

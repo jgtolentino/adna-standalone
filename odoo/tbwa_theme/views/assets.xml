@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- TBWA Theme Backend Assets -->
+        <!-- Note: Main assets are declared in __manifest__.py using the 'assets' key -->
+
+        <!-- Primary Variables Override Template -->
+        <!-- This template ensures TBWA brand variables are loaded before other styles -->
+        <template id="tbwa_theme_primary_variables" name="TBWA Theme Primary Variables" inherit_id="web.assets_primary_variables">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" type="text/scss" href="/tbwa_theme/static/src/scss/primary_variables.scss"/>
+            </xpath>
+        </template>
+
+        <!-- Dark Mode Toggle in User Menu -->
+        <template id="tbwa_dark_mode_toggle" inherit_id="web.navbar" name="TBWA Dark Mode Toggle">
+            <xpath expr="//div[hasclass('o_user_menu')]//ul[hasclass('dropdown-menu')]" position="inside">
+                <li class="dropdown-divider" role="separator"/>
+                <li class="dropdown-header">
+                    <small class="text-muted">Appearance</small>
+                </li>
+                <li>
+                    <a class="dropdown-item o_toggle_dark_mode" href="#" role="menuitem">
+                        <i class="fa fa-fw fa-moon-o me-1"></i>
+                        Dark Mode
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item o_toggle_theme_mode" href="#" role="menuitem">
+                        <i class="fa fa-fw fa-adjust me-1"></i>
+                        System Mode
+                    </a>
+                </li>
+            </xpath>
+        </template>
+
+        <!-- TBWA Branding in Login Page -->
+        <template id="tbwa_login_branding" inherit_id="web.login" name="TBWA Login Branding">
+            <xpath expr="//div[hasclass('card-header')]" position="replace">
+                <div class="card-header text-center py-4" style="background: linear-gradient(135deg, hsl(51, 100%, 50%), hsl(160, 100%, 50%));">
+                    <h1 class="mb-0" style="color: #000; font-weight: 700;">
+                        TBWA Agency Databank
+                    </h1>
+                </div>
+            </xpath>
+        </template>
+
+        <!-- TBWA Footer Branding (optional) -->
+        <template id="tbwa_footer_brand" inherit_id="web.layout" name="TBWA Footer">
+            <xpath expr="//footer" position="replace">
+                <footer class="o_footer py-2 text-center" style="background-color: hsl(0, 0%, 0%); color: hsl(0, 0%, 100%);">
+                    <div class="container">
+                        <small>
+                            Powered by
+                            <span style="color: hsl(51, 100%, 50%); font-weight: 600;">TBWA</span>
+                            Agency Databank
+                        </small>
+                    </div>
+                </footer>
+            </xpath>
+        </template>
+
+        <!-- Custom favicon (if needed) -->
+        <!-- Uncomment and add your favicon path if you have a custom TBWA favicon -->
+        <!--
+        <template id="tbwa_favicon" inherit_id="web.layout" name="TBWA Favicon">
+            <xpath expr="//head/link[@rel='shortcut icon']" position="replace">
+                <link rel="shortcut icon" href="/tbwa_theme/static/src/img/favicon.ico" type="image/x-icon"/>
+            </xpath>
+        </template>
+        -->
+
+    </data>
+</odoo>

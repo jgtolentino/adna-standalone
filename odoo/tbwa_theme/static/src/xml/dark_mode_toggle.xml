@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <!-- Dark Mode Toggle Systray Component Template -->
+    <t t-name="tbwa_theme.DarkModeToggle" owl="1">
+        <div class="o_dark_mode_toggle d-flex align-items-center">
+            <button class="btn btn-link nav-link px-2"
+                    t-on-click="toggleDarkMode"
+                    t-att-title="label"
+                    aria-label="Toggle dark mode">
+                <i t-attf-class="fa fa-fw {{icon}}"></i>
+            </button>
+        </div>
+    </t>
+
+    <!-- Dark Mode Toggle for Dropdown Menu -->
+    <t t-name="tbwa_theme.DarkModeDropdownItem" owl="1">
+        <li>
+            <a class="dropdown-item o_toggle_dark_mode"
+               href="#"
+               role="menuitem"
+               t-on-click.prevent="toggleDarkMode">
+                <i t-attf-class="fa fa-fw {{icon}} me-1"></i>
+                <t t-esc="label"/>
+            </a>
+        </li>
+    </t>
+
+</templates>

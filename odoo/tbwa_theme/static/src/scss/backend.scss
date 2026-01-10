@@ -1,0 +1,718 @@
+// =============================================================================
+// TBWA Theme - Odoo Backend Styles
+// =============================================================================
+// Custom styles for the Odoo backend to match the React frontend theme.
+// =============================================================================
+
+@import 'variables';
+
+// -----------------------------------------------------------------------------
+// Global Styles
+// -----------------------------------------------------------------------------
+
+body {
+  font-family: $font-family-sans;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
+}
+
+// -----------------------------------------------------------------------------
+// Odoo Main Navbar
+// -----------------------------------------------------------------------------
+
+.o_main_navbar {
+  background: hsl(var(--nav-bg)) !important;
+  border-bottom: 1px solid hsl(var(--border));
+  font-family: $font-family-sans;
+
+  // Logo area
+  .o_menu_brand {
+    color: hsl(var(--nav-text)) !important;
+    font-weight: $font-weight-semibold;
+
+    &:hover {
+      color: hsl(var(--nav-hover)) !important;
+    }
+  }
+
+  // App menu items
+  .o_menu_toggle,
+  .o_menu_entry_lvl_1 > a,
+  .o_nav_entry > a {
+    color: hsl(var(--nav-text)) !important;
+    @include transition-smooth;
+
+    &:hover,
+    &:focus {
+      color: hsl(var(--nav-hover)) !important;
+      background-color: rgba(255, 221, 0, 0.1);
+    }
+
+    &.active {
+      color: hsl(var(--nav-hover)) !important;
+      border-bottom: 2px solid hsl(var(--tbwa-yellow));
+    }
+  }
+
+  // Dropdown menus
+  .dropdown-menu {
+    background: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+    box-shadow: $shadow-lg;
+
+    .dropdown-item {
+      color: hsl(var(--popover-foreground));
+      @include transition-smooth;
+
+      &:hover,
+      &:focus {
+        background-color: hsl(var(--muted));
+        color: hsl(var(--foreground));
+      }
+
+      &.active,
+      &:active {
+        background-color: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+      }
+    }
+  }
+
+  // User menu
+  .o_user_menu {
+    .dropdown-toggle {
+      color: hsl(var(--nav-text)) !important;
+
+      &:hover {
+        color: hsl(var(--nav-hover)) !important;
+      }
+    }
+  }
+
+  // Systray icons
+  .o_mail_systray_item,
+  .o_ActivityMenu,
+  .o_MessagingMenu {
+    .dropdown-toggle {
+      color: hsl(var(--nav-text)) !important;
+
+      &:hover {
+        color: hsl(var(--nav-hover)) !important;
+      }
+    }
+
+    .badge {
+      background-color: hsl(var(--destructive)) !important;
+      color: hsl(var(--destructive-foreground)) !important;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Odoo Sidebar / Menu
+// -----------------------------------------------------------------------------
+
+.o_action_manager {
+  background-color: hsl(var(--background));
+}
+
+.o_web_client .o_main .o_cp_controller {
+  background-color: hsl(var(--background));
+}
+
+// Left sidebar menu
+.o_main_navbar + .o_action_manager .o_cp_left,
+.o_main_navbar + .o_action_manager .o_cp_bottom_left {
+  font-family: $font-family-sans;
+}
+
+// App launcher
+.o_home_menu {
+  background: hsl(var(--background));
+
+  .o_app {
+    border-radius: $radius;
+    @include transition-smooth;
+
+    &:hover {
+      background-color: hsl(var(--muted));
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+
+    .o_app_icon {
+      border-radius: $radius;
+    }
+
+    .o_app_name {
+      color: hsl(var(--foreground));
+      font-weight: $font-weight-medium;
+    }
+  }
+
+  // Search
+  .o_home_menu_search {
+    input {
+      background-color: hsl(var(--input));
+      border: 1px solid hsl(var(--border));
+      border-radius: $radius;
+      color: hsl(var(--foreground));
+
+      &:focus {
+        border-color: hsl(var(--ring));
+        box-shadow: 0 0 0 3px hsla(51, 100%, 50%, 0.2);
+      }
+
+      &::placeholder {
+        color: hsl(var(--muted-foreground));
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Control Panel (Top Bar)
+// -----------------------------------------------------------------------------
+
+.o_control_panel {
+  background-color: hsl(var(--background));
+  border-bottom: 1px solid hsl(var(--border));
+
+  // Breadcrumb
+  .breadcrumb {
+    background: transparent;
+
+    .breadcrumb-item {
+      font-weight: $font-weight-medium;
+
+      a {
+        color: hsl(var(--muted-foreground));
+        @include transition-smooth;
+
+        &:hover {
+          color: hsl(var(--primary));
+        }
+      }
+
+      &.active {
+        color: hsl(var(--foreground));
+      }
+    }
+  }
+
+  // Search view
+  .o_searchview {
+    background-color: hsl(var(--input));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+
+    &:focus-within {
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 3px hsla(51, 100%, 50%, 0.2);
+    }
+
+    .o_searchview_input {
+      color: hsl(var(--foreground));
+
+      &::placeholder {
+        color: hsl(var(--muted-foreground));
+      }
+    }
+
+    .o_searchview_facet {
+      background-color: hsl(var(--muted));
+      border-radius: $radius-sm;
+
+      .o_facet_values {
+        color: hsl(var(--foreground));
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Buttons
+// -----------------------------------------------------------------------------
+
+.btn {
+  font-family: $font-family-sans;
+  font-weight: $font-weight-medium;
+  border-radius: $radius;
+  @include transition-smooth;
+}
+
+.btn-primary,
+.o_form_button_save,
+.o_form_button_create {
+  background-color: hsl(var(--primary)) !important;
+  border-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+
+  &:hover,
+  &:focus {
+    background-color: hsl(51, 100%, 45%) !important;
+    border-color: hsl(51, 100%, 45%) !important;
+    box-shadow: $shadow-md;
+  }
+
+  &:active {
+    background-color: hsl(51, 100%, 40%) !important;
+    border-color: hsl(51, 100%, 40%) !important;
+  }
+}
+
+.btn-secondary {
+  background-color: hsl(var(--muted));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+
+  &:hover,
+  &:focus {
+    background-color: hsl(var(--accent));
+    border-color: hsl(var(--primary));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+.btn-link {
+  color: hsl(var(--primary));
+
+  &:hover {
+    color: hsl(51, 100%, 40%);
+  }
+}
+
+.btn-outline-primary {
+  color: hsl(var(--tbwa-gray));
+  border-color: hsl(var(--primary));
+
+  &:hover {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Cards & Kanban
+// -----------------------------------------------------------------------------
+
+.o_kanban_view {
+  background-color: hsl(var(--background));
+
+  .o_kanban_group {
+    .o_kanban_header {
+      background-color: hsl(var(--muted));
+      border-radius: $radius $radius 0 0;
+
+      .o_kanban_header_title {
+        font-weight: $font-weight-semibold;
+        color: hsl(var(--foreground));
+      }
+    }
+
+    .o_kanban_record {
+      background-color: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: $radius;
+      box-shadow: $shadow-sm;
+      @include transition-smooth;
+
+      &:hover {
+        box-shadow: $shadow-md;
+        border-color: hsl(var(--primary));
+      }
+
+      .o_kanban_record_title {
+        font-weight: $font-weight-medium;
+        color: hsl(var(--card-foreground));
+      }
+
+      .o_kanban_record_bottom {
+        border-top: 1px solid hsl(var(--border));
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// List View
+// -----------------------------------------------------------------------------
+
+.o_list_view {
+  background-color: hsl(var(--background));
+
+  .o_list_table {
+    thead {
+      background-color: hsl(var(--muted));
+
+      th {
+        font-weight: $font-weight-semibold;
+        color: hsl(var(--foreground));
+        border-bottom: 2px solid hsl(var(--border));
+      }
+    }
+
+    tbody {
+      tr {
+        @include transition-smooth;
+
+        &:hover {
+          background-color: hsl(var(--muted));
+        }
+
+        &.o_data_row_selected {
+          background-color: hsla(51, 100%, 50%, 0.1);
+        }
+
+        td {
+          border-bottom: 1px solid hsl(var(--border));
+          color: hsl(var(--foreground));
+        }
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Form View
+// -----------------------------------------------------------------------------
+
+.o_form_view {
+  background-color: hsl(var(--background));
+
+  .o_form_sheet_bg {
+    background-color: hsl(var(--muted));
+  }
+
+  .o_form_sheet {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+    box-shadow: $shadow-sm;
+  }
+
+  // Form labels
+  .o_form_label {
+    font-weight: $font-weight-medium;
+    color: hsl(var(--foreground));
+  }
+
+  // Form inputs
+  .o_input,
+  .o_field_widget input,
+  .o_field_widget textarea,
+  .o_field_widget select {
+    background-color: hsl(var(--input));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+    color: hsl(var(--foreground));
+    @include transition-smooth;
+
+    &:focus {
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 3px hsla(51, 100%, 50%, 0.2);
+      outline: none;
+    }
+
+    &::placeholder {
+      color: hsl(var(--muted-foreground));
+    }
+  }
+
+  // Notebooks (tabs)
+  .o_notebook {
+    .nav-tabs {
+      border-bottom: 1px solid hsl(var(--border));
+
+      .nav-link {
+        color: hsl(var(--muted-foreground));
+        border: none;
+        border-bottom: 2px solid transparent;
+        @include transition-smooth;
+
+        &:hover {
+          color: hsl(var(--foreground));
+          border-bottom-color: hsl(var(--muted-foreground));
+        }
+
+        &.active {
+          color: hsl(var(--primary));
+          border-bottom-color: hsl(var(--primary));
+          background: transparent;
+        }
+      }
+    }
+  }
+
+  // Groups / Sections
+  .o_group {
+    .o_group_header {
+      font-weight: $font-weight-semibold;
+      color: hsl(var(--foreground));
+      border-bottom: 1px solid hsl(var(--border));
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+  }
+
+  // Status bar
+  .o_form_statusbar {
+    background-color: hsl(var(--muted));
+    border-bottom: 1px solid hsl(var(--border));
+
+    .o_statusbar_status {
+      .o_arrow_button {
+        @include transition-smooth;
+
+        &.btn-primary,
+        &.o_arrow_button_current {
+          background-color: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+        }
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Chatter / Activity
+// -----------------------------------------------------------------------------
+
+.o_Chatter {
+  background-color: hsl(var(--background));
+  border-left: 1px solid hsl(var(--border));
+
+  .o_ChatterTopbar {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .o_Message {
+    border-radius: $radius;
+
+    &:hover {
+      background-color: hsl(var(--muted));
+    }
+  }
+
+  .o_Composer {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+
+    .o_Composer_input {
+      background: transparent;
+      border: none;
+
+      &:focus {
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Modals / Dialogs
+// -----------------------------------------------------------------------------
+
+.modal {
+  .modal-content {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+    box-shadow: $shadow-xl;
+  }
+
+  .modal-header {
+    border-bottom: 1px solid hsl(var(--border));
+
+    .modal-title {
+      font-weight: $font-weight-semibold;
+      color: hsl(var(--foreground));
+    }
+
+    .btn-close {
+      opacity: 0.5;
+      @include transition-smooth;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .modal-body {
+    color: hsl(var(--foreground));
+  }
+
+  .modal-footer {
+    border-top: 1px solid hsl(var(--border));
+  }
+}
+
+// Modal backdrop
+.modal-backdrop {
+  background-color: hsl(var(--tbwa-black));
+
+  &.show {
+    opacity: 0.5;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Alerts & Notifications
+// -----------------------------------------------------------------------------
+
+.alert {
+  border-radius: $radius;
+  border: none;
+
+  &.alert-success {
+    background-color: hsla(160, 100%, 50%, 0.1);
+    color: hsl(160, 100%, 30%);
+  }
+
+  &.alert-warning {
+    background-color: hsla(51, 100%, 50%, 0.1);
+    color: hsl(51, 100%, 30%);
+  }
+
+  &.alert-danger {
+    background-color: hsla(348, 100%, 50%, 0.1);
+    color: hsl(348, 100%, 35%);
+  }
+
+  &.alert-info {
+    background-color: hsla(200, 80%, 50%, 0.1);
+    color: hsl(200, 80%, 35%);
+  }
+}
+
+// Toast notifications
+.o_notification {
+  border-radius: $radius;
+  box-shadow: $shadow-lg;
+
+  &.o_notification_success {
+    background-color: hsla(160, 100%, 50%, 0.95);
+    color: hsl(var(--tbwa-black));
+  }
+
+  &.o_notification_warning {
+    background-color: hsla(51, 100%, 50%, 0.95);
+    color: hsl(var(--tbwa-black));
+  }
+
+  &.o_notification_danger {
+    background-color: hsla(348, 100%, 50%, 0.95);
+    color: hsl(var(--tbwa-white));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Badges & Tags
+// -----------------------------------------------------------------------------
+
+.badge,
+.o_tag {
+  font-weight: $font-weight-medium;
+  border-radius: $radius-sm;
+  padding: 0.25rem 0.5rem;
+
+  &.badge-primary,
+  &.bg-primary {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+  }
+
+  &.badge-secondary,
+  &.bg-secondary {
+    background-color: hsl(var(--secondary)) !important;
+    color: hsl(var(--secondary-foreground)) !important;
+  }
+
+  &.badge-success,
+  &.bg-success {
+    background-color: hsl(160, 100%, 40%) !important;
+    color: hsl(var(--tbwa-black)) !important;
+  }
+
+  &.badge-danger,
+  &.bg-danger {
+    background-color: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive-foreground)) !important;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Progress Bars
+// -----------------------------------------------------------------------------
+
+.progress {
+  height: 0.5rem;
+  border-radius: $radius-sm;
+  background-color: hsl(var(--muted));
+
+  .progress-bar {
+    border-radius: $radius-sm;
+    @include gradient-primary;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Tooltips
+// -----------------------------------------------------------------------------
+
+.tooltip {
+  .tooltip-inner {
+    background-color: hsl(var(--tbwa-black));
+    color: hsl(var(--tbwa-white));
+    border-radius: $radius-sm;
+    font-size: $font-size-xs;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .tooltip-arrow::before {
+    border-top-color: hsl(var(--tbwa-black));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Scrollbars
+// -----------------------------------------------------------------------------
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+
+  &:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Selection / Highlight
+// -----------------------------------------------------------------------------
+
+::selection {
+  background-color: hsla(51, 100%, 50%, 0.3);
+  color: hsl(var(--foreground));
+}
+
+// Focus visible outline
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}

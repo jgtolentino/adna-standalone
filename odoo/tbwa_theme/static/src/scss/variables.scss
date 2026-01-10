@@ -1,0 +1,188 @@
+// =============================================================================
+// TBWA Agency Databank - Design Tokens for Odoo
+// =============================================================================
+// These variables mirror the React frontend theme tokens for visual consistency.
+// All colors use HSL format for consistency with the frontend.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// TBWA Brand Colors
+// -----------------------------------------------------------------------------
+$tbwa-yellow: hsl(51, 100%, 50%);          // #FFDD00 - Primary brand color
+$tbwa-turquoise: hsl(160, 100%, 50%);      // #00FFAA - Secondary brand color
+$tbwa-black: hsl(0, 0%, 0%);               // #000000
+$tbwa-white: hsl(0, 0%, 100%);             // #FFFFFF
+$tbwa-gray: hsl(0, 0%, 33%);               // #545454
+$tbwa-light-gray: hsl(0, 0%, 96%);         // #F5F5F5
+
+// -----------------------------------------------------------------------------
+// CSS Custom Properties (matching React frontend)
+// These allow runtime theming and dark mode support
+// -----------------------------------------------------------------------------
+:root {
+  // Background & Foreground
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+
+  // Card
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+
+  // Popover
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+
+  // Primary (TBWA Yellow)
+  --primary: 51 100% 50%;
+  --primary-foreground: 0 0% 0%;
+
+  // Secondary (TBWA Turquoise)
+  --secondary: 160 100% 50%;
+  --secondary-foreground: 0 0% 0%;
+
+  // Muted
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 33%;
+
+  // Accent (TBWA Yellow)
+  --accent: 51 100% 50%;
+  --accent-foreground: 0 0% 0%;
+
+  // Destructive
+  --destructive: 348 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  // Border & Input
+  --border: 0 0% 80%;
+  --input: 0 0% 96%;
+  --ring: 51 100% 50%;
+
+  // Border Radius
+  --radius: 0.5rem;
+
+  // TBWA Brand Colors as CSS variables
+  --tbwa-yellow: 51 100% 50%;
+  --tbwa-turquoise: 160 100% 50%;
+  --tbwa-black: 0 0% 0%;
+  --tbwa-white: 0 0% 100%;
+  --tbwa-gray: 0 0% 33%;
+  --tbwa-light-gray: 0 0% 96%;
+
+  // Gradients
+  --gradient-primary: linear-gradient(135deg, hsl(var(--tbwa-yellow)), hsl(var(--tbwa-turquoise)));
+  --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+
+  // Chat Interface
+  --chat-bg: 0 0% 0%;
+  --chat-text: 0 0% 100%;
+  --chat-border: 51 100% 50%;
+  --chat-glow: 160 100% 50%;
+
+  // Navigation
+  --nav-bg: 0 0% 0%;
+  --nav-text: 0 0% 100%;
+  --nav-hover: 51 100% 50%;
+
+  // Shadows
+  --shadow-elegant: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 20px hsla(160, 100%, 50%, 0.3);
+
+  // Transitions
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Sidebar
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+// -----------------------------------------------------------------------------
+// Typography
+// -----------------------------------------------------------------------------
+$font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-family-mono: 'Geist Mono', 'JetBrains Mono', 'Fira Code', monospace;
+
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-base: 1rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.25rem;
+$font-size-2xl: 1.5rem;
+$font-size-3xl: 1.875rem;
+$font-size-4xl: 2.25rem;
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.625;
+
+// -----------------------------------------------------------------------------
+// Spacing & Border Radius
+// -----------------------------------------------------------------------------
+$radius: 0.5rem;
+$radius-sm: calc(0.5rem - 4px);
+$radius-md: calc(0.5rem - 2px);
+$radius-lg: 0.5rem;
+
+// -----------------------------------------------------------------------------
+// Shadows
+// -----------------------------------------------------------------------------
+$shadow-elegant: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-glow: 0 0 20px hsla(160, 100%, 50%, 0.3);
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+// -----------------------------------------------------------------------------
+// Transitions
+// -----------------------------------------------------------------------------
+$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: all 0.15s ease-in-out;
+$transition-normal: all 0.2s ease-in-out;
+
+// -----------------------------------------------------------------------------
+// Breakpoints
+// -----------------------------------------------------------------------------
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1400px;
+
+// -----------------------------------------------------------------------------
+// Container
+// -----------------------------------------------------------------------------
+$container-max-width: 1400px;
+$container-padding: 2rem;
+
+// -----------------------------------------------------------------------------
+// Utility Functions
+// -----------------------------------------------------------------------------
+@function hsl-var($variable) {
+  @return hsl(var(--#{$variable}));
+}
+
+// Mixin for smooth transitions
+@mixin transition-smooth {
+  transition: var(--transition-smooth);
+}
+
+// Mixin for gradient primary
+@mixin gradient-primary {
+  background: var(--gradient-primary);
+}
+
+// Mixin for glow effect
+@mixin glow-effect {
+  box-shadow: var(--shadow-glow);
+}

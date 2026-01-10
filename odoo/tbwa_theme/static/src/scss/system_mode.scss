@@ -1,0 +1,317 @@
+// =============================================================================
+// TBWA Theme - System Mode (Minimal/Professional)
+// =============================================================================
+// A muted, professional color scheme inspired by Claude/ChatGPT interfaces.
+// Clean, minimal design with 2 subtle accent colors.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// System Mode Color Palette
+// -----------------------------------------------------------------------------
+// Primary Accent: Warm Stone/Taupe
+// Secondary Accent: Muted Teal
+// Overall: Neutral, professional, easy on the eyes
+// -----------------------------------------------------------------------------
+
+:root[data-theme="system"],
+.theme-system {
+  // Neutral base colors
+  --background: 40 20% 98%;           // Warm off-white
+  --foreground: 220 10% 20%;          // Soft dark gray
+  --card: 40 15% 99%;                 // Slightly warm white
+  --card-foreground: 220 10% 20%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 10% 20%;
+
+  // Muted accent colors (2 colors only)
+  --primary: 25 30% 52%;              // Warm stone/taupe
+  --primary-foreground: 0 0% 100%;
+  --secondary: 180 15% 45%;           // Muted teal
+  --secondary-foreground: 0 0% 100%;
+
+  // Supporting colors
+  --muted: 40 10% 94%;                // Warm light gray
+  --muted-foreground: 220 10% 45%;    // Medium gray
+  --accent: 40 10% 92%;               // Subtle warm accent
+  --accent-foreground: 220 10% 20%;
+
+  // Borders and inputs
+  --border: 40 10% 88%;               // Soft warm border
+  --input: 40 15% 96%;                // Warm input bg
+  --ring: 25 30% 52%;                 // Matches primary
+
+  // Status colors (muted versions)
+  --destructive: 0 45% 55%;           // Muted red
+  --destructive-foreground: 0 0% 100%;
+  --success: 160 30% 45%;             // Muted green
+  --warning: 40 60% 55%;              // Muted amber
+
+  // Navigation (subtle, not black)
+  --nav-bg: 220 10% 15%;              // Soft dark gray (not pure black)
+  --nav-text: 40 10% 85%;             // Warm light text
+  --nav-hover: 25 30% 60%;            // Primary accent on hover
+
+  // Sidebar
+  --sidebar-background: 40 15% 97%;
+  --sidebar-foreground: 220 10% 30%;
+  --sidebar-primary: 25 30% 52%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 40 10% 94%;
+  --sidebar-accent-foreground: 220 10% 20%;
+  --sidebar-border: 40 10% 90%;
+  --sidebar-ring: 25 30% 52%;
+
+  // System mode specific
+  --system-stone: 25 30% 52%;         // Primary accent
+  --system-teal: 180 15% 45%;         // Secondary accent
+  --system-gray: 220 10% 45%;
+  --system-light: 40 20% 98%;
+  --system-dark: 220 10% 20%;
+
+  // Shadows (softer)
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+// -----------------------------------------------------------------------------
+// System Mode - Dark Variant
+// -----------------------------------------------------------------------------
+
+:root[data-theme="system"].dark,
+.theme-system.dark {
+  --background: 220 12% 10%;          // Soft dark (not pure black)
+  --foreground: 40 10% 90%;           // Warm off-white
+  --card: 220 12% 12%;
+  --card-foreground: 40 10% 90%;
+  --popover: 220 12% 14%;
+  --popover-foreground: 40 10% 90%;
+
+  --primary: 25 35% 60%;              // Lighter stone for dark mode
+  --primary-foreground: 220 12% 10%;
+  --secondary: 180 20% 55%;           // Lighter teal
+  --secondary-foreground: 220 12% 10%;
+
+  --muted: 220 10% 18%;
+  --muted-foreground: 40 10% 60%;
+  --accent: 220 10% 20%;
+  --accent-foreground: 40 10% 90%;
+
+  --border: 220 10% 22%;
+  --input: 220 10% 15%;
+  --ring: 25 35% 60%;
+
+  --destructive: 0 50% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --nav-bg: 220 12% 8%;
+  --nav-text: 40 10% 85%;
+  --nav-hover: 25 35% 65%;
+
+  --sidebar-background: 220 12% 11%;
+  --sidebar-foreground: 40 10% 80%;
+  --sidebar-border: 220 10% 18%;
+}
+
+// -----------------------------------------------------------------------------
+// System Mode Styles
+// -----------------------------------------------------------------------------
+
+.theme-system {
+  // Typography adjustments
+  font-weight: 400;
+  letter-spacing: -0.01em;
+
+  // Smoother, less saturated feel
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  // Navbar - subtle dark, not harsh
+  .o_main_navbar {
+    background: hsl(var(--nav-bg)) !important;
+    border-bottom: 1px solid hsl(220, 10%, 20%);
+
+    .o_menu_brand,
+    .o_menu_toggle,
+    .o_nav_entry > a {
+      color: hsl(var(--nav-text)) !important;
+
+      &:hover {
+        color: hsl(var(--nav-hover)) !important;
+        background: hsla(25, 30%, 52%, 0.1);
+      }
+    }
+  }
+
+  // Buttons - muted primary
+  .btn-primary {
+    background-color: hsl(var(--primary)) !important;
+    border-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    font-weight: 500;
+
+    &:hover {
+      background-color: hsl(25, 30%, 48%) !important;
+      border-color: hsl(25, 30%, 48%) !important;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 3px hsla(25, 30%, 52%, 0.2);
+    }
+  }
+
+  .btn-secondary {
+    background-color: hsl(var(--muted));
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
+
+    &:hover {
+      background-color: hsl(var(--accent));
+      border-color: hsl(var(--secondary));
+    }
+  }
+
+  // Cards - subtle shadows, warm tones
+  .o_kanban_record,
+  .o_form_sheet,
+  .card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+      border-color: hsl(25, 30%, 70%);
+    }
+  }
+
+  // Form inputs - warm, soft
+  .o_input,
+  .form-control,
+  input,
+  textarea,
+  select {
+    background-color: hsl(var(--input));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+
+    &:focus {
+      border-color: hsl(var(--primary));
+      box-shadow: 0 0 0 3px hsla(25, 30%, 52%, 0.15);
+    }
+
+    &::placeholder {
+      color: hsl(var(--muted-foreground));
+    }
+  }
+
+  // Tabs - understated
+  .nav-tabs .nav-link {
+    color: hsl(var(--muted-foreground));
+    border: none;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+      color: hsl(var(--foreground));
+      border-bottom-color: hsl(var(--border));
+    }
+
+    &.active {
+      color: hsl(var(--primary));
+      border-bottom-color: hsl(var(--primary));
+      background: transparent;
+    }
+  }
+
+  // Links - subtle accent
+  a:not(.btn) {
+    color: hsl(var(--secondary));
+
+    &:hover {
+      color: hsl(180, 20%, 35%);
+    }
+  }
+
+  // Badges - muted
+  .badge {
+    font-weight: 500;
+
+    &.bg-primary {
+      background-color: hsl(var(--primary)) !important;
+    }
+
+    &.bg-secondary {
+      background-color: hsl(var(--secondary)) !important;
+    }
+
+    &.bg-success {
+      background-color: hsl(var(--success)) !important;
+    }
+  }
+
+  // Alerts - softer
+  .alert-info {
+    background-color: hsla(180, 15%, 45%, 0.1);
+    border-color: hsla(180, 15%, 45%, 0.2);
+    color: hsl(180, 20%, 35%);
+  }
+
+  .alert-success {
+    background-color: hsla(160, 30%, 45%, 0.1);
+    border-color: hsla(160, 30%, 45%, 0.2);
+    color: hsl(160, 35%, 35%);
+  }
+
+  .alert-warning {
+    background-color: hsla(40, 60%, 55%, 0.1);
+    border-color: hsla(40, 60%, 55%, 0.2);
+    color: hsl(40, 65%, 35%);
+  }
+
+  // Progress bars - primary accent
+  .progress-bar {
+    background-color: hsl(var(--primary));
+  }
+
+  // Selection
+  ::selection {
+    background-color: hsla(25, 30%, 52%, 0.2);
+    color: hsl(var(--foreground));
+  }
+
+  // Scrollbars - minimal
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+
+    &:hover {
+      background: hsl(var(--muted-foreground));
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Quick toggle class for switching modes
+// -----------------------------------------------------------------------------
+
+// Add .theme-system to body for system mode
+// Add .theme-tbwa to body for brand mode (default)
+
+body.theme-tbwa {
+  // Uses default TBWA variables from variables.scss
+}
+
+body.theme-system {
+  // Uses system mode variables above
+}

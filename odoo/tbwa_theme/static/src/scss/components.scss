@@ -1,0 +1,620 @@
+// =============================================================================
+// TBWA Theme - Odoo Component Styles
+// =============================================================================
+// Additional component-level customizations for Odoo UI elements.
+// =============================================================================
+
+@import 'variables';
+
+// -----------------------------------------------------------------------------
+// Calendar View
+// -----------------------------------------------------------------------------
+
+.o_calendar_view {
+  .fc {
+    .fc-toolbar {
+      .fc-button-primary {
+        background-color: hsl(var(--primary));
+        border-color: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+
+        &:hover,
+        &:focus {
+          background-color: hsl(51, 100%, 45%);
+          border-color: hsl(51, 100%, 45%);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+        }
+
+        &.fc-button-active {
+          background-color: hsl(51, 100%, 40%);
+          border-color: hsl(51, 100%, 40%);
+        }
+      }
+    }
+
+    .fc-daygrid-event,
+    .fc-timegrid-event {
+      border-radius: $radius-sm;
+      border: none;
+      @include transition-smooth;
+
+      &:hover {
+        box-shadow: $shadow-md;
+      }
+    }
+
+    .fc-day-today {
+      background-color: hsla(51, 100%, 50%, 0.1) !important;
+    }
+
+    .fc-highlight {
+      background-color: hsla(160, 100%, 50%, 0.2);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Pivot View
+// -----------------------------------------------------------------------------
+
+.o_pivot {
+  .o_pivot_header_cell_opened,
+  .o_pivot_header_cell_closed {
+    background-color: hsl(var(--muted));
+    font-weight: $font-weight-semibold;
+  }
+
+  .o_pivot_cell_value {
+    font-family: $font-family-mono;
+  }
+
+  .o_pivot_measure_row {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Graph View
+// -----------------------------------------------------------------------------
+
+.o_graph_view {
+  .o_graph_canvas_container {
+    background-color: hsl(var(--card));
+    border-radius: $radius;
+    padding: 1rem;
+  }
+
+  // Chart.js color overrides
+  .chart-area {
+    canvas {
+      border-radius: $radius;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Activity View
+// -----------------------------------------------------------------------------
+
+.o_activity_view {
+  .o_activity_record {
+    border-radius: $radius;
+    border: 1px solid hsl(var(--border));
+    @include transition-smooth;
+
+    &:hover {
+      box-shadow: $shadow-md;
+      border-color: hsl(var(--primary));
+    }
+  }
+
+  .o_activity_summary {
+    .o_activity_color_today {
+      color: hsl(var(--primary));
+    }
+
+    .o_activity_color_overdue {
+      color: hsl(var(--destructive));
+    }
+
+    .o_activity_color_planned {
+      color: hsl(var(--secondary));
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Gantt View
+// -----------------------------------------------------------------------------
+
+.o_gantt_view {
+  .o_gantt_row {
+    &:hover {
+      background-color: hsl(var(--muted));
+    }
+  }
+
+  .o_gantt_pill {
+    border-radius: $radius-sm;
+    @include transition-smooth;
+
+    &:hover {
+      box-shadow: $shadow-md;
+    }
+  }
+
+  .o_gantt_today {
+    background-color: hsla(51, 100%, 50%, 0.2);
+    border-left: 2px solid hsl(var(--primary));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Map View
+// -----------------------------------------------------------------------------
+
+.o_map_view {
+  .leaflet-container {
+    border-radius: $radius;
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-radius: $radius;
+    box-shadow: $shadow-lg;
+  }
+
+  .leaflet-popup-tip-container {
+    display: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Cohort View
+// -----------------------------------------------------------------------------
+
+.o_cohort_view {
+  .o_cohort_row_clickable {
+    @include transition-smooth;
+
+    &:hover {
+      background-color: hsl(var(--muted));
+    }
+  }
+
+  .o_cohort_highlight {
+    background-color: hsla(51, 100%, 50%, 0.2);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Dashboard / Reporting
+// -----------------------------------------------------------------------------
+
+.o_dashboard {
+  .o_dashboard_action {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+    @include transition-smooth;
+
+    &:hover {
+      box-shadow: $shadow-md;
+      border-color: hsl(var(--primary));
+    }
+  }
+
+  .o_aggregate {
+    .o_aggregate_value {
+      font-size: $font-size-3xl;
+      font-weight: $font-weight-bold;
+      color: hsl(var(--primary));
+    }
+
+    .o_aggregate_label {
+      font-weight: $font-weight-medium;
+      color: hsl(var(--muted-foreground));
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// File Viewer / Attachment
+// -----------------------------------------------------------------------------
+
+.o_AttachmentBox {
+  .o_AttachmentCard {
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+    @include transition-smooth;
+
+    &:hover {
+      border-color: hsl(var(--primary));
+      box-shadow: $shadow-sm;
+    }
+  }
+
+  .o_AttachmentImage {
+    border-radius: $radius;
+  }
+}
+
+.o_FileUploader {
+  border: 2px dashed hsl(var(--border));
+  border-radius: $radius;
+  background-color: hsl(var(--muted));
+  @include transition-smooth;
+
+  &:hover,
+  &.o_dragging {
+    border-color: hsl(var(--primary));
+    background-color: hsla(51, 100%, 50%, 0.05);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Many2one / Many2many Fields
+// -----------------------------------------------------------------------------
+
+.o_field_many2one,
+.o_field_many2many_tags {
+  .o_field_widget {
+    .o_external_button {
+      color: hsl(var(--muted-foreground));
+      @include transition-smooth;
+
+      &:hover {
+        color: hsl(var(--primary));
+      }
+    }
+  }
+}
+
+.o_field_many2many_tags {
+  .o_tag {
+    background-color: hsl(var(--muted));
+    border-radius: $radius-sm;
+    @include transition-smooth;
+
+    &:hover {
+      background-color: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+    }
+
+    .o_delete {
+      opacity: 0.5;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Selection / Radio / Checkbox Fields
+// -----------------------------------------------------------------------------
+
+.o_field_selection,
+.o_field_radio {
+  .form-check-input {
+    &:checked {
+      background-color: hsl(var(--primary));
+      border-color: hsl(var(--primary));
+    }
+
+    &:focus {
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 3px hsla(51, 100%, 50%, 0.2);
+    }
+  }
+}
+
+.o_field_boolean {
+  .custom-checkbox,
+  .form-check-input {
+    &:checked {
+      background-color: hsl(var(--primary));
+      border-color: hsl(var(--primary));
+    }
+  }
+}
+
+// Toggle switch
+.o_boolean_toggle {
+  .custom-control-input:checked ~ .custom-control-label::before,
+  input:checked + label::before {
+    background-color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Date / DateTime Picker
+// -----------------------------------------------------------------------------
+
+.bootstrap-datetimepicker-widget {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: $radius;
+  box-shadow: $shadow-lg;
+
+  .datepicker {
+    .day {
+      border-radius: $radius-sm;
+      @include transition-smooth;
+
+      &:hover {
+        background-color: hsl(var(--muted));
+      }
+
+      &.active {
+        background-color: hsl(var(--primary)) !important;
+        color: hsl(var(--primary-foreground)) !important;
+      }
+
+      &.today {
+        &::before {
+          border-bottom-color: hsl(var(--secondary));
+        }
+      }
+    }
+  }
+
+  .timepicker {
+    .btn {
+      color: hsl(var(--foreground));
+
+      &:hover {
+        background-color: hsl(var(--muted));
+        color: hsl(var(--primary));
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Settings Page
+// -----------------------------------------------------------------------------
+
+.o_base_settings {
+  .o_setting_container {
+    background-color: hsl(var(--background));
+  }
+
+  .o_setting_box {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+
+    .o_setting_left_pane {
+      border-right: 1px solid hsl(var(--border));
+    }
+  }
+
+  .o_settings_container {
+    .app_settings_header {
+      .o_setting_search {
+        input {
+          background-color: hsl(var(--input));
+          border: 1px solid hsl(var(--border));
+          border-radius: $radius;
+
+          &:focus {
+            border-color: hsl(var(--ring));
+            box-shadow: 0 0 0 3px hsla(51, 100%, 50%, 0.2);
+          }
+        }
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Loading / Spinner
+// -----------------------------------------------------------------------------
+
+.o_loading {
+  background-color: hsl(var(--primary));
+
+  .o_loading_indicator {
+    color: hsl(var(--primary-foreground));
+  }
+}
+
+.o_blockUI {
+  .o_spinner {
+    border-color: hsl(var(--muted));
+    border-top-color: hsl(var(--primary));
+  }
+}
+
+// Skeleton loading
+.o_skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--background)) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: $radius-sm;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Empty State
+// -----------------------------------------------------------------------------
+
+.o_nocontent_help {
+  color: hsl(var(--muted-foreground));
+
+  .o_nocontent_help_content {
+    .o_empty_folder {
+      opacity: 0.5;
+    }
+
+    p {
+      color: hsl(var(--foreground));
+      font-weight: $font-weight-medium;
+    }
+
+    .btn {
+      margin-top: 1rem;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Wizard / Multi-step Forms
+// -----------------------------------------------------------------------------
+
+.o_wizard {
+  .o_wizard_header {
+    .o_wizard_steps {
+      .o_wizard_step {
+        &.active {
+          .o_wizard_step_number {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+          }
+
+          .o_wizard_step_title {
+            color: hsl(var(--primary));
+            font-weight: $font-weight-semibold;
+          }
+        }
+
+        &.done {
+          .o_wizard_step_number {
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+          }
+        }
+      }
+
+      .o_wizard_step_connector {
+        &.active {
+          background-color: hsl(var(--primary));
+        }
+
+        &.done {
+          background-color: hsl(var(--secondary));
+        }
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Quick Create
+// -----------------------------------------------------------------------------
+
+.o_kanban_quick_create {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: $radius;
+  box-shadow: $shadow-md;
+
+  input {
+    background-color: hsl(var(--input));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+
+    &:focus {
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 3px hsla(51, 100%, 50%, 0.2);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Discuss / Chat
+// -----------------------------------------------------------------------------
+
+.o_Discuss {
+  .o_DiscussSidebar {
+    background-color: hsl(var(--sidebar-background));
+    border-right: 1px solid hsl(var(--sidebar-border));
+
+    .o_DiscussSidebarCategory {
+      .o_DiscussSidebarCategoryItem {
+        border-radius: $radius;
+        @include transition-smooth;
+
+        &:hover {
+          background-color: hsl(var(--sidebar-accent));
+        }
+
+        &.o-active {
+          background-color: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+        }
+      }
+    }
+  }
+
+  .o_Composer {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: $radius;
+
+    &:focus-within {
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 3px hsla(51, 100%, 50%, 0.2);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Sign (e-signature)
+// -----------------------------------------------------------------------------
+
+.o_sign {
+  .o_sign_item {
+    border: 2px dashed hsl(var(--border));
+    border-radius: $radius;
+    @include transition-smooth;
+
+    &:hover,
+    &.o_sign_item_selected {
+      border-color: hsl(var(--primary));
+      background-color: hsla(51, 100%, 50%, 0.05);
+    }
+
+    &.o_sign_item_completed {
+      border-color: hsl(var(--secondary));
+      border-style: solid;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Print / Report Preview
+// -----------------------------------------------------------------------------
+
+.o_report_preview {
+  .o_preview_container {
+    background-color: hsl(var(--muted));
+    border-radius: $radius;
+    padding: 1rem;
+
+    .o_preview_page {
+      background-color: hsl(var(--card));
+      box-shadow: $shadow-lg;
+      border-radius: $radius;
+    }
+  }
+}
