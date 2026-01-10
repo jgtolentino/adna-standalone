@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Add client context
+    // Add client context (spread entry first, then override specific fields)
     const clientContext = {
       ...entry,
       source: 'client',

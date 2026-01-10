@@ -132,7 +132,7 @@ export function getAllMetricsSummary(): Record<
 > {
   const summary: Record<string, ReturnType<typeof getMetricSummary> & object> = {};
 
-  for (const [name] of Array.from(metrics.entries())) {
+  for (const name of Array.from(metrics.keys())) {
     const metricSummary = getMetricSummary(name);
     if (metricSummary) {
       summary[name] = metricSummary;

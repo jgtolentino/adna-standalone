@@ -15,10 +15,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   PYTHON_VERSION: '3.11'
   NEXT_PUBLIC_SUPABASE_URL: 'https://mock.supabase.co'
   NEXT_PUBLIC_SUPABASE_ANON_KEY: 'mock-anon-key'
+  SKIP_ENV_VALIDATION: 'true'
 
 jobs:
   # ==========================================================================
@@ -109,30 +110,38 @@ jobs:
       - name: Validate SQL syntax
         run: |
           echo "Checking SQL migration files..."
-          for file in supabase/migrations/*.sql; do
-            if [ -f "$file" ]; then
-              echo "Validating: $file"
-              # Basic syntax check - ensure file is not empty and has valid SQL structure
-              if grep -q "CREATE\|ALTER\|INSERT\|SELECT" "$file"; then
-                echo "✓ $file contains valid SQL statements"
-              else
-                echo "⚠ $file may be empty or invalid"
+          MIGRATION_DIR="infrastructure/database/supabase/migrations"
+          if [ -d "$MIGRATION_DIR" ]; then
+            for file in $MIGRATION_DIR/*.sql; do
+              if [ -f "$file" ]; then
+                echo "Validating: $file"
+                # Basic syntax check - ensure file is not empty and has valid SQL structure
+                if grep -q "CREATE\|ALTER\|INSERT\|SELECT" "$file"; then
+                  echo "✓ $file contains valid SQL statements"
+                else
+                  echo "⚠ $file may be empty or invalid"
+                fi
               fi
-            fi
-          done
+            done
+          else
+            echo "No migrations directory found at $MIGRATION_DIR"
+          fi
 
       - name: Check for dangerous operations
         run: |
           echo "Scanning for dangerous SQL operations..."
+          MIGRATION_DIR="infrastructure/database/supabase/migrations"
           DANGEROUS=false
-          for file in supabase/migrations/*.sql; do
-            if [ -f "$file" ]; then
-              if grep -qi "DROP DATABASE\|TRUNCATE.*CASCADE\|DELETE FROM.*WHERE 1=1" "$file"; then
-                echo "⚠ WARNING: $file contains potentially dangerous operations"
-                DANGEROUS=true
+          if [ -d "$MIGRATION_DIR" ]; then
+            for file in $MIGRATION_DIR/*.sql; do
+              if [ -f "$file" ]; then
+                if grep -qi "DROP DATABASE\|TRUNCATE.*CASCADE\|DELETE FROM.*WHERE 1=1" "$file"; then
+                  echo "⚠ WARNING: $file contains potentially dangerous operations"
+                  DANGEROUS=true
+                fi
               fi
-            fi
-          done
+            done
+          fi
           if [ "$DANGEROUS" = true ]; then
             echo "Review dangerous operations before merging"
           fi

@@ -4,19 +4,15 @@ import { useEffect, useState } from 'react';
 import { getSupabase } from '@/lib/supabaseClient';
 
 export default function DebugPage() {
+  // Hooks must be called unconditionally at the top
   const [envCheck, setEnvCheck] = useState<Record<string, unknown> | null>(null);
   const [apiTest, setApiTest] = useState<Record<string, unknown> | null>(null);
   const [dbTest, setDbTest] = useState<Record<string, unknown> | null>(null);
-  const [isProduction, setIsProduction] = useState(false);
+  const isProduction = process.env.NODE_ENV === 'production';
 
   useEffect(() => {
-    // Check if production
-    setIsProduction(process.env.NODE_ENV === 'production');
-
-    if (process.env.NODE_ENV === 'production') {
-      return;
-    }
-
+    // Skip data fetching in production
+    if (isProduction) return;
     // Check environment variables
     setEnvCheck({
       url: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -50,7 +46,7 @@ export default function DebugPage() {
           error: error?.message
         });
       });
-  }, []);
+  }, [isProduction]);
 
   // Production safety: only show debug in development
   if (isProduction) {
