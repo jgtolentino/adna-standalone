@@ -6,12 +6,12 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "vite",
     "build:guard": "node ./scripts/guard-no-csv.mjs",
-    "build": "npm run build:guard && next build",
-    "build:vercel": "NEXT_PUBLIC_STRICT_DATASOURCE=true npm run build:guard && next build",
-    "start": "next start",
-    "lint": "next lint",
+    "build": "npm run build:guard && vite build",
+    "build:vercel": "NEXT_PUBLIC_STRICT_DATASOURCE=true npm run build:guard && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

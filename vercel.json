@@ -3,6 +3,6 @@
   "buildCommand": "npm run build --workspace=apps/scout-dashboard",
   "devCommand": "npm run dev --workspace=apps/scout-dashboard",
   "installCommand": "npm ci",
-  "framework": "nextjs",
-  "outputDirectory": "apps/scout-dashboard/.next"
+  "framework": "vite",
+  "outputDirectory": "apps/scout-dashboard/dist"
 }
