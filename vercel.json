@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm run build --workspace=apps/scout-dashboard",
-  "devCommand": "npm run dev --workspace=apps/scout-dashboard",
+  "buildCommand": "cd apps/scout-dashboard && npm run build",
+  "devCommand": "cd apps/scout-dashboard && npm run dev",
   "installCommand": "npm ci",
-  "framework": "nextjs",
-  "outputDirectory": "apps/scout-dashboard/.next"
+  "framework": "vite",
+  "outputDirectory": "apps/scout-dashboard/dist"
 }
