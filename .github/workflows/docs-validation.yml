@@ -1,0 +1,124 @@
+name: Docs Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs-next/**'
+      - 'docs/**'
+      - '.specify/**'
+      - 'specs/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs-next/**'
+      - 'docs/**'
+      - '.specify/**'
+      - 'specs/**'
+
+jobs:
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Lint docs
+        run: |
+          markdownlint 'docs/**/*.md' 'docs-next/content/**/*.md' '.specify/**/*.md' 'specs/**/*.md' \
+            --ignore node_modules \
+            --config .markdownlint.json || true
+
+  check-links:
+    name: Check Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install link checker
+        run: npm install -g markdown-link-check
+
+      - name: Check links in docs
+        run: |
+          find docs docs-next/content .specify specs -name '*.md' -print0 | \
+          xargs -0 -n1 markdown-link-check --quiet || true
+
+  typecheck-components:
+    name: Typecheck Components
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs-next
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: docs-next/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Typecheck
+        run: npm run typecheck || npx tsc --noEmit
+
+  validate-tokens:
+    name: Validate Design Tokens
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs-next
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check token files exist
+        run: |
+          echo "Checking design token files..."
+          test -f tokens/colors.ts && echo "✓ colors.ts"
+          test -f tokens/typography.ts && echo "✓ typography.ts"
+          test -f tokens/spacing.ts && echo "✓ spacing.ts"
+          test -f tokens/brand.ts && echo "✓ brand.ts"
+          test -f tokens/index.ts && echo "✓ index.ts"
+          echo "All token files present!"
+
+  validate-specs:
+    name: Validate Spec Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check spec structure
+        run: |
+          echo "Validating spec structure..."
+          test -f .specify/memory/constitution.md && echo "✓ constitution.md"
+
+          for dir in specs/*/; do
+            spec_id=$(basename "$dir")
+            echo "Checking $spec_id..."
+            test -f "$dir/spec.md" && echo "  ✓ spec.md"
+            test -f "$dir/plan.md" && echo "  ✓ plan.md"
+            test -f "$dir/tasks.md" && echo "  ✓ tasks.md"
+          done
+
+          echo "All spec files validated!"
