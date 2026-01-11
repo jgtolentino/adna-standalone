@@ -1,0 +1,126 @@
+name: Guard Schema Changes
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - 'scout/supabase/migrations/**'
+      - 'scout/*/supabase/migrations/**'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - 'scout/supabase/migrations/**'
+      - 'scout/*/supabase/migrations/**'
+
+jobs:
+  prevent-schema-changes:
+    runs-on: ubuntu-latest
+    name: Prevent Schema Changes in App Repo
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for new or modified SQL migrations
+        id: check-migrations
+        run: |
+          echo "🔍 Checking for schema changes in app repository..."
+
+          # Get changed files
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+            HEAD_REF="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_REF="HEAD~1"
+            HEAD_REF="HEAD"
+          fi
+
+          # Check for new or modified .sql files in migrations directories
+          CHANGED_MIGRATIONS=$(git diff --name-status $BASE_REF $HEAD_REF | \
+            grep -E '(supabase/migrations/.*\.sql|scout/.*/migrations/.*\.sql)' || true)
+
+          if [ -n "$CHANGED_MIGRATIONS" ]; then
+            echo "❌ SCHEMA CHANGE DETECTED!"
+            echo ""
+            echo "The following SQL migration files were added or modified:"
+            echo "$CHANGED_MIGRATIONS"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "⚠️  SCHEMA CHANGES NOT ALLOWED IN THIS REPOSITORY"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "This repository is a CONSUMER ONLY of the canonical"
+            echo "Supabase backend managed in odoo-ce."
+            echo ""
+            echo "To make schema changes:"
+            echo ""
+            echo "1. Navigate to odoo-ce repository:"
+            echo "   cd /path/to/odoo-ce"
+            echo ""
+            echo "2. Create migration in supabase/migrations/"
+            echo "   touch supabase/migrations/YYYYMMDDHHMMSS_your_change.sql"
+            echo ""
+            echo "3. Write your SQL migration"
+            echo ""
+            echo "4. Apply to canonical Supabase project:"
+            echo "   npx supabase db push"
+            echo ""
+            echo "5. Verify in this app:"
+            echo "   npm run dev"
+            echo ""
+            echo "📚 Documentation:"
+            echo "   - odoo-ce/SUPABASE_ERP_INTEGRATION.md"
+            echo "   - supabase/README.md (this repo)"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            exit 1
+          else
+            echo "✅ No schema changes detected. Build can proceed."
+          fi
+
+      - name: Check for Supabase config changes
+        id: check-config
+        run: |
+          echo "🔍 Checking for Supabase config changes..."
+
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+            HEAD_REF="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_REF="HEAD~1"
+            HEAD_REF="HEAD"
+          fi
+
+          # Check for config.toml changes
+          CONFIG_CHANGES=$(git diff --name-status $BASE_REF $HEAD_REF | \
+            grep -E 'supabase/config\.toml' || true)
+
+          if [ -n "$CONFIG_CHANGES" ]; then
+            echo "❌ SUPABASE CONFIG CHANGE DETECTED!"
+            echo ""
+            echo "Changes to supabase/config.toml are not allowed."
+            echo "Configuration is managed in odoo-ce repository."
+            echo ""
+            exit 1
+          else
+            echo "✅ No config changes detected."
+          fi
+
+      - name: Success
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Schema Guard Check PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "This repository correctly consumes from the canonical"
+          echo "Supabase backend without defining schema."
+          echo ""
+          echo "Canonical Source: odoo-ce (spdtwktxdalcfigzeqrz)"
