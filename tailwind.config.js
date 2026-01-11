@@ -52,6 +52,7 @@ export default {
         },
         tbwa: {
           yellow: '#FFD700',
+          turquoise: '#00CED1',
           black: '#000000',
           white: '#FFFFFF',
           gray: '#4A4A4A',
@@ -62,6 +63,14 @@ export default {
           emerald: '#059669',
           red: '#DC2626',
           orange: '#D97706',
+          secondary: '#00CED1',
+          agency: '#FFD700',
+          outline: '#E5E7EB',
+        },
+        nav: {
+          bg: '#FFFFFF',
+          hover: '#F5F5F5',
+          text: '#000000',
         }
       },
       borderRadius: {
